@@ -1,0 +1,61 @@
+<?php
+
+namespace app\modules\location;
+
+use app\core\Controller;
+use app\modules\location\classes\Location;
+
+class LocationController implements Controller
+{
+    /* 
+    Current Version: 0.0.0
+    Created By: Devkanta
+    Created On: 01/08/2025
+    Modified By:
+    Modified On: 
+*/
+
+    public function Route($data)
+    {
+        $jsondata = $data["JSON"];
+
+        switch ($data["Page_key"]) {
+
+            case 'addLocation':
+                return (new Location())->addLocation($jsondata);
+
+
+            // case 'addFoodToCards':
+            //     return (new Customer())->addFoodToCards($jsondata);
+
+            default:
+                header('HTTP/1.1 401  Unauthorized Access');
+                header("Status: 401 ");
+                session_destroy();
+                return array("return_code" => false, "return_data" => array("Page Key not found"));
+        }
+    }
+
+
+    static function Views($page)
+    {
+
+        $viewpath = "../app/modules/location/views/";
+
+        switch ($page[1]) {
+
+            case 'add':
+                load($viewpath . "location.php");
+                break;
+
+
+
+            default:
+                // session_destroy();
+                include '404.php';
+                header('HTTP/1.1 401  Unauthorized Access');
+                header("Status: 401 ");
+                break;
+        }
+    }
+}

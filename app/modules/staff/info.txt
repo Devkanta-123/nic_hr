@@ -1,0 +1,105 @@
+table For ITPl_APP
+
+Intern (Modification of staff Table only)
+1. Staff_Intern (store both staff and intern data) (fixed)
+2. Staff_Intern_Attendance 
+3. Staff_Intern_Attendance_Settings
+4. Staff_Intern_Attendance_Timing
+5. Staff_Intern_Category (ex: App, web, Marketing, etc)
+6. Staff_Intern_Documents(For Storing The document of the the Staff and intern)
+7. Staff_Intern_Attendance_BreakInOut ()
+
+
+Staff (Copy from old table only(Just do some modification if required)) 
+1. Staff (store both staff and intern data)
+2. Staff_Attendance
+3. Staff_Attendance_Settings
+4. Staff_Attendance_Timing
+5. Staff_Attendance_BreakInOut (Add new (Done))
+
+
+User (copy from old table)
+1. Users
+2. Users_UserType (1->Admin, 2->Staff, 3->Intern)
+
+Document (Copy from old table)
+1. Documents
+2. DocumentType(Not Using for now)
+3. Settings_Documents (storing the type of document (eg: Birth Certificate, Caste, etc))
+4. Settings_Documents_Category (for storing the document type(Eg: Staff,Intern, etc ))
+
+Notice (Copy from old Table)
+1. Administration_Notice (remove ClassIDs, StudentIDs, SessionID)
+2. Administration_NoticeDetails
+3. Administration_Settings_Notice (for notice type ( All, Holiday, Emergency, etc))
+
+
+Setting (Copy from old table)
+1. Settings_Caste
+2. Settings_City
+3. Settings_Community
+4. Setting_District
+5. Settings_State
+6. Setting_Desigantion
+7. Settings_month
+8. Settings_Gender
+9. Settings_Department 
+10 Settings_Documents
+11. Settings_Nationality
+12. Settings_Religion
+
+Other
+1. Settings_Office (Add New (Done))
+2. LoginDetails (copy from old Table)
+3. IPLogging (Copy from old Table)
+
+
+///Function Name And Parameter from the app
+
+Auth
+1. requestLogin() (param:Username,Password (Optionnal - FCMToken))
+2. 
+
+Notice
+1. getNotices()
+2. addNotice() { Link,File,isPublic,isAll,ApplicableFor,EDate,SDate,Description,Title,Cls,Student,Staff }
+3. getNoticeDetails(), { NoticeID }
+
+
+Attendance
+1. isAttendanceTaken()
+ 	If attendance Taken then in the AttendanceData = {TimeIN, Mode}
+2. getAttendanceDetailsMonthWise() {MonthID}
+3. getAttendanceDetailsStaffAndMonthWise
+4. saveBreakIN() {}
+5. saveBreakOUT()
+6. saveCheckIN()
+7. saveCheckOUT()
+8. saveRequestLeave()
+9. saveApproveLeave()
+10. markAttendance()
+11. giveManualAttendance()
+12. getAttendanceMonthWise()
+13. getAttendanceByUserID()
+14. updateIndividualAttendance()
+15. getLeaveApplications()
+
+
+Intern 
+1. addnewIntern()
+2. editInternInfo() 
+3. updateCompletedIntern() // to update the status(isCompleted) of the intern   from admin{internID,Status}
+4. updateisActive() // for both staff and intern
+	-- {staffid/internid, Status} admin side
+5. deleteIntern()
+
+Staff
+1. addStaff()
+2. editStaffinfo()
+3. deleteStaff()
+4. updateisRemoveStaff()
+5. updateisLeftStaff()
+
+
+
+
