@@ -61,7 +61,7 @@ class Deo
         if ($result) {
             return [
                 "return_code" => true,
-                "return_data" => "Attendance marked successfully for today."
+                "return_data" => "Attendance marked successfully"
             ];
         } else {
             return [

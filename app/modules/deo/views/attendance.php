@@ -58,145 +58,7 @@
                             <span class="float-right">
                                 <a href="deodash" class="btn btn-primary btn-xs custom-btn">Back to lists</a>
                             </span>
-                            <!-- <div class="modal fade" id="modal-lg">
-                                <div class="modal-dialog modal-lg">
-                                    <div class="modal-content">
-                                     <form method="post" >
-                                        <div class="modal-header">
-                                            <h4 class="modal-title"> Add Clients</h4>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">×</span>
-                                            </button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <div class="card-body text-center">
-
-                                                <div class="row">
-                                                   
-                                                    <div class="col-md-3">
-                                                        <div class="form-group">
-                                                            <label for="client_name">Client Name</label>
-                                                            <input type="text" id="client_name" class="form-control" maxlength="30" placeholder="Client Name" autocomplete="off">
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-3">
-                                                        <div class="form-group">
-                                                            <label for="telephone_number">Telephone Number</label>
-                                                            <input type="text" id="telephone_number" class="form-control" onkeypress="javascript:return isNum(event)" maxlength="10" placeholder="Telephone Number" autocomplete="off">
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-3">
-                                                        <div class="form-group">
-                                                            <label for="mobile_no">Mobile Number</label>
-                                                            <input type="text" id="mobile_no" class="form-control" onkeypress="javascript:return isNum(event)" maxlength="10" placeholder="Mobile Number"  autocomplete="off">
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-3">                                  
-                                                        <div class="fileinput fileinput-new text-center" data-provides="fileinput">
-                                                            <div class="fileinput-new thumbnail" style="max-width: 50px; max-height: 50px;">
-                                                               
-                                                            </div>
-                                                            <div class="fileinput-preview fileinput-exists thumbnail " style="max-width:50px; max-height: 50px;">
-                                                                <img src="assets/img/image_placeholder.jpg" alt="..." style="max-width: 100px; max-height: 100px;">
-                                                            </div>
-                                                            <div>
-                                                                <span class="btn btn-round btn-file mt-3">
-                                                                   
-                                                                    <span class="">Add logo</span>
-                                                                    <input type="file" id="logo" name="PassportPhoto" accept="image/x-png,image/jpeg,image/jpg" required>
-                                                                </span>
-                                                               
-                                                            </div>
-                                                        </div> 
-                                                    </div>
-                                                   
-                                                </div>
-                                          
-                                                <div class="row">
-                                                    <div class="col-md-3">
-                                                        <div class="form-group">
-                                                            <label for="fax">Fax</label>
-                                                            <input type="text" id="fax" class="form-control" placeholder="Fax" maxlength="15" autocomplete="off">
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-3">
-                                                        <div class="form-group">
-                                                            <label for="contact_name">Contact Name</label>
-                                                            <input type="text" id="contact_name" class="form-control" maxlength="30" placeholder="Contact Name"  autocomplete="off">
-                                                        </div>
-                                                    </div> 
-                                                    <div class="col-md-3">
-                                                        <div class="form-group">
-                                                            <label for="contact_number">Contact Number </label>
-                                                            <input type="text" id="contact_number" class="form-control" onkeypress="javascript:return isNum(event)" placeholder="Mobile Number" maxlength="10" autocomplete="off">
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-3">
-                                                        <div class="form-group">
-                                                            <label for="person_designation">Person Designation</label>
-                                                            <input type="text" id="person_designation" class="form-control" maxlength="20" placeholder="Person Designation" autocomplete="off">
-                                                        </div>
-                                                    </div>            
-                                                </div>
-                                                                                      
-                                                <div class="row">
-                                                    <div class="col-md-3">
-                                                        <div class="form-group">
-                                                            <label for="state">State</label>
-                                                            <select class="form-control" name="" id="state"> 
-                                                            </select>
-                                                         </div>
-                                                    </div>
-                                                    <div class="col-md-3">
-                                                        <div class="form-group">
-                                                            <label for="district">District</label>
-                                                            <select class="form-control" name="" id="district">
-                                                            </select>
-                                                            
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-3">
-                                                        <div class="form-group">
-                                                            <label for="city_name">City Name</label>
-                                                            <input type="text" id="city_name" class="form-control" maxlength="15" placeholder="City" autocomplete="off">
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-3">
-                                                        <div class="form-group">
-                                                            <label for="pincode">Pincode</label>
-                                                            <input type="text" id="pincode" class="form-control" onkeypress="javascript:return isNum(event)" maxlength="6" placeholder="Pincode" autocomplete="off">
-                                                        </div>
-                                                    </div>
-
-                                                </div>
-                                                  
-                                                <div class="row">
-                                                   
-                                                    <div class="col-md-3">
-                                                        <div class="form-group">
-                                                            <label for="landmark">Landmark </label>
-                                                            <input type="text" id="landmark" class="form-control" placeholder="Landmark" autocomplete="off">
-                                                        </div>
-                                                    </div> 
-                                                    <div class="col-md-3">
-                                                        <div class="form-group">
-                                                            <label for="maxuser">Max User </label>
-                                                            <input type="text" id="maxuser" class="form-control" placeholder="Max User" maxlength="3" autocomplete="off">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer ">
-                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                            <button type="button" class="btn btn-primary" id="btnAddClient">Save </button>                                          
-                                        </div>
-                                     </form>
-                                    </div>
-                                   
-                                </div>
-                               
-                            </div> -->
+                          
 
 
                         </div>
@@ -241,7 +103,6 @@
                                     <tr>
                                         <th scope="col">Name</th>
                                         <th scope="col">Contact</th>
-                                        <th scope="col">Email</th>
                                         <th scope="col">Address</th>
                                         <th scope="col">Sector</th>
                                         <th scope="col">Action </th>
@@ -295,8 +156,9 @@
                     loaddata(rc.return_data);
                     break;
                 case "markAttendance":
+                    notify('success',rc.return_data);
                     console.log(rc.return_data);
-                 getActiveEmployeesForAttendance();
+                     getActiveEmployeesForAttendance();
                     break;
 
 
@@ -333,7 +195,6 @@
             text += `<tr>`;
             text += `<td>${emp.emp_name}</td>`;
             text += `<td>${emp.emp_contact}</td>`;
-            text += `<td>${emp.emp_email}</td>`;
             text += `<td>${emp.emp_address}</td>`;
             text += `<td>${emp.sector || 'N/A'}</td>`;
 
@@ -460,36 +321,5 @@
 
 
 
-    function onRestoreLeads(data) {
-        debugger;
-        data = JSON.parse(unescape(data));
-        $("#LeadsID").val(data.LeadsID);
-        var LeadsName = data.Name;
-        $("#RestoreLeadModal").modal('show');
-        var outputElement = document.getElementById("output");
-        outputElement.innerHTML = "Are You Sure to Restore  " + LeadsName + " Leads ? ";
-    }
 
-    function RestoreLeads() {
-        debugger;
-        var LeadID = $("#LeadsID").val();
-
-        var obj = new Object();
-        obj.Module = "Client";
-        obj.Page_key = "restorePrayageduLeads";
-        var json = new Object();
-        obj.JSON = json;
-        json.LeadsID = LeadID;
-        SilentTransportCall(obj);
-    }
-
-    // Modal Animation For Delete Lead Modal 
-    $('#RestoreLeadModal').on('show.bs.modal', function() {
-        $(this).find('.modal-dialog').addClass('slide-in');
-    });
-
-    $('#RestoreLeadModal').on('hidden.bs.modal', function() {
-        // Reset the modal animation class when the modal is hidden
-        $(this).find('.modal-dialog').removeClass('slide-in');
-    });
 </script>

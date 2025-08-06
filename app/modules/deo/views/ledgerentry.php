@@ -69,10 +69,11 @@
                                                 <option value="credit">Credit</option>
                                             </select>
                                         </div>
-                                        <div class="form-group col-md-6">
-                                            <label for="entryDate">Date</label>
-                                            <input type="date" class="form-control" id="entryDate">
-                                        </div>
+                                      <div class="form-group col-md-6">
+    <label for="entryDate">Date</label>
+    <input type="date" class="form-control" id="entryDate" value="<?php echo date('Y-m-d'); ?>">
+</div>
+
                                     </div>
 
                                     <!-- Row 2: Particulars and J.F. -->
@@ -390,12 +391,9 @@ function buildLedgerTableBody() {
         if (rc.return_code) {
             switch (rc.Page_key) {
                 case "saveLedgerEntry":
-                    console.log(rc.return_data);
+                   notify('success',rc.return_data);
                     break;
-                case "markAttendance":
-                    console.log(rc.return_data);
-                    getActiveEmployeesForAttendance();
-                    break;
+               
 
 
                 default:
