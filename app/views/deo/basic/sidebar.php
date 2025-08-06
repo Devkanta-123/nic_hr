@@ -14,7 +14,7 @@
              <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                  <!-- Dashboard -->
                  <li class="nav-item">
-                     <a href="deo" class="nav-link">
+                     <a href="deodash" class="nav-link">
                          <i class="nav-icon fas fa-tachometer-alt"></i>
                          <p>DEO Dashboard</p>
                      </a>
@@ -36,15 +36,13 @@
                                  <p>Take Attendance</p>
                              </a>
                          </li>
-
+                            <li class="nav-item">
+                             <a href="deo-attendancereport" class="nav-link">
+                                 <i class="fas fa-plus"></i>
+                                 <p>Report</p>
+                             </a>
+                         </li>
                      </ul>
-
-
-
-
-
-
-
 
                  </li>
                  <!-- Leave li ends here  -->
@@ -85,16 +83,11 @@
                              </a>
                          </li>
 
-                         <!-- <li class="nav-item">
-                            <a href="staff-taskboard" class="nav-link">
-                                <i class="fas fa-plus"></i>
-                                <p>Task Board</p>
-                            </a>
-                        </li> -->
+                         
 
                      </ul>
-                 </li> -->
-
+                 </li>
+ -->
 
 
                  <!-- Task li ends here  -->

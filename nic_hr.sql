@@ -326,6 +326,19 @@ CREATE TABLE ledger_entries (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+--dummy data 
+ INSERT INTO `attendance` (`attendance_id`, `emp_id`, `attendance_date`, `in_time`, `shift`, `status`, `created_at`) VALUES
+(1, 1, '2025-08-03', '09:00:00', 'Morning', 'Present', '2025-08-03 09:00:00'),
+(2, 2, '2025-08-03', '14:00:00', 'Night', 'Present', '2025-08-03 14:00:00'),
+(3, 3, '2025-08-03', NULL, NULL, 'Absent', '2025-08-03 00:00:00'),
+
+(4, 1, '2025-08-04', '09:05:00', 'Morning', 'Present', '2025-08-04 09:05:00'),
+(5, 2, '2025-08-04', NULL, NULL, 'Absent', '2025-08-04 00:00:00'),
+(6, 3, '2025-08-04', '21:00:00', 'Night', 'Present', '2025-08-04 21:00:00'),
+
+(7, 1, '2025-08-05', '09:10:00', 'Morning', 'Present', '2025-08-05 09:10:00'),
+(8, 2, '2025-08-05', '14:05:00', 'Night', 'Present', '2025-08-05 14:05:00'),
+(9, 3, '2025-08-05', NULL, NULL, 'Absent', '2025-08-05 00:00:00');
 
 --
 -- Indexes for table `attendance`

@@ -24,7 +24,7 @@ class DeoController implements Controller
             case 'markAttendance':
                 return (new Deo())->markAttendance($jsondata);
 
-                       case 'saveLedgerEntry':
+            case 'saveLedgerEntry':
                 return (new Deo())->saveLedgerEntry($jsondata);
 
                 // case 'addFoodToCards':
@@ -53,6 +53,12 @@ class DeoController implements Controller
             case 'ledger':
                 load($viewpath . "ledgerentry.php");
                 break;
+                
+            case 'attendancereport':
+                load($viewpath . "attendancereport.php");
+                break;
+
+
 
 
 

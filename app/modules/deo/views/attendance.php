@@ -178,30 +178,33 @@
         if ($.fn.DataTable.isDataTable(table)) {
             table.DataTable().destroy();
         }
-    } catch (ex) {}
+    } catch (ex) {
+        console.error("Error destroying DataTable:", ex);
+    }
 
     let text = "";
 
-    if (data.length === 0) {
+    if (!data || data.length === 0) {
         text += "<tr><td colspan='7'>No Data Found</td></tr>";
     } else {
         for (let i = 0; i < data.length; i++) {
             const emp = data[i];
             const empId = emp.emp_id;
 
-            const isPresent = emp.attendance_status === "Present";
+            const attendanceStatus = emp.attendance_status || "Absent";
             const shiftValue = emp.shift || "";
+
+            // Checked if Present or Halfday
+            const isPresentOrHalfday = (attendanceStatus === "Present" || attendanceStatus === "Halfday");
 
             text += `<tr>`;
             text += `<td>${emp.emp_name}</td>`;
             text += `<td>${emp.emp_contact}</td>`;
-            text += `<td>${emp.emp_address}</td>`;
+            text += `<td>${emp.emp_address || 'N/A'}</td>`;
             text += `<td>${emp.sector || 'N/A'}</td>`;
 
-            // Action (attendance toggle and shift radios)
-            text += `<td style="min-width: 180px;">`;
-
-            // Attendance checkbox (set checked if Present)
+            // Attendance switch checkbox (checked if Present or Halfday)
+            text += `<td style="min-width: 250px;">`;
             text += `
                 <input 
                     type="checkbox" 
@@ -210,17 +213,26 @@
                     data-empid="${empId}" 
                     id="toggle_${empId}" 
                     name="attendance_${empId}" 
-                    data-on-text="Present"
+                    data-on-text="Present/Halfday"
                     data-off-text="Absent"
                     data-on-color="primary"
                     data-off-color="secondary"
-                    ${isPresent ? "checked" : ""}
+                    ${isPresentOrHalfday ? "checked" : ""}
                 />
             `;
 
-            // Shift options (conditionally check based on shift value)
+            // Shift & attendance status radios (show if Present or Halfday)
             text += `
-                <div class="shift-options mt-2" id="shifts_${empId}" style="display: ${isPresent ? 'block' : 'none'};">
+                <div class="shift-options mt-2" id="shifts_${empId}" style="display: ${isPresentOrHalfday ? 'block' : 'none'};">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input attendance-status-radio" type="radio" name="status_${empId}" id="status_present_${empId}" value="Present" data-empid="${empId}" ${attendanceStatus === "Present" ? "checked" : ""}>
+                        <label class="form-check-label" for="status_present_${empId}">Present</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input attendance-status-radio" type="radio" name="status_${empId}" id="status_halfday_${empId}" value="Halfday" data-empid="${empId}" ${attendanceStatus === "Halfday" ? "checked" : ""}>
+                        <label class="form-check-label" for="status_halfday_${empId}">Halfday</label>
+                    </div>
+                    <hr>
                     <div class="form-check">
                         <input class="form-check-input shift-radio" type="radio" name="shift_${empId}" id="morning_${empId}" value="Morning" data-empid="${empId}" ${shiftValue === "Morning" ? "checked" : ""}>
                         <label class="form-check-label" for="morning_${empId}">Morning</label>
@@ -256,25 +268,19 @@
                 extend: 'excel',
                 orientation: 'landscape',
                 pageSize: 'A4',
-                exportOptions: {
-                    columns: ':not(.hidden-col)'
-                }
+                exportOptions: { columns: ':not(.hidden-col)' }
             },
             {
                 extend: 'pdfHtml5',
                 orientation: 'landscape',
                 pageSize: 'A4',
-                exportOptions: {
-                    columns: ':not(.hidden-col)'
-                }
+                exportOptions: { columns: ':not(.hidden-col)' }
             },
             {
                 extend: 'print',
                 orientation: 'landscape',
                 pageSize: 'A4',
-                exportOptions: {
-                    columns: ':not(.hidden-col)'
-                }
+                exportOptions: { columns: ':not(.hidden-col)' }
             }
         ]
     });
@@ -282,42 +288,64 @@
     // Initialize Bootstrap Switch
     $("[data-bootstrap-switch]").bootstrapSwitch();
 
-    // Toggle switch event
+    // Switch toggle handler
     $(".attendance-bootstrap-switch").on("switchChange.bootstrapSwitch", function (event, state) {
         const empId = $(this).data("empid");
 
         if (state) {
             $(`#shifts_${empId}`).slideDown();
+
+            // On turning Present/Halfday on, default to Present if none selected
+            let selectedStatus = $(`input[name='status_${empId}']:checked`).val();
+            if (!selectedStatus) selectedStatus = "Present";
+
+            let selectedShift = $(`input[name='shift_${empId}']:checked`).val() || null;
+            sendAttendance(empId, selectedStatus, selectedShift);
+
         } else {
             $(`#shifts_${empId}`).slideUp();
             sendAttendance(empId, "Absent", null);
         }
     });
 
-    // Shift radio change
+    // Attendance status radio change handler (Present or Halfday)
+    $(".attendance-status-radio").on("change", function () {
+        const empId = $(this).data("empid");
+        const attendanceStatus = $(this).val();
+        const selectedShift = $(`input[name='shift_${empId}']:checked`).val() || null;
+        sendAttendance(empId, attendanceStatus, selectedShift);
+    });
+
+    // Shift radio change handler
     $(".shift-radio").on("change", function () {
         const empId = $(this).data("empid");
         const shift = $(this).val();
-        sendAttendance(empId, "Present", shift);
+        const attendanceStatus = $(`input[name='status_${empId}']:checked`).val() || "Present";
+        sendAttendance(empId, attendanceStatus, shift);
     });
 }
 
 
-    function sendAttendance(emp_id, status, shift) {
-        debugger;
-        if (!shift && status === "Present") return; // Don't send if shift is null for Present
-        const obj = {
-            Module: "Deo",
-            Page_key: "markAttendance",
-            JSON: {
-                emp_id: emp_id,
-                status: status, // "Present" or "Absent"
-                shift: shift || null // Shift or null if absent
-            }
-        };
-
-        TransportCall(obj);
+ function sendAttendance(emp_id, status, shift) {
+    debugger;
+    // If status is Present or Halfday AND shift is null, undefined, or empty string, don't send
+    if ((status === "Present" || status === "Halfday") && (!shift || shift.trim() === "")) {
+        return; // skip API call
     }
+
+    const obj = {
+        Module: "Deo",
+        Page_key: "markAttendance",
+        JSON: {
+            emp_id: emp_id,
+            status: status, // "Present", "Absent", or "Halfday"
+            shift: shift || null // shift value or null if absent
+        }
+    };
+
+    TransportCall(obj);
+}
+
 
 
 

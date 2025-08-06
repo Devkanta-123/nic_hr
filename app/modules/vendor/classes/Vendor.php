@@ -66,18 +66,35 @@ class Vendor
 
     function getActiveEmployeesForAttendance()
     {
-        $query = "SELECT  em.*, s.sector_name AS sector, a.attendance_date,a.status AS attendance_status, a.shift FROM Employee em
+      $query = "SELECT 
+    em.*, 
+    s.sector_name AS sector, 
+    a.attendance_date, 
+    a.status AS attendance_status, 
+    a.shift 
+FROM Employee em
 LEFT JOIN Sector s ON s.sector_id = em.sector_id
-LEFT JOIN (
-    SELECT a1.*
-    FROM Attendance a1
-    INNER JOIN (
-        SELECT emp_id, MAX(attendance_date) AS latest_date
-        FROM Attendance
-        GROUP BY emp_id
-    ) a2 ON a1.emp_id = a2.emp_id AND a1.attendance_date = a2.latest_date
-) a ON a.emp_id = em.emp_id
-WHERE em.status = 'active';";
+LEFT JOIN Attendance a 
+    ON a.emp_id = em.emp_id 
+    AND a.attendance_date = CURDATE()
+WHERE em.status = 'active';
+";
+
+    $res = DBController::getDataSet($query);
+    if ($res)
+        return array("return_code" => true, "return_data" => $res);
+    return array("return_code" => false, "return_data" => "No data Available");
+    }
+
+
+
+
+    function getAttendanceReport()
+    {
+        $query = "SELECT em.*,s.sector_name as sector,a.attendance_date,a.status as attendance_status,a.shift,a.in_time FROM `Employee` as em
+        LEFT JOIN Sector s on s.sector_id = em.sector_id 
+        LEFT JOIN Attendance a on a.emp_id = em.emp_id
+        WHERE em.status='active' ORDER BY a.attendance_date DESC;";
         $res = DBController::getDataSet($query);
         if ($res)
             return array("return_code" => true, "return_data" => $res);
