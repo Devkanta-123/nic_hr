@@ -274,14 +274,14 @@
 
 <script>
     $(function() {
-        getActiveEmployeeList()
+        getActiveEmployeesForAttendance()
 
     });
 
-    function getActiveEmployeeList() {
+    function getActiveEmployeesForAttendance() {
         var obj = new Object();
         obj.Module = "Employee";
-        obj.Page_key = "getActiveEmployeeList";
+        obj.Page_key = "getActiveEmployeesForAttendance";
         var json = new Object();
         obj.JSON = json;
         TransportCall(obj);
@@ -291,12 +291,12 @@
         debugger;
         if (rc.return_code) {
             switch (rc.Page_key) {
-                case "getActiveEmployeeList":
+                case "getActiveEmployeesForAttendance":
                     loaddata(rc.return_data);
                     break;
                 case "markAttendance":
                     console.log(rc.return_data);
-                 getActiveEmployeeList();
+                 getActiveEmployeesForAttendance();
                     break;
 
 
@@ -309,136 +309,137 @@
         // alert(JSON.stringify(args));
     }
 
-    function loaddata(data) {
-        var table = $("#empAttendance");
+   function loaddata(data) {
+    var table = $("#empAttendance");
 
-        try {
-            if ($.fn.DataTable.isDataTable(table)) {
-                table.DataTable().destroy();
-            }
-        } catch (ex) {}
-
-        let text = "";
-
-        if (data.length === 0) {
-            text += "<tr><td colspan='7'>No Data Found</td></tr>";
-        } else {
-            for (let i = 0; i < data.length; i++) {
-                const emp = data[i];
-                const empId = emp.emp_id;
-
-                text += `<tr>`;
-                text += `<td>${emp.emp_name}</td>`;
-                text += `<td>${emp.emp_contact}</td>`;
-                text += `<td>${emp.emp_email}</td>`;
-                text += `<td>${emp.emp_address}</td>`;
-                text += `<td>${emp.sector || 'N/A'}</td>`;
-
-                // Action (attendance toggle and shift radios)
-                text += `<td style="min-width: 180px;">`;
-
-                text += `
-       <input 
-    type="checkbox" 
-    class="attendance-bootstrap-switch" 
-    data-bootstrap-switch 
-    data-empid="${empId}" 
-    id="toggle_${empId}" 
-    name="attendance_${empId}" 
-    data-on-text="Present"
-    data-off-text="Absent"
-    data-on-color="primary"
-    data-off-color="secondary"
-/>
-
-        <div class="shift-options mt-2" id="shifts_${empId}">
-            <div class="form-check">
-                <input class="form-check-input shift-radio" type="radio" name="shift_${empId}" id="morning_${empId}" value="Morning" data-empid="${empId}">
-                <label class="form-check-label" for="morning_${empId}">Morning</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input shift-radio" type="radio" name="shift_${empId}" id="night_${empId}" value="Night" data-empid="${empId}">
-                <label class="form-check-label" for="night_${empId}">Night</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input shift-radio" type="radio" name="shift_${empId}" id="both_${empId}" value="Morning + Night" data-empid="${empId}">
-                <label class="form-check-label" for="both_${empId}">Morning + Night</label>
-            </div>
-        </div>
-    `;
-
-                text += `</td>`;
-                text += `</tr>`;
-            }
-
+    try {
+        if ($.fn.DataTable.isDataTable(table)) {
+            table.DataTable().destroy();
         }
+    } catch (ex) {}
 
-        $("#empAttendance tbody").html(text);
+    let text = "";
 
-        // Reinitialize DataTable
-        table.DataTable({
-            responsive: true,
-            order: [],
-            dom: 'Bfrtip',
-            bInfo: true,
-            deferRender: true,
-            pageLength: 10,
-            buttons: [{
-                    extend: 'excel',
-                    orientation: 'landscape',
-                    pageSize: 'A4',
-                    exportOptions: {
-                        columns: ':not(.hidden-col)'
-                    }
-                },
-                {
-                    extend: 'pdfHtml5',
-                    orientation: 'landscape',
-                    pageSize: 'A4',
-                    exportOptions: {
-                        columns: ':not(.hidden-col)'
-                    }
-                },
-                {
-                    extend: 'print',
-                    orientation: 'landscape',
-                    pageSize: 'A4',
-                    exportOptions: {
-                        columns: ':not(.hidden-col)'
-                    }
-                }
-            ]
-        });
+    if (data.length === 0) {
+        text += "<tr><td colspan='7'>No Data Found</td></tr>";
+    } else {
+        for (let i = 0; i < data.length; i++) {
+            const emp = data[i];
+            const empId = emp.emp_id;
 
-        // Initialize Bootstrap Switch
-        $("[data-bootstrap-switch]").bootstrapSwitch();
-        $("[data-bootstrap-switch]").bootstrapSwitch();
+            const isPresent = emp.attendance_status === "Present";
+            const shiftValue = emp.shift || "";
 
-        // Toggle switch event
-        $(".attendance-bootstrap-switch").on("switchChange.bootstrapSwitch", function(event, state) {
-            const empId = $(this).data("empid");
+            text += `<tr>`;
+            text += `<td>${emp.emp_name}</td>`;
+            text += `<td>${emp.emp_contact}</td>`;
+            text += `<td>${emp.emp_email}</td>`;
+            text += `<td>${emp.emp_address}</td>`;
+            text += `<td>${emp.sector || 'N/A'}</td>`;
 
-            if (state) {
-                $(`#shifts_${empId}`).slideDown();
-            } else {
-                $(`#shifts_${empId}`).slideUp();
-                sendAttendance(empId, "Absent", null);
-            }
-        });
+            // Action (attendance toggle and shift radios)
+            text += `<td style="min-width: 180px;">`;
 
-        // Shift radio change
-        $(".shift-radio").on("change", function() {
-            const empId = $(this).data("empid");
-            const shift = $(this).val();
-            sendAttendance(empId, "Present", shift);
-        });
-        // After populating table
-        data.forEach(emp => {
-            $(`#shifts_${emp.emp_id}`).hide(); // Hide shifts by default
-        });
+            // Attendance checkbox (set checked if Present)
+            text += `
+                <input 
+                    type="checkbox" 
+                    class="attendance-bootstrap-switch" 
+                    data-bootstrap-switch 
+                    data-empid="${empId}" 
+                    id="toggle_${empId}" 
+                    name="attendance_${empId}" 
+                    data-on-text="Present"
+                    data-off-text="Absent"
+                    data-on-color="primary"
+                    data-off-color="secondary"
+                    ${isPresent ? "checked" : ""}
+                />
+            `;
 
+            // Shift options (conditionally check based on shift value)
+            text += `
+                <div class="shift-options mt-2" id="shifts_${empId}" style="display: ${isPresent ? 'block' : 'none'};">
+                    <div class="form-check">
+                        <input class="form-check-input shift-radio" type="radio" name="shift_${empId}" id="morning_${empId}" value="Morning" data-empid="${empId}" ${shiftValue === "Morning" ? "checked" : ""}>
+                        <label class="form-check-label" for="morning_${empId}">Morning</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input shift-radio" type="radio" name="shift_${empId}" id="night_${empId}" value="Night" data-empid="${empId}" ${shiftValue === "Night" ? "checked" : ""}>
+                        <label class="form-check-label" for="night_${empId}">Night</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input shift-radio" type="radio" name="shift_${empId}" id="both_${empId}" value="Morning + Night" data-empid="${empId}" ${shiftValue === "Morning + Night" ? "checked" : ""}>
+                        <label class="form-check-label" for="both_${empId}">Morning + Night</label>
+                    </div>
+                </div>
+            `;
 
+            text += `</td>`;
+            text += `</tr>`;
+        }
     }
+
+    $("#empAttendance tbody").html(text);
+
+    // Reinitialize DataTable
+    table.DataTable({
+        responsive: true,
+        order: [],
+        dom: 'Bfrtip',
+        bInfo: true,
+        deferRender: true,
+        pageLength: 10,
+        buttons: [
+            {
+                extend: 'excel',
+                orientation: 'landscape',
+                pageSize: 'A4',
+                exportOptions: {
+                    columns: ':not(.hidden-col)'
+                }
+            },
+            {
+                extend: 'pdfHtml5',
+                orientation: 'landscape',
+                pageSize: 'A4',
+                exportOptions: {
+                    columns: ':not(.hidden-col)'
+                }
+            },
+            {
+                extend: 'print',
+                orientation: 'landscape',
+                pageSize: 'A4',
+                exportOptions: {
+                    columns: ':not(.hidden-col)'
+                }
+            }
+        ]
+    });
+
+    // Initialize Bootstrap Switch
+    $("[data-bootstrap-switch]").bootstrapSwitch();
+
+    // Toggle switch event
+    $(".attendance-bootstrap-switch").on("switchChange.bootstrapSwitch", function (event, state) {
+        const empId = $(this).data("empid");
+
+        if (state) {
+            $(`#shifts_${empId}`).slideDown();
+        } else {
+            $(`#shifts_${empId}`).slideUp();
+            sendAttendance(empId, "Absent", null);
+        }
+    });
+
+    // Shift radio change
+    $(".shift-radio").on("change", function () {
+        const empId = $(this).data("empid");
+        const shift = $(this).val();
+        sendAttendance(empId, "Present", shift);
+    });
+}
 
 
     function sendAttendance(emp_id, status, shift) {

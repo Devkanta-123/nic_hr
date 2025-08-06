@@ -29,6 +29,11 @@ class VendorController implements Controller
 
             case 'getActiveEmployeeList':
                 return (new Vendor())->getActiveEmployeeList();
+            case 'getActiveEmployeesForAttendance':
+                return (new Vendor())->getActiveEmployeesForAttendance();
+
+
+
 
 
 

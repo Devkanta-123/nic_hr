@@ -24,8 +24,11 @@ class DeoController implements Controller
             case 'markAttendance':
                 return (new Deo())->markAttendance($jsondata);
 
-            // case 'addFoodToCards':
-            //     return (new Customer())->addFoodToCards($jsondata);
+                       case 'saveLedgerEntry':
+                return (new Deo())->saveLedgerEntry($jsondata);
+
+                // case 'addFoodToCards':
+                //     return (new Customer())->addFoodToCards($jsondata);
 
             default:
                 header('HTTP/1.1 401  Unauthorized Access');
@@ -46,6 +49,11 @@ class DeoController implements Controller
             case 'attendance':
                 load($viewpath . "attendance.php");
                 break;
+
+            case 'ledger':
+                load($viewpath . "ledgerentry.php");
+                break;
+
 
 
 

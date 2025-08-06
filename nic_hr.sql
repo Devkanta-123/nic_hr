@@ -315,6 +315,18 @@ INSERT INTO `work_assign` (`assign_id`, `emp_id`, `work_id`, `assigned_date`, `s
 -- Indexes for dumped tables
 --
 
+
+CREATE TABLE ledger_entries (
+    ledger_id INT AUTO_INCREMENT PRIMARY KEY,
+    entry_date DATE NOT NULL,
+    ledger_head VARCHAR(255) NOT NULL,
+    particulars TEXT,
+    debit DECIMAL(10, 2) DEFAULT 0,
+    credit DECIMAL(10, 2) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
 --
 -- Indexes for table `attendance`
 --

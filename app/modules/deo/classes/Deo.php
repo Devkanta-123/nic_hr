@@ -72,6 +72,49 @@ class Deo
     }
 
 
+    function saveLedgerEntry($data)
+    {
+        if (!isset($data['entries']) || !is_array($data['entries'])) {
+            return [
+                "return_code" => false,
+                "return_data" => "Invalid entry format."
+            ];
+        }
+
+        $entries = $data['entries'];
+        $query = "INSERT INTO Ledger_Entries (entry_date, ledger_head, particulars, debit, credit)
+              VALUES (:entry_date, :ledger_head, :particulars, :debit, :credit)";
+
+        $allSuccess = true;
+
+        foreach ($entries as $entry) {
+            $ledgerHead = ($entry['type'] === 'Dr') ? 'To' : 'By';
+
+            $params = [
+                [":entry_date", $entry['date']],
+                [":ledger_head", $ledgerHead],
+                [":particulars", $entry['particulars']],
+                [":debit", $entry['type'] === 'Dr' ? $entry['amount'] : 0],
+                [":credit", $entry['type'] === 'Cr' ? $entry['amount'] : 0],
+            ];
+
+            $result = DBController::ExecuteSQL($query, $params);
+
+            if (!$result) {
+                $allSuccess = false;
+            }
+        }
+
+        return [
+            "return_code" => $allSuccess,
+            "return_data" => $allSuccess
+                ? "Ledger entries saved successfully."
+                : "Some entries failed to save."
+        ];
+    }
+
+
+
     function getCustomerInfo($data)
     {
         $params = array(

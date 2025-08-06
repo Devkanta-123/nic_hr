@@ -1,14 +1,3 @@
 
 
-05-08-25 02:02:12 : 
-        INSERT INTO attendance (emp_id, attendance_date, status, shift, in_time)
-        VALUES (:emp_id, :attendance_date, :status, :shift, NOW())
-        ON DUPLICATE KEY UPDATE 
-            status = VALUES(status),
-            shift = VALUES(shift),
-                 = NOW()
-     
- [[":emp_id",2],[":attendance_date","2025-08-05"],[":status","Present"],[":shift","Night"]] 
- SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '= NOW()' at line 6
-
-05-08-25 02:10:30 : Reached request Login
+05-08-25 10:45:15 : Reached request Login
