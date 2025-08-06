@@ -61,7 +61,7 @@
                                 <a href="deodash" class="btn btn-primary btn-xs custom-btn">Back to lists</a>
                             </span>
                             <span class="float-right">
-                                <input class="form-control form-control-sidebar" type="date" onchange="searchOnDate()">
+                                <input class="form-control form-control-sidebar" type="date" onchange="searchOnDate()" id="dateInput">
                             </span>
 
                         </div>
@@ -107,7 +107,7 @@
                                         <th scope="col">Name</th>
                                         <th scope="col">Contact</th>
                                         <th scope="col">Sector</th>
-                                        <th scope="col">Attendance  Date</th>
+                                        <th scope="col">Attendance Date</th>
                                         <th scope="col">Entry Time</th>
                                         <th scope="col">Status</th>
                                     </tr>
@@ -140,7 +140,9 @@
 <script>
     $(function() {
         getAttendanceReport()
-
+        var today = new Date().toISOString().split('T')[0];
+        // Set max attribute to today
+        $('#dateInput').attr('max', today);
     });
 
     function getAttendanceReport() {
@@ -192,49 +194,49 @@
     }
 
 
-function loaddata(data) {
-    const table = $("#empAttendance");
+    function loaddata(data) {
+        const table = $("#empAttendance");
 
-    try {
-        if ($.fn.DataTable.isDataTable(table)) {
-            table.DataTable().clear().draw();
-            table.DataTable().destroy();
-        }
-    } catch (ex) {
-        console.error("Error destroying DataTable:", ex);
-    }
-
-    let text = "";
-
-    if (!data || data.length === 0) {
-        text += "<tr><td colspan='6'>No Data Found</td></tr>";
-    } else {
-        for (let i = 0; i < data.length; i++) {
-            const emp = data[i];
-            const attendanceStatus = emp.attendance_status || "Absent";
-
-            // ✅ Show shift if status is Present or Halfday
-            const showShift =
-                attendanceStatus.toLowerCase() === "present" ||
-                attendanceStatus.toLowerCase() === "halfday";
-
-            const shiftValue = showShift ? (emp.shift || "") : "";
-
-            // Badge color
-            let badgeClass = "danger";
-            if (attendanceStatus.toLowerCase() === "present") {
-                badgeClass = "success";
-            } else if (attendanceStatus.toLowerCase() === "halfday") {
-                badgeClass = "primary";
+        try {
+            if ($.fn.DataTable.isDataTable(table)) {
+                table.DataTable().clear().draw();
+                table.DataTable().destroy();
             }
+        } catch (ex) {
+            console.error("Error destroying DataTable:", ex);
+        }
 
-            text += `<tr>`;
-            text += `<td>${emp.emp_name}</td>`;
-            text += `<td>${emp.emp_contact}</td>`;
-            text += `<td>${emp.sector || 'N/A'}</td>`;
-            text += `<td>${emp.attendance_date || 'N/A'}</td>`;
-            text += `<td>${emp.in_time || 'N/A'}</td>`;
-            text += `<td>
+        let text = "";
+
+        if (!data || data.length === 0) {
+            text += "<tr><td colspan='6'>No Data Found</td></tr>";
+        } else {
+            for (let i = 0; i < data.length; i++) {
+                const emp = data[i];
+                const attendanceStatus = emp.attendance_status || "Absent";
+
+                // ✅ Show shift if status is Present or Halfday
+                const showShift =
+                    attendanceStatus.toLowerCase() === "present" ||
+                    attendanceStatus.toLowerCase() === "halfday";
+
+                const shiftValue = showShift ? (emp.shift || "") : "";
+
+                // Badge color
+                let badgeClass = "danger";
+                if (attendanceStatus.toLowerCase() === "present") {
+                    badgeClass = "success";
+                } else if (attendanceStatus.toLowerCase() === "halfday") {
+                    badgeClass = "primary";
+                }
+
+                text += `<tr>`;
+                text += `<td>${emp.emp_name}</td>`;
+                text += `<td>${emp.emp_contact}</td>`;
+                text += `<td>${emp.sector || 'N/A'}</td>`;
+                text += `<td>${emp.attendance_date || 'N/A'}</td>`;
+                text += `<td>${emp.in_time || 'N/A'}</td>`;
+                text += `<td>
                         <small class="badge badge-${badgeClass}">
                             ${attendanceStatus}
                         </small>
@@ -242,43 +244,48 @@ function loaddata(data) {
                             ${shiftValue ? " (" + shiftValue + ")" : ""}
                         </small>
                     </td>`;
-            text += `</tr>`;
+                text += `</tr>`;
+            }
+        }
+
+        $("#empAttendance tbody").html(text);
+
+        if (data && data.length > 0) {
+            table.DataTable({
+                responsive: true,
+                order: [],
+                dom: 'Bfrtip',
+                bInfo: true,
+                deferRender: true,
+                pageLength: 10,
+                buttons: [{
+                        extend: 'excel',
+                        orientation: 'landscape',
+                        pageSize: 'A4',
+                        exportOptions: {
+                            columns: ':not(.hidden-col)'
+                        }
+                    },
+                    {
+                        extend: 'pdfHtml5',
+                        orientation: 'landscape',
+                        pageSize: 'A4',
+                        exportOptions: {
+                            columns: ':not(.hidden-col)'
+                        }
+                    },
+                    {
+                        extend: 'print',
+                        orientation: 'landscape',
+                        pageSize: 'A4',
+                        exportOptions: {
+                            columns: ':not(.hidden-col)'
+                        }
+                    }
+                ]
+            });
         }
     }
-
-    $("#empAttendance tbody").html(text);
-
-    if (data && data.length > 0) {
-        table.DataTable({
-            responsive: true,
-            order: [],
-            dom: 'Bfrtip',
-            bInfo: true,
-            deferRender: true,
-            pageLength: 10,
-            buttons: [
-                {
-                    extend: 'excel',
-                    orientation: 'landscape',
-                    pageSize: 'A4',
-                    exportOptions: { columns: ':not(.hidden-col)' }
-                },
-                {
-                    extend: 'pdfHtml5',
-                    orientation: 'landscape',
-                    pageSize: 'A4',
-                    exportOptions: { columns: ':not(.hidden-col)' }
-                },
-                {
-                    extend: 'print',
-                    orientation: 'landscape',
-                    pageSize: 'A4',
-                    exportOptions: { columns: ':not(.hidden-col)' }
-                }
-            ]
-        });
-    }
-}
 
 
     function getTodayDate() {
