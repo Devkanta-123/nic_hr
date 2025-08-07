@@ -58,7 +58,7 @@
                             <span class="float-right">
                                 <a href="deodash" class="btn btn-primary btn-xs custom-btn">Back to lists</a>
                             </span>
-                          
+
 
 
                         </div>
@@ -102,9 +102,7 @@
                                 <thead>
                                     <tr>
                                         <th scope="col">Name</th>
-                                        <th scope="col">Contact</th>
-                                        <th scope="col">Address</th>
-                                        <th scope="col">Sector</th>
+                                        <th scope="col">Location</th>
                                         <th scope="col">Action </th>
                                     </tr>
                                 </thead>
@@ -135,9 +133,21 @@
 
 <script>
     $(function() {
-        getActiveEmployeesForAttendance()
+        getActiveEmployeesForAttendance();
+        getLocations();
 
     });
+    let allLocations = [];
+let employeeData = [];
+
+let isLocationLoaded = false;
+let isEmployeeLoaded = false;
+
+function checkAndLoadTable() {
+    if (isLocationLoaded && isEmployeeLoaded) {
+        loaddata(employeeData);
+    }
+}
 
     function getActiveEmployeesForAttendance() {
         var obj = new Object();
@@ -148,30 +158,63 @@
         TransportCall(obj);
     }
 
-    function onSuccess(rc) {
-        debugger;
-        if (rc.return_code) {
-            switch (rc.Page_key) {
-                case "getActiveEmployeesForAttendance":
-                    loaddata(rc.return_data);
-                    break;
-                case "markAttendance":
-                    notify('success',rc.return_data);
-                    console.log(rc.return_data);
-                     getActiveEmployeesForAttendance();
-                    break;
 
-
-                default:
-                    alert(rc.Page_key);
-            }
-        } else {
-            alert(rc.return_data);
-        }
-        // alert(JSON.stringify(args));
+    function getLocations() {
+        var obj = new Object();
+        obj.Module = "Work";
+        obj.Page_key = "getLocations";
+        var json = new Object();
+        obj.JSON = json;
+        TransportCall(obj);
     }
 
-   function loaddata(data) {
+function onSuccess(rc) {
+    debugger;
+    if (rc.return_code) {
+        switch (rc.Page_key) {
+            case "getLocations":
+                populateLocationDropdown(rc.return_data);
+                isLocationLoaded = true;
+                checkAndLoadTable();
+                break;
+
+            case "getActiveEmployeesForAttendance":
+                employeeData = rc.return_data;
+                isEmployeeLoaded = true;
+                checkAndLoadTable();
+                break;
+
+            case "markAttendance":
+                notify('success', rc.return_data);
+                console.log(rc.return_data);
+                // optional: you might want to reset flags if reloading
+                isEmployeeLoaded = false;
+                getActiveEmployeesForAttendance();
+                break;
+
+            default:
+                alert(rc.Page_key);
+        }
+    } else {
+        alert(rc.return_data);
+    }
+}
+
+
+
+
+function populateLocationDropdown(locations) {
+    debugger;
+    if (!Array.isArray(locations)) {
+        console.warn("populateLocationDropdown received invalid data:", locations);
+        locations = [];
+    }
+    allLocations = locations; // store for use in loaddata()
+}
+// Global variable to store locations
+
+
+function loaddata(data) {
     var table = $("#empAttendance");
 
     try {
@@ -190,22 +233,33 @@
         for (let i = 0; i < data.length; i++) {
             const emp = data[i];
             const empId = emp.emp_id;
-
             const attendanceStatus = emp.attendance_status || "Absent";
             const shiftValue = emp.shift || "";
+            const empLocationId = emp.loc_id || "";
 
-            // Checked if Present or Halfday
             const isPresentOrHalfday = (attendanceStatus === "Present" || attendanceStatus === "Halfday");
 
             text += `<tr>`;
             text += `<td>${emp.emp_name}</td>`;
-            text += `<td>${emp.emp_contact}</td>`;
-            text += `<td>${emp.emp_address || 'N/A'}</td>`;
-            text += `<td>${emp.sector || 'N/A'}</td>`;
+            const showLocation = isPresentOrHalfday ? "" : "style='display:none;'";
 
-            // Attendance switch checkbox (checked if Present or Halfday)
-            text += `<td style="min-width: 250px;">`;
-            text += `
+            // Location Dropdown with Preselection
+            let locationOptions = `<option value="">Select Location</option>`;
+            allLocations.forEach(loc => {
+                const selected = empLocationId == loc.loc_id ? "selected" : "";
+                locationOptions += `<option value="${loc.loc_id}" ${selected}>${loc.loc_name}</option>`;
+            });
+
+            text += `<td>
+                <div class="form-group col-md-12">
+                    <select class="form-control location-select" id="loc_id_${empId}" name="loc_id" data-empid="${empId}">
+                        ${locationOptions}
+                    </select>
+                </div>
+            </td>`;
+
+            // Attendance switch and shift options
+            text += `<td style="min-width: 250px;">
                 <input 
                     type="checkbox" 
                     class="attendance-bootstrap-switch" 
@@ -219,10 +273,6 @@
                     data-off-color="secondary"
                     ${isPresentOrHalfday ? "checked" : ""}
                 />
-            `;
-
-            // Shift & attendance status radios (show if Present or Halfday)
-            text += `
                 <div class="shift-options mt-2" id="shifts_${empId}" style="display: ${isPresentOrHalfday ? 'block' : 'none'};">
                     <div class="form-check form-check-inline">
                         <input class="form-check-input attendance-status-radio" type="radio" name="status_${empId}" id="status_present_${empId}" value="Present" data-empid="${empId}" ${attendanceStatus === "Present" ? "checked" : ""}>
@@ -246,9 +296,7 @@
                         <label class="form-check-label" for="both_${empId}">Morning + Night</label>
                     </div>
                 </div>
-            `;
-
-            text += `</td>`;
+            </td>`;
             text += `</tr>`;
         }
     }
@@ -268,19 +316,25 @@
                 extend: 'excel',
                 orientation: 'landscape',
                 pageSize: 'A4',
-                exportOptions: { columns: ':not(.hidden-col)' }
+                exportOptions: {
+                    columns: ':not(.hidden-col)'
+                }
             },
             {
                 extend: 'pdfHtml5',
                 orientation: 'landscape',
                 pageSize: 'A4',
-                exportOptions: { columns: ':not(.hidden-col)' }
+                exportOptions: {
+                    columns: ':not(.hidden-col)'
+                }
             },
             {
                 extend: 'print',
                 orientation: 'landscape',
                 pageSize: 'A4',
-                exportOptions: { columns: ':not(.hidden-col)' }
+                exportOptions: {
+                    columns: ':not(.hidden-col)'
+                }
             }
         ]
     });
@@ -288,14 +342,13 @@
     // Initialize Bootstrap Switch
     $("[data-bootstrap-switch]").bootstrapSwitch();
 
-    // Switch toggle handler
+    // Switch toggle logic
     $(".attendance-bootstrap-switch").on("switchChange.bootstrapSwitch", function (event, state) {
         const empId = $(this).data("empid");
 
         if (state) {
             $(`#shifts_${empId}`).slideDown();
 
-            // On turning Present/Halfday on, default to Present if none selected
             let selectedStatus = $(`input[name='status_${empId}']:checked`).val();
             if (!selectedStatus) selectedStatus = "Present";
 
@@ -308,29 +361,33 @@
         }
     });
 
-    // Attendance status radio change handler (Present or Halfday)
+    // Status radio change
     $(".attendance-status-radio").on("change", function () {
         const empId = $(this).data("empid");
-        const attendanceStatus = $(this).val();
-        const selectedShift = $(`input[name='shift_${empId}']:checked`).val() || null;
-        sendAttendance(empId, attendanceStatus, selectedShift);
+        const status = $(this).val();
+        const shift = $(`input[name='shift_${empId}']:checked`).val() || null;
+        sendAttendance(empId, status, shift);
     });
 
-    // Shift radio change handler
+    // Shift radio change
     $(".shift-radio").on("change", function () {
         const empId = $(this).data("empid");
         const shift = $(this).val();
-        const attendanceStatus = $(`input[name='status_${empId}']:checked`).val() || "Present";
-        sendAttendance(empId, attendanceStatus, shift);
+        const status = $(`input[name='status_${empId}']:checked`).val() || "Present";
+        sendAttendance(empId, status, shift);
     });
 }
 
 
- function sendAttendance(emp_id, status, shift) {
+
+    function sendAttendance(emp_id, status, shift) {
     debugger;
-    // If status is Present or Halfday AND shift is null, undefined, or empty string, don't send
-    if ((status === "Present" || status === "Halfday") && (!shift || shift.trim() === "")) {
-        return; // skip API call
+
+    // Use the correct selector
+    const loc_id = $(`.location-select[data-empid="${emp_id}"]`).val();
+
+    if ((status === "Present" || status === "Halfday") && (!shift || shift.trim() === "" || loc_id === "")) {
+        return;
     }
 
     const obj = {
@@ -338,16 +395,13 @@
         Page_key: "markAttendance",
         JSON: {
             emp_id: emp_id,
-            status: status, // "Present", "Absent", or "Halfday"
-            shift: shift || null // shift value or null if absent
+            status: status,
+            shift: shift || null,
+            location_id: loc_id || null
         }
     };
 
     TransportCall(obj);
 }
-
-
-
-
 
 </script>

@@ -20,28 +20,79 @@ class Vendor
 
     function saveEmployee($data)
     {
-        // Prepare your INSERT query for employee table
-        $query = "INSERT INTO `employee` (`emp_name`, `emp_contact`, `emp_address`, `emp_email`, `sector_id`) 
-              VALUES (:emp_name, :emp_contact, :emp_address, :emp_email, :sector_id)";
+        $upload_dir = "uploads/employees/";
 
-        // Bind parameters from $data array (sanitize inputs as needed)
+        // Create folder if it doesn't exist
+        if (!file_exists($upload_dir)) {
+            mkdir($upload_dir, 0755, true);
+        }
+
+        $idProofPath = null;
+        $residenceCertPath = null;
+
+        // Handle base64-encoded ID proof card
+        if (!empty($data["id_proof_card"]["content"])) {
+            $idProofBase64 = $data["id_proof_card"]["content"];
+            $idProofFilename = uniqid() . "_" . preg_replace('/[^a-zA-Z0-9._-]/', '_', $data["id_proof_card"]["filename"]);
+            $idProofPath = $upload_dir . $idProofFilename;
+
+            $this->saveBase64File($idProofBase64, $idProofPath);
+        }
+
+        // Handle base64-encoded Residential Certificate
+        if (!empty($data["residential_certificate"]["content"])) {
+            $resCertBase64 = $data["residential_certificate"]["content"];
+            $resCertFilename = uniqid() . "_" . preg_replace('/[^a-zA-Z0-9._-]/', '_', $data["residential_certificate"]["filename"]);
+            $residenceCertPath = $upload_dir . $resCertFilename;
+
+            $this->saveBase64File($resCertBase64, $residenceCertPath);
+        }
+
+        $query = "INSERT INTO `employee` (
+        `emp_name`, `emp_contact`, `emp_address`, `emp_email`, `sector_id`,
+        `date_of_joining`, `increment_date`, `wages_amount`,
+        `id_proof_file`, `residential_certificate_file`
+    ) VALUES (
+        :emp_name, :emp_contact, :emp_address, :emp_email, :sector_id,
+        :date_of_joining, :increment_date, :wages_amount,
+        :id_proof_file, :residential_certificate_file
+    )";
+
         $param = [
             [":emp_name", strip_tags($data["emp_name"])],
             [":emp_contact", strip_tags($data["emp_contact"])],
             [":emp_address", strip_tags($data["emp_address"])],
             [":emp_email", strip_tags($data["emp_email"])],
-            [":sector_id", isset($data["sector_id"]) ? intval($data["sector_id"]) : null],
+            [":sector_id", intval($data["sector_id"])],
+            [":date_of_joining", strip_tags($data["date_of_joining"])],
+            [":increment_date", strip_tags($data["increment_date"])],
+            [":wages_amount", floatval($data["wages_amount"])],
+            [":id_proof_file", $idProofPath],
+            [":residential_certificate_file", $residenceCertPath],
         ];
 
-        // Execute the query - Assuming DBController::ExecuteSQLID returns inserted ID on success
         $employeeID = DBController::ExecuteSQLID($query, $param);
 
         if ($employeeID) {
-            return array("return_code" => true, "return_data" => "Employee registered successfully");
+            return array("return_code" => true, "return_data" => "Employee saved successfully");
         }
 
         return array("return_code" => false, "return_data" => "Unable to add Employee registration");
     }
+
+
+    function saveBase64File($base64String, $filePath)
+    {
+        // Remove the base64 header if present
+        if (preg_match('/^data:.*;base64,/', $base64String)) {
+            $base64String = preg_replace('/^data:.*;base64,/', '', $base64String);
+        }
+
+        $decodedData = base64_decode($base64String);
+        file_put_contents($filePath, $decodedData);
+    }
+
+
 
     function getEmployeeList()
     {
@@ -66,24 +117,25 @@ class Vendor
 
     function getActiveEmployeesForAttendance()
     {
-      $query = "SELECT 
+        $query = "SELECT 
     em.*, 
     s.sector_name AS sector, 
     a.attendance_date, 
     a.status AS attendance_status, 
-    a.shift 
+    a.shift,l.loc_id,l.loc_name
 FROM Employee em
 LEFT JOIN Sector s ON s.sector_id = em.sector_id
-LEFT JOIN Attendance a 
-    ON a.emp_id = em.emp_id 
+LEFT JOIN Attendance a   ON a.emp_id = em.emp_id
+LEFT JOIN Location l  ON l.loc_id = a.location_id
+
     AND a.attendance_date = CURDATE()
 WHERE em.status = 'active';
 ";
 
-    $res = DBController::getDataSet($query);
-    if ($res)
-        return array("return_code" => true, "return_data" => $res);
-    return array("return_code" => false, "return_data" => "No data Available");
+        $res = DBController::getDataSet($query);
+        if ($res)
+            return array("return_code" => true, "return_data" => $res);
+        return array("return_code" => false, "return_data" => "No data Available");
     }
 
 

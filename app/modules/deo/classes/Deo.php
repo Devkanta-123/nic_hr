@@ -30,6 +30,7 @@ class Deo
         $status = $data['status']; // "Present" or "Absent"
         $shift = isset($data['shift']) ? $data['shift'] : null;
         $attendance_date = date('Y-m-d'); // Today by default
+        $location_id = isset($data['location_id']) ? $data['location_id'] : null;
 
         // Optional: Validate shift if Present
         if ($status === "Present" && empty($shift)) {
@@ -41,19 +42,20 @@ class Deo
 
         // Insert or update attendance for the current date
         $query = "
-        INSERT INTO attendance (emp_id, attendance_date, status, shift, in_time)
-        VALUES (:emp_id, :attendance_date, :status, :shift, NOW())
-        ON DUPLICATE KEY UPDATE 
-            status = VALUES(status),
-            shift = VALUES(shift),
-            in_time= NOW()
+       INSERT INTO attendance (emp_id, attendance_date, status, shift, location_id, in_time)
+VALUES (:emp_id, :attendance_date, :status, :shift, :location_id, NOW())
+ON DUPLICATE KEY UPDATE 
+    status = VALUES(status),
+    shift = VALUES(shift),
+    location_id = VALUES(location_id),
+    in_time = NOW()
     ";
-
         $params = [
             [":emp_id", $emp_id],
             [":attendance_date", $attendance_date],
             [":status", $status],
-            [":shift", $shift]
+            [":shift", $shift],
+            [":location_id", $location_id]
         ];
 
         $result = DBController::ExecuteSQL($query, $params);
