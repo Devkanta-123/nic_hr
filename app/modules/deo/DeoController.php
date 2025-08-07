@@ -27,6 +27,11 @@ class DeoController implements Controller
             case 'saveLedgerEntry':
                 return (new Deo())->saveLedgerEntry($jsondata);
 
+            case 'savePaySlipEntry':
+                return (new Deo())->savePaySlipEntry($jsondata);
+
+
+
                 // case 'addFoodToCards':
                 //     return (new Customer())->addFoodToCards($jsondata);
 
@@ -53,10 +58,22 @@ class DeoController implements Controller
             case 'ledger':
                 load($viewpath . "ledgerentry.php");
                 break;
-                
+
             case 'attendancereport':
                 load($viewpath . "attendancereport.php");
                 break;
+
+            case 'payslipattendance':
+                load($viewpath . "payslipattendance.php");
+                break;
+
+                
+            case 'generatepayslip':
+                load($viewpath . "generatepayslip.php");
+                break;
+
+                
+
 
 
 

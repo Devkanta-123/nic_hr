@@ -116,6 +116,68 @@ ON DUPLICATE KEY UPDATE
     }
 
 
+   
+
+
+function savePaySlipEntry($data)
+{
+    if (!isset($data['emp_id'])) {
+        return [
+            "return_code" => false,
+            "return_data" => "Missing required payslip data"
+        ];
+    }
+
+    // Extract values from $data
+    $days = $data['present_days'];
+    $OB = $data['opening_balance'];
+    $CA = $data['current_advance'];
+    $Adv = $data['advance'];
+    $amtPaid = $data['amount_paid'];
+
+    // Match JS formulas exactly
+    $totalPay = $days * 500;
+    $grossAmount = $totalPay + $OB - $CA;
+    $netPay = $grossAmount - $Adv;
+    $newOpeningBalance = $OB + ($totalPay - $amtPaid);
+    $newCurrentAdvance = $CA + $Adv;
+    $newBalance = $grossAmount - $amtPaid;
+
+    // Prepare SQL & parameters
+    $query = "INSERT INTO payslip 
+        (EmployeeID, PresentDays, OpeningBalance, Advance, CurrentAdvance, AmountPaid, TotalPay, IsGenerated,
+         GrossAmount, NetPay, NewOpeningBalance, NewCurrentAdvance, NewBalance)
+        VALUES 
+        (:EmployeeID, :PresentDays, :OpeningBalance, :Advance, :CurrentAdvance, :AmountPaid, :TotalPay, :IsGenerated,
+         :GrossAmount, :NetPay, :NewOpeningBalance, :NewCurrentAdvance, :NewBalance)";
+
+    $params = [
+        [":EmployeeID", $data['emp_id']],
+        [":PresentDays", $days],
+        [":OpeningBalance", $OB],
+        [":Advance", $Adv],
+        [":CurrentAdvance", $CA],
+        [":AmountPaid", $amtPaid],
+        [":TotalPay", $totalPay],
+        [":IsGenerated", 0],
+        [":GrossAmount", $grossAmount],
+        [":NetPay", $netPay],
+        [":NewOpeningBalance", $newOpeningBalance],
+        [":NewCurrentAdvance", $newCurrentAdvance],
+        [":NewBalance", $newBalance]
+    ];
+
+    $result = DBController::ExecuteSQL($query, $params);
+
+    return [
+        "return_code" => $result,
+        "return_data" => $result
+            ? "Payslip entry saved successfully."
+            : "Failed to save payslip entry."
+    ];
+}
+
+
 
     function getCustomerInfo($data)
     {

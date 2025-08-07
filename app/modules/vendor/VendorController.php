@@ -35,6 +35,11 @@ class VendorController implements Controller
             case 'getAttendanceReport':
                 return (new Vendor())->getAttendanceReport();
 
+           
+            case 'getEmployeesAttendanceForPaySlip':
+                return (new Vendor())->getEmployeesAttendanceForPaySlip();
+                
+
 
 
 

@@ -67,6 +67,27 @@
 
                      </ul>
                  </li>
+
+                  <li class="nav-item has-treeview">
+                     <a href="#" class="nav-link">
+                         <i class="fas fa-check"></i>
+                         <p>
+                             Payslip
+                             <i class="fas fa-angle-left right"></i>
+                         </p>
+                     </a>
+                     <ul class="nav nav-treeview">
+                         <li class="nav-item">
+                             <a href="deo-payslipattendance" class="nav-link">
+                                 <i class="fas fa-file"></i>
+                                 <p>Generate </p>
+                             </a>
+                         </li>
+
+                     </ul>
+                 </li>
+
+
                  <!-- <li class="nav-item has-treeview">
                      <a href="#" class="nav-link">
                          <i class="fas fa-check"></i>
