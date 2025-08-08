@@ -115,9 +115,9 @@ class Vendor
         return array("return_code" => false, "return_data" => "No data Available");
     }
 
-      function getActiveEmployeesForAttendance()
+    function getActiveEmployeesForAttendance()
     {
-        $query = "SELECT 
+         $query = "SELECT 
     em.*, 
     s.sector_name AS sector, 
     a.attendance_date, 
@@ -132,7 +132,14 @@ LEFT JOIN Location l ON l.loc_id = a.location_id
 WHERE em.status = 'active'
 GROUP BY em.emp_id, a.attendance_date, a.status, a.shift, l.loc_id, l.loc_name, s.sector_name;
 ";
-;
+
+        $res = DBController::getDataSet($query);
+        if ($res)
+            return array("return_code" => true, "return_data" => $res);
+        return array("return_code" => false, "return_data" => "No data Available");
+    }
+
+
 
 
     function getAttendanceReport()
