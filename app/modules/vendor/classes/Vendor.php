@@ -117,7 +117,7 @@ class Vendor
 
     function getActiveEmployeesForAttendance()
     {
-         $query = "SELECT 
+        $query = "SELECT 
     em.*, 
     s.sector_name AS sector, 
     a.attendance_date, 
@@ -155,6 +155,7 @@ GROUP BY em.emp_id, a.attendance_date, a.status, a.shift, l.loc_id, l.loc_name, 
     }
 
 
+
     function getEmployeesAttendanceForPaySlip()
     {
         $query = "
@@ -177,7 +178,24 @@ GROUP BY em.emp_id, a.attendance_date, a.status, a.shift, l.loc_id, l.loc_name, 
 
         return array("return_code" => false, "return_data" => "No data Available");
     }
+    function getPaySlipsDataByEmpID($data)
+    {
 
+        $query = "SELECT ps.*,e.emp_name,e.emp_contact,e.emp_id,e.emp_contact,e.emp_email,e.emp_address FROM `payslip` ps
+INNER JOIN Employee e on e.emp_id =ps.EmployeeID 
+WHERE ps.EmployeeID=:EmployeeID;
+    ";
+        $param = [
+            [":EmployeeID", strip_tags($data["emp_id"])]
+        ];
+
+        $res = DBController::sendData($query, $param);
+
+        if ($res)
+            return array("return_code" => true, "return_data" => $res);
+
+        return array("return_code" => false, "return_data" => "No data Available");
+    }
 
 
 

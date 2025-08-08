@@ -7,42 +7,6 @@
 <!-- Bootstrap Switch -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.4/css/bootstrap3/bootstrap-switch.min.css" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.4/js/bootstrap-switch.min.js"></script>
-
-
-
-<style>
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(-50px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .slide-in {
-        animation: slideIn 0.5s ease-in-out;
-    }
-
-    .custom-btn {
-        border: 2px solid #fff;
-        /* White border */
-        border-radius: 30px;
-        /* Adjust the value to control the roundness of the button */
-        background: linear-gradient(to right, #3498db, #e74c3c);
-        /* Adjust the colors as desired */
-        color: #fff;
-        /* Text color */
-        padding: 5px 10px;
-        /* Adjust padding as needed */
-        display: inline-block;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        /* Adjust shadow as needed */
-    }
-</style>
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper" id="maincontent">
     <section class="content">
@@ -52,18 +16,13 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="card-title">
-                                PaySlip Attendance
+                                PaySlip Entry
                             </div>
 
                             <span class="float-right">
                                 <a href="deodash" class="btn btn-primary btn-xs custom-btn">Back to lists</a>
                             </span>
-
                         </div>
-
-
-
-
                         <div class="card-body">
 
                             <table id="payslipempAttendance" class="table table-bordered table-striped">
@@ -190,6 +149,8 @@
                     break;
                 case "savePaySlipEntry":
                     console.log(rc.return_data);
+                    notify('success',rc.return_data);
+                    getEmployeesAttendanceForPaySlip();
                     break;
 
 
@@ -216,9 +177,8 @@
     }
 
 
-    function loaddata(data) {
+    function    loaddata(data) {
         const table = $("#payslipempAttendance");
-
         try {
             if ($.fn.DataTable.isDataTable(table)) {
                 table.DataTable().clear().draw();

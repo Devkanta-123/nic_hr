@@ -454,3 +454,23 @@ ADD COLUMN `residential_certificate_file` LONGTEXT DEFAULT NULL,
 ADD COLUMN `date_of_joining` DATE DEFAULT NULL,
 ADD COLUMN `increment_date` DATE DEFAULT NULL,
 ADD COLUMN `wages_amount` DECIMAL(10,2) DEFAULT NULL;
+
+
+CREATE TABLE payslip (
+  PaySlipID int(11) NOT NULL,
+  EmployeeID int(11) NOT NULL,
+  PresentDays int(11) DEFAULT 0,
+  OpeningBalance decimal(10,2) DEFAULT 0.00,
+  Advance decimal(10,2) DEFAULT 0.00,
+  CurrentAdvance decimal(10,2) DEFAULT 0.00,
+  AmountPaid decimal(10,2) DEFAULT 0.00,
+  TotalPay int(11) DEFAULT NULL,
+  GrossAmount decimal(10,2) DEFAULT 0.00,
+  NetPay decimal(10,2) DEFAULT 0.00,
+  NewOpeningBalance decimal(10,2) DEFAULT 0.00,
+  NewCurrentAdvance decimal(10,2) DEFAULT 0.00,
+  NewBalance decimal(10,2) DEFAULT 0.00,
+  IsGenerated tinyint(1) DEFAULT 0,
+  CreatedAt datetime DEFAULT current_timestamp(),
+  UpdatedAt datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+)
