@@ -30,6 +30,10 @@ class DeoController implements Controller
             case 'savePaySlipEntry':
                 return (new Deo())->savePaySlipEntry($jsondata);
 
+                case 'updatePaySlipStatus':
+                return (new Deo())->updatePaySlipStatus($jsondata);
+
+
 
 
                 // case 'addFoodToCards':

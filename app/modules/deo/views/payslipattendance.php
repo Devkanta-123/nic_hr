@@ -165,17 +165,8 @@
     }
 
 
-    function searchOnDate() {
-        const selectedDate = document.querySelector('input[type="date"]').value;
-        if (!selectedDate) {
-            loaddata(employeeAttendanceData); // If no date selected, show all
-            return;
-        }
-
-        const filteredData = employeeAttendanceData.filter(emp => emp.attendance_date === selectedDate);
-        loaddata(filteredData);
-    }
-
+  
+  
 
     function    loaddata(data) {
         const table = $("#payslipempAttendance");

@@ -15,7 +15,8 @@
       visibility: hidden;
     }
 
-    .invoice, .invoice * {
+    .invoice,
+    .invoice * {
       visibility: visible;
     }
 
@@ -29,11 +30,12 @@
     .no-print {
       display: none !important;
     }
+
     @media print {
-  .no-print {
-    display: none !important;
-  }
-}
+      .no-print {
+        display: none !important;
+      }
+    }
 
   }
 </style>
@@ -160,7 +162,8 @@
 
             <div class="row no-print">
               <div class="col-12">
-                <button type="button" class="btn btn-success float-right" id="print-invoice"><i class="fas fa-print"></i> Print
+                <button type="button" class="btn btn-success float-right" id="print-invoice"><i
+                    class="fas fa-print"></i> Print
                 </button>
 
               </div>
@@ -190,10 +193,7 @@
     return urlParams.get(param);
   }
 
-  $(function () {
-     $('#print-invoice').on('click', function () {
-      window.print();
-    });
+  $(function() {
     function printTodayDate() {
       const today = new Date();
       const formattedDate = today.toLocaleDateString('en-GB'); // DD/MM/YYYY
@@ -207,12 +207,28 @@
     const encryptedEmpId = getQueryParam('emp');
     empId = atob(encryptedEmpId);
     getPaySlipsDataByEmpID(empId)
+    $('#print-invoice').on('click', function() {
+      window.print();
+      updatePaySlipStatus(empId);
+    });
   });
 
   function getPaySlipsDataByEmpID(empId) {
     var obj = new Object();
     obj.Module = "Employee";
     obj.Page_key = "getPaySlipsDataByEmpID";
+    var json = new Object();
+    json.emp_id = empId;
+    obj.JSON = json;
+    TransportCall(obj);
+  }
+
+
+  function updatePaySlipStatus(empId) {
+    if (!empId) return;
+    var obj = new Object();
+    obj.Module = "Deo";
+    obj.Page_key = "updatePaySlipStatus";
     var json = new Object();
     json.emp_id = empId;
     obj.JSON = json;
@@ -227,6 +243,11 @@
           loadEmployeeInfo(rc.return_data);
           loadPaySlipSummary(rc.return_data);
           break;
+        case "updatePaySlipStatus":
+          console.log(rc.return_data);
+          break;
+
+
         default:
           alert(rc.Page_key);
       }
@@ -378,29 +399,29 @@
         deferRender: true,
         pageLength: 10,
         buttons: [{
-          extend: 'excel',
-          orientation: 'landscape',
-          pageSize: 'A4',
-          exportOptions: {
-            columns: ':not(.hidden-col)'
+            extend: 'excel',
+            orientation: 'landscape',
+            pageSize: 'A4',
+            exportOptions: {
+              columns: ':not(.hidden-col)'
+            }
+          },
+          {
+            extend: 'pdfHtml5',
+            orientation: 'landscape',
+            pageSize: 'A4',
+            exportOptions: {
+              columns: ':not(.hidden-col)'
+            }
+          },
+          {
+            extend: 'print',
+            orientation: 'landscape',
+            pageSize: 'A4',
+            exportOptions: {
+              columns: ':not(.hidden-col)'
+            }
           }
-        },
-        {
-          extend: 'pdfHtml5',
-          orientation: 'landscape',
-          pageSize: 'A4',
-          exportOptions: {
-            columns: ':not(.hidden-col)'
-          }
-        },
-        {
-          extend: 'print',
-          orientation: 'landscape',
-          pageSize: 'A4',
-          exportOptions: {
-            columns: ':not(.hidden-col)'
-          }
-        }
         ]
       });
     }

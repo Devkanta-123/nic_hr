@@ -474,3 +474,6 @@ CREATE TABLE payslip (
   CreatedAt datetime DEFAULT current_timestamp(),
   UpdatedAt datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 )
+
+
+ALTER TABLE `payslip` CHANGE `PaySlipID` `PaySlipID` INT(11) NOT NULL AUTO_INCREMENT;

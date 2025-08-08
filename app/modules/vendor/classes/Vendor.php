@@ -159,16 +159,17 @@ GROUP BY em.emp_id, a.attendance_date, a.status, a.shift, l.loc_id, l.loc_name, 
     function getEmployeesAttendanceForPaySlip()
     {
         $query = "
-      SELECT 
-            e.emp_id, 
-            e.emp_name, 
-            ps.IsGenerated,
-            COUNT(*) AS total_days,
-            SUM(CASE WHEN a.status = 'Present' THEN 1 ELSE 0 END) AS present_days
-        FROM attendance a 
-        INNER JOIN employee e ON e.emp_id = a.emp_id
-        LEFT JOIN payslip ps on ps.EmployeeID = e.emp_id
-        GROUP BY e.emp_id, e.emp_name,ps.IsGenerated;
+     SELECT 
+    e.emp_id, 
+    e.emp_name, 
+    ps.IsGenerated,
+    COUNT(*) AS total_days,
+    SUM(CASE WHEN a.status = 'Present' THEN 1 ELSE 0 END) AS present_days
+FROM attendance a 
+INNER JOIN employee e ON e.emp_id = a.emp_id
+LEFT JOIN payslip ps ON ps.EmployeeID = e.emp_id
+WHERE ps.IsGenerated IS NULL OR ps.IsGenerated = 0
+GROUP BY e.emp_id, e.emp_name, ps.IsGenerated;
     ";
 
         $res = DBController::getDataSet($query);
