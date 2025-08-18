@@ -477,3 +477,11 @@ CREATE TABLE payslip (
 
 
 ALTER TABLE `payslip` CHANGE `PaySlipID` `PaySlipID` INT(11) NOT NULL AUTO_INCREMENT;
+
+
+
+
+CREATE TABLE Master_AdvancePayment (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    amount DECIMAL(10,2) NOT NULL
+);

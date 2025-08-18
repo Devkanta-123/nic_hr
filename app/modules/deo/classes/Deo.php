@@ -177,6 +177,47 @@ ON DUPLICATE KEY UPDATE
         ];
     }
 
+
+
+
+   function saveAdvanceAmount($data)
+{
+    // Check if any row already exists
+    $checkQuery = "SELECT COUNT(*) AS total FROM Master_AdvancePayment";
+    $countResult = DBController::sendData($checkQuery);
+
+    if ($countResult > 0) {
+        // There is already a record, so update
+        $query = "UPDATE Master_AdvancePayment SET Amount = :Amount";
+    } else {
+        // No record, insert a new one
+        $query = "INSERT INTO Master_AdvancePayment (Amount) VALUES (:Amount)";
+    }
+
+    $params = [
+        [":Amount", $data['advancepayment']]
+    ];
+    $result = DBController::ExecuteSQL($query, $params);
+
+    return [
+        "return_code" => $result,
+        "return_data" => $result
+            ? "Data saved successfully."
+            : "Failed to save data."
+    ];
+}
+
+
+    function getAdvanceAmount()
+    {
+        $query = "SELECT * FROM Master_AdvancePayment ;";
+        $work = DBController::getDataSet($query);
+        if ($work)
+            return array("return_code" => true, "return_data" => $work);
+        return array("return_code" => false, "return_data" => "No  data  found");
+    }
+
+
     function updatePaySlipStatus($data)
     {
         if (!isset($data['emp_id'])) {

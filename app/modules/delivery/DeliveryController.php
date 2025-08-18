@@ -40,8 +40,7 @@ class DeliveryController implements Controller
 
 
 
-            case 'approvedDelivery':
-                return (new Delivery())->approvedDelivery($jsondata);
+       
 
 
             default:
