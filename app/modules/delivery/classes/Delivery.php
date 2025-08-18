@@ -22,7 +22,7 @@ class Delivery
 */
     function saveWork($data)
     {
-        $query = "INSERT INTO `work` (work_title, work_description, loc_id, start_date, end_date)
+        $query = "INSERT INTO `Work` (work_title, work_description, loc_id, start_date, end_date)
               VALUES (:work_title, :work_description, :loc_id, :start_date, :end_date);";
 
         $params = [
@@ -75,7 +75,7 @@ class Delivery
 
         if ($assignID) {
             // After successful assignment, update the work status to 'assigned'
-            $updateQuery = "UPDATE `work` SET `status` = 'assigned' WHERE `work_id` = :work_id;";
+            $updateQuery = "UPDATE `Work` SET `status` = 'assigned' WHERE `work_id` = :work_id;";
             $updateParams = [
                 [":work_id", $data["work_id"]]
             ];
@@ -103,7 +103,7 @@ class Delivery
 
     function getAssignWork()
     {
-        $query = "SELECT wa.*,w.work_title,w.start_date,w.end_date,e.emp_name,l.loc_name FROM `work_assign` wa
+        $query = "SELECT wa.*,w.work_title,w.start_date,w.end_date,e.emp_name,l.loc_name FROM `Work_Assign` wa
         LEFT JOIN Work as w on w.work_id = wa.work_id
         LEFT JOIN Employee as e on e.emp_id = wa.emp_id
         LEFT JOIN Location l on l.loc_id = w.loc_id
@@ -116,44 +116,7 @@ class Delivery
 
 
 
-    function approvedDelivery($data)
-    {
-        $query = "UPDATE Delivery_Partners SET `isApproved` = 1 WHERE PersonalID = :PersonalID";
-        $param = [
-            [":PersonalID", $data['PersonalID']]
-        ];
-        $approvedDelivery = DBController::ExecuteSQL($query, $param);
-        if ($approvedDelivery) {
-            //create a new delivery user
-            $query = "SELECT * FROM Delivery_Partners WHERE `PersonalID` = :PersonalID";
-            $delivery = DBController::sendData($query, $param);
-            $user = array(
-                "Username" => $delivery["ContactNo"],
-                "Name" => $delivery["AccountHolderName"],
-                "ContactNo" => $delivery["ContactNo"],
-                "EmailID" => 'delivery@gmail.com',
-                "UserType" => 3,
-                "PersonalID" => $delivery["PersonalID"],
-                "ValidateUsernameOnly" => True
-            );
-            $userdata = (new Signup())->request($user);
-        }
-        return array("return_code" => true, "return_data" => "Delivery approved successfully");
-    }
-    function getDeliveryInfo($data)
-    {
-        $query = "SELECT dp.* FROM Delivery_Partners dp  inner join Users u on  u.DeliveryPersonalID  = dp.PersonalID  WHERE u.`Username` = :Username AND u.Password = :Password";
-        $params = array(
-            array(":Username", strip_tags($data["Username"])),
-            array(":Password", hash("sha256", substr($data["Username"], 0, 1) . strip_tags($data["Password"])))
-        );
-
-        $delivery = DBController::sendData($query, $params);
-        if ($delivery) {
-            return array("return_code" => true, "return_data" => $delivery);
-        }
-        return array("return_code" => false, "return_data" => "No delivery found");
-    }
+   
 
     function getLocations()
     {
