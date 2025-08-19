@@ -485,3 +485,12 @@ CREATE TABLE Master_AdvancePayment (
     id INT AUTO_INCREMENT PRIMARY KEY,
     amount DECIMAL(10,2) NOT NULL
 );
+
+
+
+CREATE TABLE Master_AllowanceAmount (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    amount DECIMAL(10,2) NOT NULL
+);
+
+

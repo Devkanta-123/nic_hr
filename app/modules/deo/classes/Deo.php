@@ -186,7 +186,7 @@ ON DUPLICATE KEY UPDATE
     $checkQuery = "SELECT COUNT(*) AS total FROM Master_AdvancePayment";
     $countResult = DBController::sendData($checkQuery);
 
-    if ($countResult > 0) {
+    if ($countResult['total'] > 0) {
         // There is already a record, so update
         $query = "UPDATE Master_AdvancePayment SET Amount = :Amount";
     } else {
@@ -207,6 +207,35 @@ ON DUPLICATE KEY UPDATE
     ];
 }
 
+   function saveAllowanceAmount($data)
+{
+    // Check if any row already exists
+    $checkQuery = "SELECT COUNT(*) AS total FROM Master_AllowanceAmount";
+    $countResult = DBController::sendData($checkQuery);
+
+    if ($countResult['total'] > 0) {
+        // There is already a record, so update
+        $query = "UPDATE Master_AllowanceAmount  SET Amount = :Amount";
+    } else {
+        // No record, insert a new one
+        $query = "INSERT INTO Master_AllowanceAmount  (Amount) VALUES (:Amount)";
+    }
+
+    $params = [
+        [":Amount", $data['allowance_amount']]
+    ];
+    $result = DBController::ExecuteSQL($query, $params);
+
+    return [
+        "return_code" => $result,
+        "return_data" => $result
+            ? "Data saved successfully."
+            : "Failed to save data."
+    ];
+}
+
+
+
 
     function getAdvanceAmount()
     {
@@ -216,6 +245,20 @@ ON DUPLICATE KEY UPDATE
             return array("return_code" => true, "return_data" => $work);
         return array("return_code" => false, "return_data" => "No  data  found");
     }
+
+
+
+    function getAllowanceAmount()
+    {
+        $query = "SELECT * FROM Master_AllowanceAmount ;";
+        $work = DBController::getDataSet($query);
+        if ($work)
+            return array("return_code" => true, "return_data" => $work);
+        return array("return_code" => false, "return_data" => "No  data  found");
+    }
+
+
+
 
 
     function updatePaySlipStatus($data)

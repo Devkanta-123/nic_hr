@@ -31,7 +31,7 @@
                                 </div>
                             </div>
                             <br>
-                            <button type="button" id="saveWorkBtn" class="btn btn-primary">Save</button>
+                            <button type="button" id="saveAllowance" class="btn btn-primary">Save</button>
                         </div>
                     </div>
 
@@ -42,35 +42,18 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">Work List</h5>
-
-                        <!-- Button group aligned right -->
-                        <div>
-                            <button type="button" id="launchModalBtn" class="btn btn-primary">
-                                Create Work
-                            </button>
-                            <a href="work-assign" type="button" id="exportBtn" class="btn btn-secondary ms-2"
-                                target="_blank">
-                                All Assigned Works
-                            </a>
-                        </div>
                     </div>
 
 
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table id="workLists" class="table table-bordered nowrap table-striped align-middle"
+                            <table id="allowanceMasterdata" class="table table-bordered nowrap table-striped align-middle"
                                 style="width:100%">
                                 <thead>
                                     <tr>
                                         <th>SL No.</th>
-                                        <th>Work Title</th>
-                                        <th>Work Description</th>
-                                        <th>Start Date</th>
-                                        <th>End Date</th>
-                                        <th>Location</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
+                                        <th>Amount</th>
+                                        
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -164,7 +147,7 @@
 
     let WorkID = '';
     $(function () {
-        getAdvanceAmount();
+        getAllowanceAmount();
     });
 
     $('#launchModalBtn').click(function () {
@@ -182,13 +165,35 @@
     }
 
 
+  $('#saveAllowance').click(function () {
+        saveAllowanceAmount();
+    });
+
+    async function saveAllowanceAmount() {
+        // Get values from form
+        const allowance_amount = $("#allowance_amount").val();
+        // Validation
+        if (!allowance_amount) {
+            showWarningNotification("Please enter  allowance amount.");
+            return;
+        }
+
+        let obj = {
+            Module: "Deo",
+            Page_key: "saveAllowanceAmount",
+            JSON: {
+                allowance_amount: allowance_amount               
+            }
+        };
+        TransportCall(obj);
+    }
 
 
 
-    function getAdvanceAmount() {
+    function getAllowanceAmount() {
         var obj = new Object();
         obj.Module = "Deo";
-        obj.Page_key = "getAdvanceAmount";
+        obj.Page_key = "getAllowanceAmount";
         var json = new Object();
         obj.JSON = json;
         TransportCall(obj);
@@ -213,11 +218,11 @@
         debugger;
         if (rc.return_code) {
             switch (rc.Page_key) {
-                case "saveAdvanceAmount":
+                case "saveAllowanceAmount":
                     showSuccessNotification(rc.return_data);
-                    getAdvanceAmount();
+                    getAllowanceAmount();
                     break;
-                case "getAdvanceAmount":
+                case "getAllowanceAmount":
                     loaddata(rc.return_data);
                     break;
                 default:
@@ -258,33 +263,10 @@
     }
 
     $('#saveBtn').click(function () {
-        saveAdvanceAmount();
+        saveAllowanceAmount();
     });
 
-    async function saveAdvanceAmount() {
-        // Get values from form
-        const advancepayment = $("#adpayment").val();
-        // Validation
-        if (!advancepayment) {
-            showWarningNotification("Please enter amount.");
-            return;
-        }
-
-        let obj = {
-            Module: "Deo",
-            Page_key: "saveAdvanceAmount",
-            JSON: {
-                advancepayment: advancepayment
-            }
-        };
-
-        // Call API
-        TransportCall(obj);
-
-        console.log(JSON.stringify(obj, null, 2));
-
-        // Clear form after saving
-    }
+   
 
 
     async function assignWork() {
@@ -372,23 +354,23 @@
 
     function loaddata(data) {
         // ✅ Destroy existing DataTable if already initialized
-        if ($.fn.DataTable.isDataTable('#advanceAmounttable')) {
-            $('#advanceAmounttable').DataTable().clear().destroy();
+        if ($.fn.DataTable.isDataTable('#allowanceMasterdata')) {
+            $('#allowanceMasterdata').DataTable().clear().destroy();
         }
 
         // ✅ Clear the table body
-        $('#advanceAmounttable tbody').empty();
+        $('#allowanceMasterdata tbody').empty();
 
         // ✅ Populate the table with new data
         $.each(data, function (index, item) {
             var row = $('<tr>');
             row.append($('<td>').text(index + 1));
             row.append($('<td>').text(item.amount));
-            $('#advanceAmounttable tbody').append(row);
+            $('#allowanceMasterdata tbody').append(row);
         });
 
         // ✅ Reinitialize DataTable
-        $('#advanceAmounttable').DataTable({
+        $('#allowanceMasterdata').DataTable({
             responsive: true
         });
     }

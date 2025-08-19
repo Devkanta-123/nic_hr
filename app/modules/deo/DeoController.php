@@ -42,13 +42,28 @@ class DeoController implements Controller
                 return (new Deo())->getAdvanceAmount();
 
 
+            case 'saveAllowanceAmount':
+                return (new Deo())->saveAllowanceAmount($jsondata);
+
+                
+
+            case 'getAllowanceAmount':
+                return (new Deo())->getAllowanceAmount();
 
 
 
 
 
-            // case 'addFoodToCards':
-            //     return (new Customer())->addFoodToCards($jsondata);
+
+
+
+
+
+
+
+
+                // case 'addFoodToCards':
+                //     return (new Customer())->addFoodToCards($jsondata);
 
             default:
                 header('HTTP/1.1 401  Unauthorized Access');
@@ -92,7 +107,7 @@ class DeoController implements Controller
                 load($viewpath . "advancepayment.php");
                 break;
 
-                
+
             case 'allowancemaster':
                 load($viewpath . "allowancemaster.php");
                 break;
