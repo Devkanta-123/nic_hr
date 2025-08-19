@@ -1,123 +1,165 @@
-<!-- summernote -->
-<link rel="stylesheet" href="assets/admin/plugins/summernote/summernote-bs4.css">
-<link rel="stylesheet"
-    href="assets/admin/plugins/multi-select-dropdown-list-with-checkbox-jquery/jquery.multiselect.css">
+<!-- Begin page -->
+<!-- removeNotificationModal -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<div class="vertical-overlay"></div>
 
-<link rel="stylesheet" href="assets/admin/plugins/bootstrap-toggle-master/css/bootstrap-toggle.min.css">
-<!-- Bootstrap Switch -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.4/css/bootstrap3/bootstrap-switch.min.css" rel="stylesheet" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.4/js/bootstrap-switch.min.js"></script>
+<!-- ============================================================== -->
+<!-- Start right Content here -->
+<!-- ============================================================== -->
+<div class="main-content">
 
-
-
-<style>
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(-50px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .slide-in {
-        animation: slideIn 0.5s ease-in-out;
-    }
-
-    .custom-btn {
-        border: 2px solid #fff;
-        /* White border */
-        border-radius: 30px;
-        /* Adjust the value to control the roundness of the button */
-        background: linear-gradient(to right, #3498db, #e74c3c);
-        /* Adjust the colors as desired */
-        color: #fff;
-        /* Text color */
-        padding: 5px 10px;
-        /* Adjust padding as needed */
-        display: inline-block;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        /* Adjust shadow as needed */
-    }
-</style>
-<!-- Content Wrapper. Contains page content -->
-<div class="content-wrapper" id="maincontent">
-    <section class="content">
+    <div class="page-content">
         <div class="container-fluid">
+
             <div class="row">
-                <div class="col-12 mt-3">
+                <div class="col-lg-12">
                     <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">
-                                Advance Payment
-                            </div>
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">Allowance Master Entry</h5>
+
+                            <!-- Button group aligned right -->
 
                         </div>
-                        <!-- Ends here  -->
                         <div class="card-body">
-                              <form id="#">
-                                <div class="row">
-                                    <div class="form-group col-md-12">
-                                        <label for="adpayment">Amount</label>
-                                        <input type="number" class="form-control" id="adpayment" name="adpayment"
-                                            placeholder="Advance Payment Payment Amount" required>
-                                    </div>
-                                    <button type="button" id="saveBtn" class="btn btn-primary">Save</button>
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label for="work_title">Allowance Amount</label>
+                                    <input type="text" class="form-control" id="allowance_amount"
+                                        name="allowance_amount" placeholder="Allowance Amount" required>
                                 </div>
-                            
-                            </form>
+                            </div>
+                            <br>
+                            <button type="button" id="saveWorkBtn" class="btn btn-primary">Save</button>
                         </div>
-
-                        
-
-
-                        <!-- /.card-body -->
                     </div>
-                </div>
 
-                  <div class="col-12 mt-3">
-                    <div class="card">
-                        <!-- Ends here  -->
-                        <div class="card-body">
-                            <table id="advanceAmounttable" class="table table-bordered table-striped">
+
+                </div>
+            </div>
+
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Work List</h5>
+
+                        <!-- Button group aligned right -->
+                        <div>
+                            <button type="button" id="launchModalBtn" class="btn btn-primary">
+                                Create Work
+                            </button>
+                            <a href="work-assign" type="button" id="exportBtn" class="btn btn-secondary ms-2"
+                                target="_blank">
+                                All Assigned Works
+                            </a>
+                        </div>
+                    </div>
+
+
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="workLists" class="table table-bordered nowrap table-striped align-middle"
+                                style="width:100%">
                                 <thead>
                                     <tr>
-                                        <th scope="col">SL.NO</th>
-                                        <th scope="col">Amount</th>
+                                        <th>SL No.</th>
+                                        <th>Work Title</th>
+                                        <th>Work Description</th>
+                                        <th>Start Date</th>
+                                        <th>End Date</th>
+                                        <th>Location</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-
                                 </tbody>
                             </table>
                         </div>
-
-                        
-
-
-                        <!-- /.card-body -->
                     </div>
+
+
                 </div>
             </div>
-            <!-- /.row -->
         </div>
-        <!-- /.container-fluid -->
-    </section>
-    <!-- /.content -->
+
+
+    </div>
+
+
+    <div class="modal fade" id="assignModal" tabindex="-1" role="dialog" aria-labelledby="assignModalTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="form-group col-md-12">
+                            <label for="loc_id">Assign To:</label>
+                            <select class="form-control" id="emp_id" name="emp_id">
+                                <option value="">Select Employee</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="assignModalClose()">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="assignWork()">Assign</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- container-fluid -->
 </div>
+<!-- End Page-content -->
 
-<!-- /.content-wrapper -->
-<!-- validating input -->
+<footer class="footer">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6">
+                <script>
+                    document.write(new Date().getFullYear())
+                </script> © NIC HR.
+            </div>
+            <div class="col-sm-6">
+                <div class="text-sm-end d-none d-sm-block">
+                    <!-- Design & Develop by 2 Brothers -->
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+</div>
+<!-- end main content-->
 
-<!-- Summernote -->
-<script src="assets/admin/plugins/summernote/summernote-bs4.min.js"></script>
+</div>
+<!-- END layout-wrapper -->
 
-<script src="assets/admin/plugins/multi-select-dropdown-list-with-checkbox-jquery/jquery.multiselect.js"></script>
-<script src="assets/admin/plugins/bootstrap-toggle-master/js/bootstrap-toggle.min.js"></script>
 
+
+<!--start back-to-top-->
+<button onclick="topFunction()" class="btn btn-danger btn-icon" id="back-to-top">
+    <i class="ri-arrow-up-line"></i>
+</button>
+
+<!-- JAVASCRIPT -->
+<script src="assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="assets/libs/simplebar/simplebar.min.js"></script>
+<script src="assets/libs/node-waves/waves.min.js"></script>
+<script src="assets/libs/feather-icons/feather.min.js"></script>
+<script src="assets/js/pages/plugins/lord-icon-2.1.0.js"></script>
+<script src="assets/js/plugins.js"></script>
+<!-- apexcharts -->
+<script src="assets/libs/apexcharts/apexcharts.min.js"></script>
+
+<!-- Dashboard init -->
+<script src="assets/js/pages/dashboard-Ongyi.init.js"></script>
+
+<!-- App js -->
+<script src="assets/js/app.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 
     let WorkID = '';
@@ -152,7 +194,7 @@
         TransportCall(obj);
     }
 
-  
+
 
 
     function getActiveEmployeeList() {
@@ -175,8 +217,8 @@
                     showSuccessNotification(rc.return_data);
                     getAdvanceAmount();
                     break;
-                case "getAdvanceAmount":  
-                     loaddata(rc.return_data);
+                case "getAdvanceAmount":
+                    loaddata(rc.return_data);
                     break;
                 default:
                     showWarningNotification("warning");
@@ -232,7 +274,7 @@
             Module: "Deo",
             Page_key: "saveAdvanceAmount",
             JSON: {
-                advancepayment: advancepayment               
+                advancepayment: advancepayment
             }
         };
 
@@ -361,6 +403,6 @@
 
 
 
-  
+
 
 </script>

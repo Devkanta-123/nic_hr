@@ -68,14 +68,14 @@
                             <li class="nav-item">
                                 <a href="work-add" class="nav-link" data-key="t-grid-js">Add</a>
                             </li>
-                               <li class="nav-item">
+                            <li class="nav-item">
                                 <a href="work-assign" class="nav-link" data-key="t-basic-tables">Assign</a>
                             </li>
                         </ul>
                     </div>
                 </li>
 
-                 <li class="nav-item">
+                <li class="nav-item">
                     <a class="nav-link menu-link" href="#Location" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="Work">
                         <i class="ri-account-circle-line"></i></i> <span data-key="Delivery">Location</span>
                     </a>
@@ -84,16 +84,30 @@
                             <li class="nav-item">
                                 <a href="location-add" class="nav-link" data-key="t-grid-js">Add</a>
                             </li>
-                               
+
                         </ul>
                     </div>
                 </li>
 
-                
+
+                <li class="nav-item">
+                    <a class="nav-link menu-link" href="#Allowance" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="Work">
+                        <i class="ri-account-circle-line"></i></i> <span data-key="Delivery">Allowance</span>
+                    </a>
+                    <div class="collapse menu-dropdown" id="Allowance">
+                        <ul class="nav nav-sm flex-column">
+                            <li class="nav-item">
+                                <a href="deo-allowancemaster" class="nav-link" data-key="t-grid-js">Master Entry</a>
+                            </li>
+
+                        </ul>
+                    </div>
+                </li>
 
 
 
-              
+
+
 
             </ul>
         </div>

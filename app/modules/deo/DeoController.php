@@ -92,6 +92,12 @@ class DeoController implements Controller
                 load($viewpath . "advancepayment.php");
                 break;
 
+                
+            case 'allowancemaster':
+                load($viewpath . "allowancemaster.php");
+                break;
+
+
 
 
 
