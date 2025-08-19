@@ -156,20 +156,81 @@ GROUP BY em.emp_id, a.attendance_date, a.status, a.shift, l.loc_id, l.loc_name, 
 
 
 
-    function getEmployeesAttendanceForPaySlip()
+//     function getEmployeesAttendanceForPaySlip()
+//     {
+//         $query = "
+//      SELECT 
+//     e.emp_id, 
+//     e.emp_name, 
+//     ps.IsGenerated,
+//     COUNT(*) AS total_days,
+//     SUM(CASE WHEN a.status = 'Present' THEN 1 ELSE 0 END) AS present_days
+// FROM attendance a 
+// INNER JOIN employee e ON e.emp_id = a.emp_id
+// LEFT JOIN payslip ps ON ps.EmployeeID = e.emp_id
+// WHERE ps.IsGenerated IS NULL OR ps.IsGenerated = 0
+// GROUP BY e.emp_id, e.emp_name, ps.IsGenerated;
+//     ";
+
+//         $res = DBController::getDataSet($query);
+
+//         if ($res)
+//             return array("return_code" => true, "return_data" => $res);
+
+//         return array("return_code" => false, "return_data" => "No data Available");
+//     }
+  function getEmployeesAttendanceForPaySlip()
     {
         $query = "
-     SELECT 
-    e.emp_id, 
-    e.emp_name, 
-    ps.IsGenerated,
-    COUNT(*) AS total_days,
-    SUM(CASE WHEN a.status = 'Present' THEN 1 ELSE 0 END) AS present_days
-FROM attendance a 
-INNER JOIN employee e ON e.emp_id = a.emp_id
-LEFT JOIN payslip ps ON ps.EmployeeID = e.emp_id
-WHERE ps.IsGenerated IS NULL OR ps.IsGenerated = 0
-GROUP BY e.emp_id, e.emp_name, ps.IsGenerated;
+        SELECT 
+            e.emp_id, 
+            e.emp_name, 
+            ps.IsGenerated,
+            COUNT(*) AS total_days,
+            SUM(CASE WHEN a.status = 'Present' THEN 1 ELSE 0 END) AS present_days
+        FROM Attendance a 
+        INNER JOIN Employee e ON e.emp_id = a.emp_id
+        LEFT JOIN PaySlip ps ON ps.EmployeeID = e.emp_id
+        WHERE ps.IsGenerated IS NULL OR ps.IsGenerated = 0
+        GROUP BY e.emp_id, e.emp_name, ps.IsGenerated;
+    ";
+        $attendanceData = DBController::getDataSet($query);
+
+        $allowanceQuery = "SELECT maa.amount as allowanceamount FROM Master_AllowanceAmount maa";
+        $allowanceData = DBController::sendData($allowanceQuery);
+
+        $advanceQuery = "SELECT map.amount as advanceamount FROM Master_AdvancePayment map";
+        $advanceData = DBController::sendData($advanceQuery);
+
+        if ($attendanceData) {
+            return array(
+                "return_code" => true,
+                "return_data" => array(
+                    "attendance" => $attendanceData,
+                    "allowance"  => $allowanceData,
+                    "advance"    => $advanceData
+                )
+            );
+        }
+
+        return array(
+            "return_code" => false,
+            "return_data" => "No data Available"
+        );
+    }
+
+    function getEmployeesAttendanceFilter()
+    {
+        $query = "SELECT
+    e.emp_id,
+    e.emp_name,
+    a.attendance_date,
+    a.status,
+    CASE WHEN a.status = 'Present' THEN 1 ELSE 0 END AS is_present
+FROM Attendance a
+INNER JOIN Employee e ON e.emp_id = a.emp_id
+LEFT JOIN PaySlip ps ON ps.EmployeeID = e.emp_id
+WHERE (ps.IsGenerated IS NULL OR ps.IsGenerated = 0);
     ";
 
         $res = DBController::getDataSet($query);
@@ -179,6 +240,9 @@ GROUP BY e.emp_id, e.emp_name, ps.IsGenerated;
 
         return array("return_code" => false, "return_data" => "No data Available");
     }
+
+
+
     function getPaySlipsDataByEmpID($data)
     {
 

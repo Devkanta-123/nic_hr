@@ -494,3 +494,11 @@ CREATE TABLE Master_AllowanceAmount (
 );
 
 
+
+
+
+CREATE TABLE Master_AccountName (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    account_name VARCHAR(100) NOT NULL
+);
+

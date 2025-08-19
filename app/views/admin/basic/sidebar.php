@@ -91,8 +91,8 @@
 
 
                 <li class="nav-item">
-                    <a class="nav-link menu-link" href="#Allowance" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="Work">
-                        <i class="ri-account-circle-line"></i></i> <span data-key="Delivery">Allowance</span>
+                    <a class="nav-link menu-link" href="#Allowance" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="Allowance">
+                        <i class="ri-account-circle-line"></i></i> <span data-key="Allowance">Allowance</span>
                     </a>
                     <div class="collapse menu-dropdown" id="Allowance">
                         <ul class="nav nav-sm flex-column">
@@ -104,11 +104,18 @@
                     </div>
                 </li>
 
-
-
-
-
-
+                <li class="nav-item">
+                    <a class="nav-link menu-link" href="#Account" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="Account">
+                        <i class="ri-account-circle-line"></i></i> <span data-key="Delivery">Account</span>
+                    </a>
+                    <div class="collapse menu-dropdown" id="Account">
+                        <ul class="nav nav-sm flex-column">
+                            <li class="nav-item">
+                                <a href="deo-masteraccount" class="nav-link" data-key="t-grid-js">Account Entry</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
             </ul>
         </div>
         <!-- Sidebar -->

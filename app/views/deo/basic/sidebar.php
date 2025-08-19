@@ -36,7 +36,7 @@
                                  <p>Take Attendance</p>
                              </a>
                          </li>
-                            <li class="nav-item">
+                         <li class="nav-item">
                              <a href="deo-attendancereport" class="nav-link">
                                  <i class="fas fa-plus"></i>
                                  <p>Report</p>
@@ -64,11 +64,18 @@
                                  <p>Ledger Entry</p>
                              </a>
                          </li>
+                         <li class="nav-item">
+                             <a href="deo-journalentries" class="nav-link">
+                                 <i class="fas fa-file"></i>
+                                 <p>Journal Emtries</p>
+                             </a>
+                         </li>
+
 
                      </ul>
                  </li>
 
-                  <li class="nav-item has-treeview">
+                 <li class="nav-item has-treeview">
                      <a href="#" class="nav-link">
                          <i class="fas fa-check"></i>
                          <p>
@@ -87,7 +94,7 @@
                      </ul>
                  </li>
 
-                  <li class="nav-item has-treeview">
+                 <li class="nav-item has-treeview">
                      <a href="#" class="nav-link">
                          <i class="fas fa-check"></i>
                          <p>

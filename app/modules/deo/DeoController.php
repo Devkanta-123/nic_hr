@@ -45,13 +45,18 @@ class DeoController implements Controller
             case 'saveAllowanceAmount':
                 return (new Deo())->saveAllowanceAmount($jsondata);
 
-                
+            case 'saveAccountName':
+                return (new Deo())->saveAccountName($jsondata);
+
 
             case 'getAllowanceAmount':
                 return (new Deo())->getAllowanceAmount();
 
 
 
+
+            case 'getAccountName':
+                return (new Deo())->getAccountName();
 
 
 
@@ -89,6 +94,11 @@ class DeoController implements Controller
                 load($viewpath . "ledgerentry.php");
                 break;
 
+            case 'journalentries':
+                load($viewpath . "journalentries.php");
+                break;
+
+
             case 'attendancereport':
                 load($viewpath . "attendancereport.php");
                 break;
@@ -110,6 +120,12 @@ class DeoController implements Controller
 
             case 'allowancemaster':
                 load($viewpath . "allowancemaster.php");
+                break;
+
+
+
+            case 'masteraccount':
+                load($viewpath . "masteraccount.php");
                 break;
 
 

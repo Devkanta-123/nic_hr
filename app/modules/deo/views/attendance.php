@@ -7,6 +7,7 @@
 <!-- Bootstrap Switch -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.4/css/bootstrap3/bootstrap-switch.min.css" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.4/js/bootstrap-switch.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 
 
 
@@ -52,9 +53,9 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="card-title">
-                                Attendance
-                            </div>
-
+                                Attendance Date: 
+                            </div>&nbsp;
+                            <input type="text" id="attendance_date" autocomplete="off">
                             <span class="float-right">
                                 <a href="deodash" class="btn btn-primary btn-xs custom-btn">Back to lists</a>
                             </span>
@@ -136,6 +137,18 @@
         getActiveEmployeesForAttendance();
         getLocations();
 
+    });
+     $("#attendance_date").datepicker({
+        dateFormat: 'yy-mm-dd',
+        maxDate: 0, // Disable future dates
+        beforeShowDay: function(date) {
+            var day = date.getDay();
+            // Disable Sunday (day 0)
+            if (day === 0) {
+                return [false, "disabled-sunday", "Sundays are disabled"];
+            }
+            return [true, "", ""];
+        }
     });
     let allLocations = [];
 let employeeData = [];
@@ -381,15 +394,18 @@ function loaddata(data) {
 
 
     function sendAttendance(emp_id, status, shift) {
-    debugger;
-
+        debugger;
     // Use the correct selector
     const loc_id = $(`.location-select[data-empid="${emp_id}"]`).val();
 
     if ((status === "Present" || status === "Halfday") && (!shift || shift.trim() === "" || loc_id === "")) {
         return;
     }
-
+    const attendance_date=$("#attendance_date").val();
+    if(!attendance_date){
+         notify('error', 'Attendance date cannot be empty');
+         return;
+    }
     const obj = {
         Module: "Deo",
         Page_key: "markAttendance",
@@ -397,7 +413,8 @@ function loaddata(data) {
             emp_id: emp_id,
             status: status,
             shift: shift || null,
-            location_id: loc_id || null
+            location_id: loc_id || null,
+            attendance_date:attendance_date
         }
     };
 
