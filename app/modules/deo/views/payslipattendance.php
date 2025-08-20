@@ -32,10 +32,18 @@
     }
 
     .payslip-hide {
-    visibility: hidden;
-    position: absolute; /* removes it from normal layout */
-    left: -9999px;      /* move offscreen */
+        visibility: hidden;
+        position: absolute;
+        /* removes it from normal layout */
+        left: -9999px;
+        /* move offscreen */
+    }
+
+    #closingLabel,
+#closingAmount {
+    display: none;
 }
+
 </style>
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper" id="maincontent">
@@ -47,7 +55,8 @@
                     From date:
                     <input type="date" id="fromDate">
                     To date:
-                    <input type="date" id="Todate">
+                    <input type="date" id="Todate"> &nbsp;
+                    <button id="loadBtn" class="btn btn-success">Load Data</button>
                     <br>
                     <br>
                     <div class="card">
@@ -64,13 +73,18 @@
                                 <thead>
                                     <tr>
                                         <th scope="col">Emp Name</th>
-                                        <th scope="col">PresentDays</th>
+                                        <th scope="col">Present No of Days</th>
+                                        <th scope="col">Due Advance</th>
+                                        <th scope="col">TotalAmount</th>
                                         <th scope="col">Advance</th>
+                                        <th scope="col">Gross Amount</th>
+                                        <th scope="col">Net Amount</th>
                                         <th scope="col">Amount Paid</th>
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    <!-- Data loaded via JS -->
                                 </tbody>
                             </table>
                         </div>
@@ -144,7 +158,7 @@
 
     <!-- Amount Due & Closing -->
     <tr>
-        <td><strong>Amount Due:</strong></td>
+        <td><strong id="amountDueLabel">Amount Due:</strong></td>
         <td id="amountDue">0</td>
         <td><strong id="closingLabel">Closing Balance:</strong></td>
         <td id="closingAmount">0</td>
@@ -192,25 +206,35 @@
         TransportCall(obj);
     }
 
-// Disable Sundays in the datepicker
-function disableSundays(dateInput) {
-    dateInput.on('input', function() {
-        const dateStr = $(this).val();
-        if (!dateStr) return;
+    function disableSundays(dateInput) {
+        dateInput.on('input', function() {
+            const dateStr = $(this).val();
+            if (!dateStr) return;
 
-        const selectedDate = new Date(dateStr);
-        const day = selectedDate.getDay(); // 0 = Sunday, 6 = Saturday
+            const selectedDate = new Date(dateStr);
+            const day = selectedDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
 
-        if (day === 0) {
-            alert("Sundays are not allowed. Please select another date.");
-            $(this).val(''); // Clear the selected date
-        }
-    });
-}
+            if (day === 0) { // Sunday
+                alert("Sundays are not allowed. Please select another date.");
+                $(this).val('');
+            } else if (day === 1) { // Monday
+                // If Monday, auto-calculate Saturday
+                const newDate = new Date(selectedDate);
+                newDate.setDate(selectedDate.getDate() + 5); // Monday + 5 days = Saturday
 
-// Apply to both FromDate and ToDate
-disableSundays($('#fromDate'));
-disableSundays($('#Todate'));
+                const formatted = newDate.toISOString().split('T')[0];
+                $("#Todate").val(formatted);
+                $("#Todate").prop('readonly', true); // prevent manual change
+            } else {
+                $("#Todate").val('');
+                $("#Todate").prop('readonly', false);
+            }
+        });
+    }
+
+    disableSundays($('#fromDate'));
+    disableSundays($('#Todate'));
+
 
 
     let rawAttendanceData = [];
@@ -235,13 +259,23 @@ disableSundays($('#Todate'));
                     // loadfilterdata(rc.return_data)
                     console.log(rc.return_data);
                     break;
-
-
                 case "savePaySlipEntry":
+                    debugger;
                     console.log(rc.return_data);
                     notify('success', rc.return_data);
-                    loaddata();
+                    const f = $("#fromDate").val();
+                    const t = $("#Todate").val();
+                    // You might want to refresh your employee list too
+                    getEmployeesAttendanceForPaySlip();
+                    filterAndLoad(); // or loaddata(...)
+                    setTimeout(function() {
+                        $("#loadBtn").trigger("click");
+                    }, 1000); // 1000 ms = 1 sec
                     break;
+
+
+
+
                 case "getPaySlipsDataByEmpID":
                     console.log(rc.return_data);
                     loadPaySlipData(rc.return_data);
@@ -258,13 +292,14 @@ disableSundays($('#Todate'));
     }
 
 
-  function loadPaySlipData(data) {
+    function loadPaySlipData(data) {
     // Fill table values
     $('#slipDate').text(new Date(data.CreatedAt).toLocaleDateString());
     $('#slipName').text(data.emp_name);
     $('#fromDateTable').text($("#fromDate").val());
     $('#todateTable').text($("#Todate").val());
 
+    // Previous balance or advance
     let previousLabel = "Previous Balance";
     if (parseFloat(data.OpeningBalance) == 0 && parseFloat(data.CurrentAdvance) > 0) {
         previousLabel = "Previous Advance";
@@ -272,14 +307,25 @@ disableSundays($('#Todate'));
     $('#previousLabel').text(previousLabel);
     $('#previousBalance').text(parseFloat(data.OpeningBalance || 0) || parseFloat(data.CurrentAdvance || 0));
 
+    // Current week summary
     $('#presentDays').text(data.PresentDays);
     $('#totalAmount').text(data.TotalPay);
     $('#advance').text(data.Advance);
     $('#grossAmount').text(data.GrossAmount);
     $('#netAmount').text(data.NetPay);
     $('#amountPaid').text(data.AmountPaid);
-    $('#amountDue').text(data.AmountDue);
 
+    // Amount Due / Current Advance (dynamic)
+    let amtDue = parseFloat(data.AmountDue || 0);
+    if (amtDue < 0) {
+        $('#amountDueLabel').text("Current Advance");
+        $('#amountDue').text(Math.abs(amtDue)); // show as positive advance
+    } else {
+        $('#amountDueLabel').text("Amount Due");
+        $('#amountDue').text(amtDue);
+    }
+
+    // Closing balance or advance
     let closingLabel = "Closing Balance";
     if (parseFloat(data.NewCurrentAdvance) > 0) {
         closingLabel = "Closing Advance";
@@ -295,51 +341,61 @@ disableSundays($('#Todate'));
     }, 200);
 }
 
-function printPayslip() {
-    const element = document.getElementById('payslipDataTable');
 
-    // Get employee name and dates
-    const empName = $('#slipName').text().replace(/\s+/g, '_'); // replace spaces with underscores
-    const fromDate = $('#fromDateTable').text().replace(/\//g, '-'); // replace slashes
-    const toDate = $('#todateTable').text().replace(/\//g, '-');
+    function printPayslip() {
+        const element = document.getElementById('payslipDataTable');
 
-    // Construct filename
-    const filename = `payslip_${empName}_${fromDate}_${toDate}.pdf`;
+        // Get employee name and dates
+        const empName = $('#slipName').text().replace(/\s+/g, '_'); // replace spaces with underscores
+        const fromDate = $('#fromDateTable').text().replace(/\//g, '-'); // replace slashes
+        const toDate = $('#todateTable').text().replace(/\//g, '-');
 
-    var opt = {
-        margin: 10,
-        filename: filename,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
+        // Construct filename
+        const filename = `payslip_${empName}_${fromDate}_${toDate}.pdf`;
 
-    // Temporarily show table for PDF
-    $('#payslipDataTable').removeClass('payslip-hide');
+        var opt = {
+            margin: 10,
+            filename: filename,
+            image: {
+                type: 'jpeg',
+                quality: 0.98
+            },
+            html2canvas: {
+                scale: 2
+            },
+            jsPDF: {
+                unit: 'mm',
+                format: 'a4',
+                orientation: 'portrait'
+            }
+        };
 
-    html2pdf().set(opt).from(element).save().then(() => {
-        // Hide table again after PDF generation
-        $('#payslipDataTable').addClass('payslip-hide');
-    });
-}
+        // Temporarily show table for PDF
+        $('#payslipDataTable').removeClass('payslip-hide');
+
+        html2pdf().set(opt).from(element).save().then(() => {
+            // Hide table again after PDF generation
+            $('#payslipDataTable').addClass('payslip-hide');
+        });
+    }
 
 
     // new common function
 
     // Event binding on date change
-    $("#fromDate, #Todate").on("change", function() {
+    $("#loadBtn").on("click", function() {
         filterAndLoad();
     });
 
 
+    // Filter employees and calculate present_days
     function filterAndLoad() {
         const from = $("#fromDate").val();
         const to = $("#Todate").val();
-        if (!from || !to) {
-            return; // only run when both are selected
-        }
+        if (!from || !to) return;
 
         let filteredRows = [];
+
         allEmployees.forEach(emp => {
             const count = allAttendance.filter(a =>
                 a.emp_id == emp.emp_id &&
@@ -352,86 +408,86 @@ function printPayslip() {
                 emp_id: emp.emp_id,
                 emp_name: emp.emp_name,
                 present_days: count,
-                IsGenerated: emp.IsGenerated
+                AmountDue: emp.AmountDue || 0,
+                TotalPay: emp.TotalPay || 0,
+                Advance: emp.Advance || 0,
+                GrossAmount: emp.GrossAmount || 0,
+                NetPay: emp.NetPay || 0,
+                AmountPaid: emp.AmountPaid || 0,
+                FromDate: from,
+                ToDate: to,
+                IsGenerated: emp.IsGenerated || 0
             });
         });
 
-        loaddata(filteredRows, AdvanceMasterdata);
+        loaddata(filteredRows, AdvanceMasterdata, from, to);
     }
 
-
-    function loaddata(data, AdvanceMasterdata) {
+    // Load data into table
+    function loaddata(data, AdvanceMasterdata, selectedFrom, selectedTo) {
         const table = $("#payslipempAttendance");
 
-        // Properly destroy existing DataTable
         if ($.fn.DataTable.isDataTable(table)) {
             table.DataTable().clear().destroy();
         }
-
-        // Remove any leftover wrapper from DataTable
-        table.find('tbody').empty(); // clear tbody
+        table.find('tbody').empty();
 
         let text = "";
 
         if (!data || data.length === 0) {
-            text = "<tr><td colspan='6' class='text-center'>No Data Found</td></tr>";
+            text = "<tr><td colspan='9' class='text-center'>No Data Found</td></tr>";
         } else {
-            for (let i = 0; i < data.length; i++) {
-                const emp = data[i];
+            data.forEach(emp => {
                 text += `<tr>`;
                 text += `<td>${emp.emp_name}</td>`;
-                text += `<td>${emp.present_days || 'N/A'}</td>`;
-                text += `<td>${AdvanceMasterdata.advanceamount || 0}</td>`;
+                text += `<td>${emp.present_days}</td>`;
+                text += `<td>${emp.AmountDue}</td>`;
+                text += `<td>${emp.TotalPay}</td>`;
+                text += `<td>${emp.Advance || AdvanceMasterdata.advanceamount || 0}</td>`;
+                text += `<td>${emp.GrossAmount}</td>`;
+                text += `<td>${emp.NetPay}</td>`;
 
                 if (emp.IsGenerated == 0) {
                     text += `<td>
-            <input type="number" class="form-control amount-input"
-                data-empid="${emp.emp_id}" placeholder="Enter Amount">
-            </td>`;
+                    <input type="number" class="form-control amount-input"
+                        data-empid="${emp.emp_id}" placeholder="Enter Amount">
+                </td>`;
                 } else {
-                    text += `<td></td>`;
+                    text += `<td>${emp.AmountPaid}</td>`;
                 }
-                // Now logic: If already generated and same date range
-                const selectedFrom = $("#fromDate").val();
-                const selectedTo = $("#Todate").val();
-                // Check matching date range
+
                 const isSameRange = emp.FromDate == selectedFrom && emp.ToDate == selectedTo;
+
                 if (emp.IsGenerated == 0) {
-                    // show "Save" btn
                     text += `<td>
-                 <button class="btn btn-sm btn-primary entry-btn"
-                 data-empid="${emp.emp_id}"
-                 data-empname="${emp.emp_name}"
-                 data-present="${emp.present_days}">Save</button>
-                 </td>`;
+                    <button class="btn btn-sm btn-primary entry-btn"
+                        data-empid="${emp.emp_id}"
+                        data-empname="${emp.emp_name}"
+                        data-present="${emp.present_days}">Save</button>
+                </td>`;
                 } else {
-                    if (isSameRange) {
-                        // Already generated in same selected range:
-                        text += `<td><span class="text-danger">Generated for this range</span></td>`;
-                    } else {
-                        text += `<td>
-                     <button class="btn btn-sm btn-success generate-btn"
-                     data-empid="${emp.emp_id}"
-                     data-from="${emp.FromDate}"
-                     data-to="${emp.ToDate}">Generate PaySlip</button>
-                     </td>`;
-                    }
+
+                    text += `<td>
+                        <button class="btn btn-sm btn-success generate-btn"
+                            data-empid="${emp.emp_id}"
+                            data-from="${emp.FromDate}"
+                            data-to="${emp.ToDate}">Generate PaySlip</button>
+                    </td>`;
+
                 }
+
                 text += `</tr>`;
-            }
-
-            $("#payslipempAttendance tbody").html(text);
-
-            // Re-initialize DataTable
-            if (data && data.length > 0) {
-                table.DataTable({
-                    responsive: true,
-                    pageLength: 10,
-                    destroy: true, // ADD THIS LINE TO SAFELY REINIT EVERYTIME
-                    order: []
-                });
-            }
+            });
         }
+
+        $("#payslipempAttendance tbody").html(text);
+
+        table.DataTable({
+            responsive: true,
+            pageLength: 10,
+            destroy: true,
+            order: []
+        });
     }
 
 
@@ -440,8 +496,7 @@ function printPayslip() {
 
 
 
-
-    let amountPaid, emp_id, present_days;
+    let amountPaid, emp_id, present_days, opening_balance, current_advance;
     $(document).on('click', '.entry-btn', function() {
         emp_id = $(this).data('empid');
         emp_name = $(this).data('empname');
@@ -466,19 +521,8 @@ function printPayslip() {
     });
 
 
-
-    //     advanceamount
-    // : 
-    // "2000.00"
-    // allowanceamount
-    // : 
-    // "3000.00"
-    // Reusable function
     function submitPaySlipEntry() {
-        const opening_balance = 500;
         const advance = AdvanceMasterdata.advanceamount;
-        const current_advance = 0;
-
         // Also fetch from/to date from inputs
         const fromDate = $("#fromDate").val();
         const toDate = $("#Todate").val();
@@ -508,9 +552,7 @@ function printPayslip() {
                 from_date: fromDate, // ✅ added
                 to_date: toDate, // ✅ added
                 total_pay: total_pay,
-                opening_balance: opening_balance,
                 advance: advance,
-                current_advance: current_advance,
                 amount_paid: amountPaid
             }
         };

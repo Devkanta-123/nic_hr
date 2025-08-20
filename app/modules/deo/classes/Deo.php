@@ -114,7 +114,7 @@ ON DUPLICATE KEY UPDATE
 
 public function savePaySlipEntry($data)
 {
-    // Check if payslip already exists for same employee & date range
+    // 1. Check if payslip already exists for same employee & date range
     $existsQuery = "SELECT PaySlipID FROM PaySlip 
                     WHERE EmployeeID = :EmployeeID 
                       AND FromDate = :FromDate 
@@ -133,7 +133,7 @@ public function savePaySlipEntry($data)
         ];
     }
 
-    // Fetch last payslip for opening balance and advance
+    // 2. Fetch last payslip for this employee
     $lastQuery = "SELECT NewOpeningBalance, NewCurrentAdvance 
                   FROM PaySlip 
                   WHERE EmployeeID = :EmployeeID
@@ -144,27 +144,28 @@ public function savePaySlipEntry($data)
     ];
     $lastData = DBController::sendData($lastQuery, $lastParams);
 
-    // If last payslip exists, use those
-    if ($lastData) {
+    // 3. Determine Opening Balance & Current Advance
+    if ($lastData && count($lastData) > 0) {
         $OB = $lastData['NewOpeningBalance'];
         $CA = $lastData['NewCurrentAdvance'];
     } else {
-        $OB = $data['opening_balance'] ?? 0;
-        $CA = $data['current_advance'] ?? 0;
+        // First time entry → set both to 0
+        $OB = 0;
+        $CA = 0;
     }
 
-    // Values from request
+    // 4. Values from request
     $days    = $data['present_days'];
     $Adv     = $data['advance'];
     $amtPaid = $data['amount_paid'];
 
-    // Salary calculations
+    // 5. Salary calculations
     $totalPay    = $days * 500;
     $grossAmount = $totalPay + $OB - $CA;
     $netPay      = $grossAmount - $Adv;
+    $amountDue   = $netPay - $amtPaid;
 
-    $amountDue = $netPay - $amtPaid;
-
+    // 6. New balances
     if ($amountDue < 0) {
         $newOpeningBalance = 0;
         $newCurrentAdvance = $CA + abs($amountDue);
@@ -173,7 +174,7 @@ public function savePaySlipEntry($data)
         $newCurrentAdvance = $CA;
     }
 
-    // Insert query
+    // 7. Insert new payslip
     $query = "INSERT INTO PaySlip 
     (EmployeeID, FromDate, ToDate, PresentDays, OpeningBalance, Advance, CurrentAdvance, AmountPaid, TotalPay, IsGenerated,
      GrossAmount, NetPay, AmountDue, NewOpeningBalance, NewCurrentAdvance, NewBalance)
@@ -201,7 +202,10 @@ public function savePaySlipEntry($data)
     ];
 
     $result = DBController::ExecuteSQL($query, $params);
+
+    // Update related status
     $this->updatePaySlipStatus($data);
+
     if ($result) {
         return [
             "return_code" => true,
@@ -214,6 +218,7 @@ public function savePaySlipEntry($data)
         ];
     }
 }
+
 
   function updatePaySlipStatus($data)
     {

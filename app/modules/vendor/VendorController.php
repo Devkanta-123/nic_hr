@@ -65,11 +65,7 @@ class VendorController implements Controller
 
 
 
-            case 'addFood':
-                return (new Vendor())->addFood($jsondata);
-
-            case 'getFoods':
-                return (new Vendor())->getFoods();
+       
 
 
 

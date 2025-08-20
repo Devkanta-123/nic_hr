@@ -175,15 +175,24 @@ GROUP BY em.emp_id, a.attendance_date, a.status, a.shift, l.loc_id, l.loc_name, 
     // 1. Get employees with IsGenerated flag
     $empQuery = "
        SELECT 
-            e.emp_id, 
-            e.emp_name,
-            ps.FromDate,
-            ps.ToDate,
-            CASE WHEN MAX(ps.IsGenerated) = 1 THEN 1 ELSE 0 END AS IsGenerated
-        FROM Employee e
-        LEFT JOIN PaySlip ps ON ps.EmployeeID = e.emp_id
-        WHERE e.status='active'
-        GROUP BY e.emp_id, e.emp_name, ps.FromDate,ps.ToDate;
+    e.emp_id, 
+    e.emp_name,
+    ps.FromDate,
+    ps.ToDate,
+    ps.PresentDays,
+    ps.Advance,
+    ps.GrossAmount,
+    ps.NetPay,
+    ps.AmountPaid,
+    ps.AmountDue,
+    ps.TotalPay,
+    ps.OpeningBalance,
+    CASE WHEN MAX(ps.IsGenerated) = 1 THEN 1 ELSE 0 END AS IsGenerated
+FROM Employee e
+LEFT JOIN PaySlip ps 
+    ON ps.EmployeeID = e.emp_id
+WHERE e.status = 'active'
+GROUP BY e.emp_id, e.emp_name, ps.FromDate, ps.ToDate;
     ";
     $employees = DBController::getDataSet($empQuery);
 
