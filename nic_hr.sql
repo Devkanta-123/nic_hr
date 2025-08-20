@@ -459,6 +459,8 @@ ADD COLUMN `wages_amount` DECIMAL(10,2) DEFAULT NULL;
 CREATE TABLE PaySlip (
   PaySlipID int(11) NOT NULL AUTO_INCREMENT,
   EmployeeID int(11) NOT NULL,
+  FromDate date DEFAULT NULL,   -- starting period date
+  ToDate date DEFAULT NULL,     -- ending period date
   PresentDays int(11) DEFAULT 0,
   OpeningBalance decimal(10,2) DEFAULT 0.00,
   Advance decimal(10,2) DEFAULT 0.00,
@@ -467,7 +469,7 @@ CREATE TABLE PaySlip (
   TotalPay int(11) DEFAULT NULL,
   GrossAmount decimal(10,2) DEFAULT 0.00,
   NetPay decimal(10,2) DEFAULT 0.00,
-  AmountDue decimal(10,2) DEFAULT 0.00,     -- ✅ New Column
+  AmountDue decimal(10,2) DEFAULT 0.00, 
   NewOpeningBalance decimal(10,2) DEFAULT 0.00,
   NewCurrentAdvance decimal(10,2) DEFAULT 0.00,
   NewBalance decimal(10,2) DEFAULT 0.00,
