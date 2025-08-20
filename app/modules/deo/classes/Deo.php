@@ -119,63 +119,101 @@ ON DUPLICATE KEY UPDATE
 
 
 
-    function savePaySlipEntry($data)
-    {
-        if (!isset($data['emp_id'])) {
-            return [
-                "return_code" => false,
-                "return_data" => "Missing required payslip data"
-            ];
-        }
-
-        // Extract values from $data
-        $days = $data['present_days'];
-        $OB = $data['opening_balance'];
-        $CA = $data['current_advance'];
-        $Adv = $data['advance'];
-        $amtPaid = $data['amount_paid'];
-
-        // Match JS formulas exactly
-        $totalPay = $days * 500;
-        $grossAmount = $totalPay + $OB - $CA;
-        $netPay = $grossAmount - $Adv;
-        $newOpeningBalance = $OB + ($totalPay - $amtPaid);
-        $newCurrentAdvance = $CA + $Adv;
-        $newBalance = $grossAmount - $amtPaid;
-
-        // Prepare SQL & parameters
-        $query = "INSERT INTO payslip 
-        (EmployeeID, PresentDays, OpeningBalance, Advance, CurrentAdvance, AmountPaid, TotalPay, IsGenerated,
-         GrossAmount, NetPay, NewOpeningBalance, NewCurrentAdvance, NewBalance)
-        VALUES 
-        (:EmployeeID, :PresentDays, :OpeningBalance, :Advance, :CurrentAdvance, :AmountPaid, :TotalPay, :IsGenerated,
-         :GrossAmount, :NetPay, :NewOpeningBalance, :NewCurrentAdvance, :NewBalance)";
-
-        $params = [
-            [":EmployeeID", $data['emp_id']],
-            [":PresentDays", $days],
-            [":OpeningBalance", $OB],
-            [":Advance", $Adv],
-            [":CurrentAdvance", $CA],
-            [":AmountPaid", $amtPaid],
-            [":TotalPay", $totalPay],
-            [":IsGenerated", 0],
-            [":GrossAmount", $grossAmount],
-            [":NetPay", $netPay],
-            [":NewOpeningBalance", $newOpeningBalance],
-            [":NewCurrentAdvance", $newCurrentAdvance],
-            [":NewBalance", $newBalance]
+function savePaySlipEntry($data)
+{
+    if (!isset($data['emp_id'])) {
+        return [
+            "return_code" => false,
+            "return_data" => "Missing required payslip data"
         ];
+    }
 
-        $result = DBController::ExecuteSQL($query, $params);
+    // Fetch last payslip for opening balance and current advance
+    $lastQuery = "SELECT NewOpeningBalance, NewCurrentAdvance 
+                  FROM PaySlip 
+                  WHERE EmployeeID = :EmployeeID
+                  ORDER BY PaySlipID DESC LIMIT 1";
+    
+    $lastParams = [
+        [":EmployeeID", $data['emp_id']]
+    ];
+    $lastData = DBController::sendData($lastQuery, $lastParams);   // returns array or false
 
+    // If last payslip exists, use those as OB and CA; else use 0 or frontend data
+    if ($lastData) {
+        $OB = $lastData['NewOpeningBalance'];
+        $CA = $lastData['NewCurrentAdvance'];
+    } else {
+        $OB = $data['opening_balance'] ?? 0;
+        $CA = $data['current_advance'] ?? 0;
+    }
+
+    // Extract other values
+    $days    = $data['present_days'];
+    $Adv     = $data['advance'];
+    $amtPaid = $data['amount_paid'];
+
+    // Salary calculations
+    $totalPay    = $days * 500;
+    $grossAmount = $totalPay + $OB - $CA;
+    $netPay      = $grossAmount - $Adv;
+
+    // Amount Due (NetPay - Paid)
+    $amountDue = $netPay - $amtPaid;
+
+    // Calculate new Opening Balance vs Advance
+    if ($amountDue < 0) {
+        $newOpeningBalance = 0;
+        $newCurrentAdvance = $CA + abs($amountDue);
+    } else {
+        $newOpeningBalance = $amountDue;
+        $newCurrentAdvance = $CA;
+    }
+
+    // Prepare SQL & parameters (including AmountDue)
+    $query = "INSERT INTO PaySlip 
+    (EmployeeID, PresentDays, OpeningBalance, Advance, CurrentAdvance, AmountPaid, TotalPay, IsGenerated,
+     GrossAmount, NetPay, AmountDue, NewOpeningBalance, NewCurrentAdvance, NewBalance)
+    VALUES 
+    (:EmployeeID, :PresentDays, :OpeningBalance, :Advance, :CurrentAdvance, :AmountPaid, :TotalPay, :IsGenerated,
+     :GrossAmount, :NetPay, :AmountDue, :NewOpeningBalance, :NewCurrentAdvance, :NewBalance)";
+
+    $params = [
+        [":EmployeeID", $data['emp_id']],
+        [":PresentDays", $days],
+        [":OpeningBalance", $OB],
+        [":Advance", $Adv],
+        [":CurrentAdvance", $CA],
+        [":AmountPaid", $amtPaid],
+        [":TotalPay", $totalPay],
+        [":IsGenerated", 0],
+        [":GrossAmount", $grossAmount],
+        [":NetPay", $netPay],
+        [":AmountDue", $amountDue],
+        [":NewOpeningBalance", $newOpeningBalance],
+        [":NewCurrentAdvance", $newCurrentAdvance],
+        [":NewBalance", $amountDue]
+    ];
+
+    $result = DBController::ExecuteSQL($query, $params);
+
+    if ($result) {
         return [
             "return_code" => $result,
             "return_data" => $result
-                ? "Payslip entry saved successfully."
-                : "Failed to save payslip entry."
+                ? "Payslip entry saved successfully"
+                : "Failed to save data."
+        ];
+    } else {
+        return [
+            "return_code" => false,
+            "return_data" => "Failed to save payslip entry."
         ];
     }
+}
+
+
+
 
 
 

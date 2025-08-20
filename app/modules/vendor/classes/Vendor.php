@@ -180,44 +180,42 @@ GROUP BY em.emp_id, a.attendance_date, a.status, a.shift, l.loc_id, l.loc_name, 
 //         return array("return_code" => false, "return_data" => "No data Available");
 //     }
   function getEmployeesAttendanceForPaySlip()
-    {
-        $query = "
+{
+    // 1. Get employees with IsGenerated flag
+    $empQuery = "
         SELECT 
             e.emp_id, 
             e.emp_name, 
-            ps.IsGenerated,
-            COUNT(*) AS total_days,
-            SUM(CASE WHEN a.status = 'Present' THEN 1 ELSE 0 END) AS present_days
-        FROM Attendance a 
-        INNER JOIN Employee e ON e.emp_id = a.emp_id
+            CASE WHEN MAX(ps.IsGenerated) = 1 THEN 1 ELSE 0 END AS IsGenerated
+        FROM Employee e
         LEFT JOIN PaySlip ps ON ps.EmployeeID = e.emp_id
-        WHERE ps.IsGenerated IS NULL OR ps.IsGenerated = 0
-        GROUP BY e.emp_id, e.emp_name, ps.IsGenerated;
+        GROUP BY e.emp_id, e.emp_name
     ";
-        $attendanceData = DBController::getDataSet($query);
+    $employees = DBController::getDataSet($empQuery);
 
-        $allowanceQuery = "SELECT maa.amount as allowanceamount FROM Master_AllowanceAmount maa";
-        $allowanceData = DBController::sendData($allowanceQuery);
+    // 2. Full attendance raw
+    $attQuery = "SELECT emp_id, attendance_date, status FROM Attendance";
+    $attendanceList = DBController::getDataSet($attQuery);
 
-        $advanceQuery = "SELECT map.amount as advanceamount FROM Master_AdvancePayment map";
-        $advanceData = DBController::sendData($advanceQuery);
+    // 3. Allowance master
+    $allowanceQuery = "SELECT maa.amount as allowanceamount FROM Master_AllowanceAmount maa";
+    $allowanceData = DBController::sendData($allowanceQuery);
 
-        if ($attendanceData) {
-            return array(
-                "return_code" => true,
-                "return_data" => array(
-                    "attendance" => $attendanceData,
-                    "allowance"  => $allowanceData,
-                    "advance"    => $advanceData
-                )
-            );
-        }
+    // 4. Advance master
+    $advanceQuery = "SELECT map.amount as advanceamount FROM Master_AdvancePayment map";
+    $advanceData = DBController::sendData($advanceQuery);
 
-        return array(
-            "return_code" => false,
-            "return_data" => "No data Available"
-        );
-    }
+    return [
+        "return_code" => true,
+        "return_data" => [
+            "employees"  => $employees,
+            "attendance" => $attendanceList,
+            "allowance"  => $allowanceData,
+            "advance"    => $advanceData
+        ]
+    ];
+}
+
 
     function getEmployeesAttendanceFilter()
     {

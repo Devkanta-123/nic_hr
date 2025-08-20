@@ -9,28 +9,28 @@
     rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.4/js/bootstrap-switch.min.js"></script>
 <style>
-    #payslipDataTable {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-        font-family: Arial, sans-serif;
-    }
+#payslipDataTable {
+    width: 80%;
+    margin: 0 auto;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+}
 
-    #payslipDataTable th,
-    #payslipDataTable td {
-        border: 1px solid #000;
-        padding: 6px 10px;
-        vertical-align: top;
-    }
+#payslipDataTable th,
+#payslipDataTable td {
+    border: 1px solid #000;
+    padding: 8px 12px;
+    text-align: left;
+    vertical-align: top;
+}
 
-    #payslipDataTable .no-border {
-        border: none;
-    }
+#payslipDataTable .center-text {
+    text-align: center;
+    font-weight: bold;
+}
 
-    #payslipDataTable .center-text {
-        text-align: center;
-        font-weight: bold;
-    }
 </style>
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper" id="maincontent">
@@ -39,12 +39,14 @@
             <div class="row">
                 <div class="col-12 mt-3">
                     &nbsp;
-                    From date: <input type="date" id="fromDate">
-                    &nbsp; &nbsp;
-                    To date: <input type="date" id="Todate">
+                  From date:
+    <input type="date" id="fromDate">
+    To date:
+    <input type="date" id="Todate">
+    <button class="btn btn-primary btn-sm" id="loadBtn">Load</button>
                     <br>
                     <br>
-                    <div class="card"  id="mainCard">
+                    <div class="card"  >
                         <div class="card-header">
                             <div class="card-title">
                                 PaySlip Entry
@@ -73,7 +75,7 @@
                 </div>
 
 
-                <div class="col-12 mt-3"   id="filterCard" style="display: none;">
+                <div class="col-12 mt-3"  style="display: none;">
                     <div class="card">
                         <div class="card-header">
                             <div class="card-title">
@@ -116,64 +118,63 @@
 
 <table id="payslipDataTable" style="display:none;">
     <tr>
-        <th class="center-text" colspan="4">Pay slip</th>
+        <th class="center-text" colspan="4">Pay Slip</th>
     </tr>
 
+    <!-- Date & Name side by side -->
     <tr>
         <td><strong>Date:</strong></td>
-        <td colspan="3" id="slipDate">xx/xx/xxxx</td>
-    </tr>
-    <tr>
+        <td id="slipDate">xx/xx/xxxx</td>
         <td><strong>Name:</strong></td>
-        <td colspan="3" id="slipName">XXXXXX</td>
+        <td id="slipName">XXXXX</td>
     </tr>
 
-    <!-- Previous Opening Balance -->
+    <!-- Previous balance/advance -->
     <tr>
-        <td colspan="3"><strong>Previous [Balance/Advance]</strong></td>
+        <td><strong id="previousLabel">Previous Balance</strong></td>
         <td id="previousBalance">0</td>
+        <td colspan="2"></td>
     </tr>
 
+    <!-- Current Week Summary Title -->
     <tr>
-        <td class="no-border" colspan="4"><strong>Current Week</strong></td>
+        <td colspan="4" class="center-text"><strong>Current Week</strong></td>
     </tr>
 
-    <!-- Present Days and Total Pay -->
+    <!-- Present Days & Total Pay -->
     <tr>
-        <td><strong>No of days Present:</strong></td>
+        <td><strong>Present Days:</strong></td>
         <td id="presentDays">0</td>
-        <td><strong>Total amount</strong></td>
+        <td><strong>Total Pay:</strong></td>
         <td id="totalAmount">0</td>
     </tr>
 
-    <!-- These rows now stretch across full width -->
+    <!-- Advance & Gross Amount -->
     <tr>
-        <td><strong>Advance</strong></td>
-        <td colspan="3" id="advance">0</td>
+        <td><strong>Advance:</strong></td>
+        <td id="advance">0</td>
+        <td><strong>Gross Amount:</strong></td>
+        <td id="grossAmount">0</td>
     </tr>
 
+    <!-- Net Amount & Amount Paid -->
     <tr>
-        <td><strong>Gross Amount</strong></td>
-        <td colspan="3" id="grossAmount">0</td>
+        <td><strong>Net Amount:</strong></td>
+        <td id="netAmount">0</td>
+        <td><strong>Amount Paid:</strong></td>
+        <td id="amountPaid">0</td>
     </tr>
 
+    <!-- Amount Due & Closing -->
     <tr>
-        <td><strong>Net Amount</strong></td>
-        <td colspan="3" id="netAmount">0</td>
-    </tr>
-
-    <tr>
-        <td><strong>Amount Paid</strong></td>
-        <td colspan="3" id="amountPaid">0</td>
-    </tr>
-
-    <!-- Closing -->
-    <tr>
-        <td><strong>Closing Amount</strong></td>
+        <td><strong>Amount Due:</strong></td>
+        <td id="amountDue">0</td>
+        <td><strong id="closingLabel">Closing Balance:</strong></td>
         <td id="closingAmount">0</td>
-        <td colspan="2" id="closingBalanceText"><strong>[Balance/Advance]</strong></td>
     </tr>
 </table>
+
+
 
 
 <!-- /.content-wrapper -->
@@ -189,7 +190,7 @@
    
     $(function() {
         getEmployeesAttendanceForPaySlip();
-        getEmployeesAttendanceFilter();
+        //getEmployeesAttendanceFilter();
      
     });
 
@@ -218,8 +219,11 @@
 
 
      let rawAttendanceData = [];
-      let AdvanceMasterdata = [];
     let AllowanceMasterdata = [];
+    let allEmployees = [];   // from backend (with IsGenerated)
+let allAttendance = [];  // raw attendance
+let AdvanceMasterdata = {}; // just amount
+
     function onSuccess(rc) {
         debugger;
         if (rc.return_code) {
@@ -227,7 +231,11 @@
                 case "getEmployeesAttendanceForPaySlip":
                     AdvanceMasterdata = rc.return_data.advance;
                     AllowanceMasterdata = rc.return_data.allowance;
-                    loaddata(rc.return_data.attendance,AdvanceMasterdata)
+                    allEmployees = rc.return_data.employees;
+                    allAttendance = rc.return_data.attendance;
+                    //loaddata(rc.return_data.attendance,AdvanceMasterdata)
+                    console.log(allEmployees);
+                    console.log(allAttendance);
                     break;
 
                 case "getEmployeesAttendanceFilter":
@@ -257,10 +265,10 @@
         // alert(JSON.stringify(args));
     }
 
-  $('#fromDate, #Todate').on('change', function() {
-        loadFilteredData();
+//   $('#fromDate, #Todate').on('change', function() {
+//         loadFilteredData();
    
-    });
+//     });
      function loadFilteredData() {
         const fromDate = $('#fromDate').val();
         const toDate   = $('#Todate').val();
@@ -283,31 +291,45 @@
             $('#mainCard').show();
         }
     }
-    function loadPaySlipData(data) {
-        // Fill values first
-        $('#slipDate').text(new Date(data.CreatedAt).toLocaleDateString());
-        $('#slipName').text(data.emp_name);
-        $('#previousBalance').text(data.OpeningBalance);
+   function loadPaySlipData(data) {
+    $('#slipDate').text(new Date(data.CreatedAt).toLocaleDateString());
+    $('#slipName').text(data.emp_name);
 
-        $('#presentDays').text(data.PresentDays);
-        $('#totalAmount').text(data.TotalPay);
-        $('#advance').text(data.Advance);
-
-        $('#grossAmount').text(data.GrossAmount);
-        $('#netAmount').text(data.NetPay);
-        $('#amountPaid').text(data.AmountPaid);
-
-        $('#closingAmount').text(data.NewBalance);
-        $('#closingBalanceText').text(data.NewCurrentAdvance);
-
-        // Make sure table is visible before PDF
-        $('#payslipDataTable').css('display', 'block');
-
-        // Give little delay to render values
-        setTimeout(function() {
-            printPayslip();
-        }, 200);
+    // Determine previous header label
+    let previousLabel = "Previous Balance";
+    if (parseFloat(data.OpeningBalance) == 0 && parseFloat(data.CurrentAdvance) > 0) {
+        previousLabel = "Previous Advance";
     }
+
+    $('#previousLabel').text(previousLabel);
+    $('#previousBalance').text(parseFloat(data.OpeningBalance || 0) || parseFloat(data.CurrentAdvance || 0));
+
+    $('#presentDays').text(data.PresentDays);
+    $('#totalAmount').text(data.TotalPay);
+    $('#advance').text(data.Advance);
+    $('#grossAmount').text(data.GrossAmount);
+    $('#netAmount').text(data.NetPay);
+    $('#amountPaid').text(data.AmountPaid);
+
+    // Amount Due (inserted in DB now)
+    $('#amountDue').text(data.AmountDue);
+
+    // Closing label
+    let closingLabel = "Closing Balance";
+    if (parseFloat(data.NewCurrentAdvance) > 0) {
+        closingLabel = "Closing Advance";
+    }
+    $('#closingLabel').text(closingLabel);
+    $('#closingAmount').text(data.NewBalance);
+
+    // Show table
+    $('#payslipDataTable').css('display', 'block');
+
+    setTimeout(function() {
+        printPayslip();
+    }, 200);
+}
+
 
     function printPayslip() {
         const element = document.getElementById('payslipDataTable');
@@ -334,94 +356,102 @@
     }
 
 
-   function loaddata(data,AdvanceMasterdata) {
-        const table = $("#payslipempAttendance");
-        try {
-            if ($.fn.DataTable.isDataTable(table)) {
-                table.DataTable().clear().draw();
-                table.DataTable().destroy();
-            }
-        } catch (ex) {
-            console.error("Error destroying DataTable:", ex);
+  $("#loadBtn").on("click", function () {
+    const from = $("#fromDate").val();
+    const to = $("#Todate").val();
+    if (!from || !to) {
+        alert("Select both dates");
+        return;
+    }
+    // Build filtered array used by existing loaddata
+    let filteredRows = [];
+    allEmployees.forEach(emp => {
+        const count = allAttendance.filter(a =>
+            a.emp_id == emp.emp_id &&
+            a.status.toLowerCase() === 'present' &&
+            a.attendance_date >= from &&
+            a.attendance_date <= to
+        ).length;
+
+        filteredRows.push({
+            emp_id: emp.emp_id,
+            emp_name: emp.emp_name,
+            present_days: count,
+            IsGenerated: emp.IsGenerated
+        });
+    });
+
+    loaddata(filteredRows, AdvanceMasterdata);
+});
+/* Re-use your original load function to render table */
+function loaddata(data, AdvanceMasterdata) {
+    debugger;
+    const table = $("#payslipempAttendance");
+    try {
+        if ($.fn.DataTable.isDataTable(table)) {
+            table.DataTable().clear().draw();
+            table.DataTable().destroy();
         }
+    } catch (ex) {
+        console.error("Error destroying DataTable:", ex);
+    }
 
-        let text = "";
+    let text = "";
 
-        if (!data || data.length === 0) {
-            text += "<tr><td colspan='6'>No Data Found</td></tr>";
-        } else {
-            for (let i = 0; i < data.length; i++) {
-                const emp = data[i];
-                text += `<tr>`;
-                text += `<td>${emp.emp_name}</td>`;
-                text += `<td>${emp.present_days || 'N/A'}</td>`;
-                text += `<td>${AdvanceMasterdata.advanceamount || 0}</td>`;
+    if (!data || data.length === 0) {
+        text += "<tr><td colspan='6'>No Data Found</td></tr>";
+    } else {
+        for (let i = 0; i < data.length; i++) {
+            const emp = data[i];
+            text += `<tr>`;
+            text += `<td>${emp.emp_name}</td>`;
+            text += `<td>${emp.present_days || 'N/A'}</td>`;
+            text += `<td>${AdvanceMasterdata.advanceamount || 0}</td>`;
 
-                // New Amount Paid column (input field)
-                if (emp.IsGenerated === 0) {
-                    text += `<td>
-                 </td>`
-                } else {
-                    text += `<td><input type="number" class="form-control amount-input" 
-                data-empid="${emp.emp_id}" placeholder="Enter Amount"></td>`;;
-                }
-                if (emp.IsGenerated === 0) {
-                    const encodedID = btoa(emp.emp_id);
-                    text += `<td>
-                    <button class="btn btn-sm btn-success generate-btn" 
-                        data-empid="${emp.emp_id}">Print PaySlip</button>
-                 </td>`;
-                } else {
-                    text += `<td>
-                    <button class="btn btn-sm btn-primary entry-btn" 
-                        data-empid="${emp.emp_id}" 
-                        data-empname="${emp.emp_name}" 
-                        data-present="${emp.present_days}">Save</button>
-                 </td>`;
-                }
-                text += `</tr>`;
+            // If IsGenerated = 0 → show input field
+            if (emp.IsGenerated == 0) {
+                text += `<td>
+                    <input type="number" class="form-control amount-input"
+                        data-empid="${emp.emp_id}" placeholder="Enter Amount">
+                    </td>`;
+            } else {  // Already generated → no input
+                text += `<td></td>`;
             }
 
-        }
-
-        $("#payslipempAttendance tbody").html(text);
-
-        if (data && data.length > 0) {
-            table.DataTable({
-                responsive: true,
-                order: [],
-                dom: 'Bfrtip',
-                bInfo: true,
-                deferRender: true,
-                pageLength: 10,
-                buttons: [{
-                    extend: 'excel',
-                    orientation: 'landscape',
-                    pageSize: 'A4',
-                    exportOptions: {
-                        columns: ':not(.hidden-col)'
-                    }
-                },
-                {
-                    extend: 'pdfHtml5',
-                    orientation: 'landscape',
-                    pageSize: 'A4',
-                    exportOptions: {
-                        columns: ':not(.hidden-col)'
-                    }
-                },
-                {
-                    extend: 'print',
-                    orientation: 'landscape',
-                    pageSize: 'A4',
-                    exportOptions: {
-                        columns: ':not(.hidden-col)'
-                    }
-                }
-                ]
-            });
+            // Action button
+            if (emp.IsGenerated == 0) {
+                // Show Save button
+                text += `
+                <td>
+                    <button class="btn btn-sm btn-primary entry-btn"
+                         data-empid="${emp.emp_id}"
+                         data-empname="${emp.emp_name}"
+                         data-present="${emp.present_days}">Save</button>
+                </td>`;
+            } else {
+                // Show Generate PaySlip (re-generate/print)
+                text += `
+                <td>
+                    <button class="btn btn-sm btn-success generate-btn"
+                        data-empid="${emp.emp_id}">Generate PaySlip</button>
+                </td>`;
+            }
+            text += `</tr>`;
         }
     }
+
+    $("#payslipempAttendance tbody").html(text);
+
+    if (data && data.length > 0) {
+        table.DataTable({
+            responsive: true,
+            order: [],
+            dom: 'Bfrtip',
+            pageLength: 10
+        });
+    }
+}
+
 
     function loadfilterdata(data) {
         const table = $("#payslipempAttendanceFilter");
@@ -549,9 +579,9 @@
     // Reusable function
     function submitPaySlipEntry() {
         debugger;
-        const opening_balance = 12;
+        const opening_balance = 500;
         const  advance = AdvanceMasterdata.advanceamount;
-        const current_advance = 24;
+        const current_advance = 0;
         if (!emp_id) {
             alert("Employee ID missing!");
             return;

@@ -58,9 +58,9 @@
                         </div>
                         <div class="card">
                             <div class="card-body">
-                                <form id="ledgerForm">
+                                <form id="journalForm">
 
-                                    <!-- Row 1: Type and Date -->
+                                    <!-- Row 1 -->
                                     <div class="form-row">
                                         <div class="form-group col-md-6">
                                             <label for="type">Entry Type</label>
@@ -69,82 +69,62 @@
                                                 <option value="Receive">Receive</option>
                                             </select>
                                         </div>
-                                        <div class="form-group col-md-6" class="form-control">
-                                            <label for="account_name">Account Name :</label>
+                                        <div class="form-group col-md-6">
+                                            <label for="account_name">Account Name</label>
                                             <select id="account_name" class="form-control">
-                                            </select>
-                                            <!-- <input type="date" class="form-control" id="entryDate" value="<?php echo date(format: 'Y-m-d'); ?>"> -->
-                                        </div>
+                                                <!-- example static options -->
 
+                                            </select>
+                                        </div>
                                     </div>
 
-                                    <!-- Row 2: Particulars and J.F. -->
+                                    <!-- Row 2 -->
                                     <div class="form-row">
                                         <div class="form-group col-md-6">
                                             <label for="particulars">Particulars</label>
                                             <input type="text" class="form-control" id="particulars" placeholder="Enter particulars">
                                         </div>
-                                        <div class="form-group col-md-6">
+                                        <div class="form-group col-md-3">
                                             <label for="qty">Qty</label>
                                             <input type="number" class="form-control" id="qty" placeholder="Enter qty" min="0">
                                         </div>
-
-                                    </div>
-
-                                    <!-- Row 3: Amount and Button -->
-                                    <div class="form-row">
-
-
-                                        <div class="form-group col-md-6">
+                                        <div class="form-group col-md-3">
                                             <label for="rate">Rate</label>
                                             <input type="number" class="form-control" id="rate" placeholder="Enter rate" min="0">
                                         </div>
+                                    </div>
 
+                                    <!-- Row 3 -->
+                                    <div class="form-row">
                                         <div class="form-group col-md-6">
                                             <label for="amount">Amount</label>
                                             <input type="number" class="form-control" id="amount" readonly>
                                         </div>
-
-
-
+                                        <div class="form-group col-md-6 d-flex align-items-end">
+                                            <button type="button" id="addEntryBtn" class="btn btn-primary">Add Entry</button>
+                                        </div>
                                     </div>
-                                    <div class="form-group col-md-6 d-flex align-items-end">
-                                        <button type="button" id="addEntryBtn" class="btn btn-primary">Add Entry</button>
-                                    </div>
+
                                 </form>
                             </div>
                         </div>
 
                         <div class="card">
                             <div class="card-body" id="ledgerContent">
-                                <table id="ledgerTable" class="table table-bordered table-striped">
+                                <table id="journalentries" class="table table-bordered table-striped">
                                     <thead>
-                                        <tr class="text-center">
-                                            <th colspan="4">Dr.</th>
-                                            <th colspan="4">Cr.</th>
-                                        </tr>
                                         <tr>
-                                            <th>Date</th>
+                                            <th>Account</th>
                                             <th>Particulars</th>
-                                            <th>J.F.</th>
-                                            <th>Amount</th>
-                                            <th>Date</th>
-                                            <th>Particulars</th>
-                                            <th>J.F.</th>
-                                            <th>Amount</th>
+                                            <th>Qty</th>
+                                            <th>Rate</th>
+                                            <th class="text-right">Payment (Dr)</th>
+                                            <th class="text-right">Receive (Cr)</th>
+                                            <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody id="ledgerBody"></tbody>
-                                    <tfoot>
-                                        <tr class="font-weight-bold bg-light">
-                                            <td colspan="3" class="text-right">Total Debit</td>
-                                            <td id="totalDebit">0.00</td>
-                                            <td colspan="3" class="text-right">Total Credit</td>
-                                            <td id="totalCredit">0.00</td>
-                                        </tr>
-                                    </tfoot>
                                 </table>
-
                                 <div class="text-right mt-3">
                                     <button class="btn btn-primary mr-2" onclick="saveLedgerEntry()">Save</button>
                                     <button class="btn btn-danger" onclick="generatePDF()">Export to PDF</button>
@@ -180,7 +160,7 @@
 <script src="assets/admin/plugins/bootstrap-toggle-master/js/bootstrap-toggle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
 
 <script>
     $(function() {
@@ -198,79 +178,55 @@
 
 
 
-    let totalDebit = 0;
-    let totalCredit = 0;
+    $("#qty, #rate").on('input', function() {
+        let qty = parseFloat($('#qty').val()) || 0;
+        let rate = parseFloat($('#rate').val()) || 0;
+        $('#amount').val(qty * rate);
+    });
 
-    $('#addEntryBtn').click(function() {
+     $('#addEntryBtn').click(function () {
+        debugger;
         const type = $('#type').val();
-        const date = $('#entryDate').val();
+        const accountId = $('#account_name').val();
+        const accountName = $('#account_name option:selected').text();
+        const qty = $('#qty').val();
+        const rate = $('#rate').val();
         const particulars = $('#particulars').val();
-        const jf = $('#jf').val();
-        const amount = parseFloat($('#amount').val());
+        const amount    = $('#amount').val();
 
-        if (!date || !particulars || !jf || isNaN(amount) || amount <= 0) {
-            alert('Please fill all fields correctly.');
+        if (accountId === '' || particulars === '' || amount == 0) {
+            alert("Please select account and enter particulars/amount");
             return;
         }
 
-        let matchedRow = null;
+        let paymentCol = '';
+        let receiveCol = '';
+        if (type === "Payment") paymentCol = amount; 
+        else receiveCol = amount;
 
-        $('#ledgerBody tr').each(function() {
-            const drDate = $(this).find('td:eq(0)').text();
-            const crDate = $(this).find('td:eq(4)').text();
+        let row = `
+            <tr data-account-id="${accountId}">
+                <td>${accountName}</td>
+                <td>${particulars}</td>
+                <td>${qty}</td>
+                <td>${rate}</td>
+                <td class="text-right">${paymentCol}</td>
+                <td class="text-right">${receiveCol}</td>
+                <td><button class="btn btn-sm btn-danger deleteRowBtn">Remove</button></td>
+            </tr>
+        `;
+        $('#ledgerBody').append(row);
 
-            if (type === 'debit' && crDate === date && drDate === '') {
-                matchedRow = $(this);
-                return false;
-            } else if (type === 'credit' && drDate === date && crDate === '') {
-                matchedRow = $(this);
-                return false;
-            }
-        });
-
-        if (matchedRow) {
-            if (type === 'debit') {
-                matchedRow.find('td:eq(0)').text(date);
-                matchedRow.find('td:eq(1)').text('To ' + particulars);
-                matchedRow.find('td:eq(2)').text(jf);
-                matchedRow.find('td:eq(3)').text(amount.toFixed(2));
-                totalDebit += amount;
-            } else {
-                matchedRow.find('td:eq(4)').text(date);
-                matchedRow.find('td:eq(5)').text('By ' + particulars);
-                matchedRow.find('td:eq(6)').text(jf);
-                matchedRow.find('td:eq(7)').text(amount.toFixed(2));
-                totalCredit += amount;
-            }
-        } else {
-            const newRow = $('<tr></tr>');
-            if (type === 'debit') {
-                newRow.html(`
-                <td>${date}</td>
-                <td>To ${particulars}</td>
-                <td>${jf}</td>
-                <td>${amount.toFixed(2)}</td>
-                <td></td><td></td><td></td><td></td>
-            `);
-                totalDebit += amount;
-            } else {
-                newRow.html(`
-                <td></td><td></td><td></td><td></td>
-                <td>${date}</td>
-                <td>By ${particulars}</td>
-                <td>${jf}</td>
-                <td>${amount.toFixed(2)}</td>
-            `);
-                totalCredit += amount;
-            }
-            $('#ledgerBody').append(newRow);
-        }
-
-        $('#totalDebit').text(totalDebit.toFixed(2));
-        $('#totalCredit').text(totalCredit.toFixed(2));
-
-        $('#ledgerForm')[0].reset();
+        $('#journalForm')[0].reset();
     });
+
+    // Delete row on click
+    $(document).on('click', '.deleteRowBtn', function() {
+        $(this).closest('tr').remove();
+    });
+
+
+
 
     function saveLedgerEntry() {
         const entries = [];
@@ -318,79 +274,33 @@
         console.log("Saved Entries:", payload);
         TransportCall(payload);
     }
+function generatePDF() {
+    // Temporarily hide the Action column
+    $('#journalentries th:last-child, #journalentries td:last-child').hide();
+
+    // Create a wrapper with title + table cloned
+    const printable = document.createElement('div');
+    printable.innerHTML = `
+        <h3 class="text-center mb-3">Journal Entry</h3>
+        ${document.getElementById('journalentries').outerHTML}
+    `;
+
+    var opt = {
+        margin: 0.5,
+        filename: 'Journal_Entry.pdf',
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+
+    html2pdf().from(printable).set(opt).save().then(() => {
+        // show the column back after generating
+        $('#journalentries th:last-child, #journalentries td:last-child').show();
+    });
+}
 
 
-    function generatePDF() {
-        const docDefinition = {
-            content: [{
-                    text: 'Ledger Report',
-                    style: 'header',
-                    alignment: 'center',
-                    margin: [0, 0, 0, 10]
-                },
-                {
-                    table: {
-                        headerRows: 2,
-                        widths: ['*', '*', '*', '*', '*', '*', '*', '*'],
-                        body: buildLedgerTableBody()
-                    },
-                    layout: {
-                        fillColor: function(rowIndex) {
-                            return rowIndex === 0 || rowIndex === 1 ? '#eeeeee' : null;
-                        }
-                    }
-                },
-                {
-                    columns: [{
-                            width: '*',
-                            text: ''
-                        },
-                        {
-                            width: 'auto',
-                            table: {
-                                body: [
-                                    [{
-                                            text: 'Total Debit',
-                                            bold: true,
-                                            alignment: 'right'
-                                        },
-                                        {
-                                            text: $('#totalDebit').text(),
-                                            alignment: 'right'
-                                        }
-                                    ],
-                                    [{
-                                            text: 'Total Credit',
-                                            bold: true,
-                                            alignment: 'right'
-                                        },
-                                        {
-                                            text: $('#totalCredit').text(),
-                                            alignment: 'right'
-                                        }
-                                    ]
-                                ]
-                            },
-                            layout: 'noBorders'
-                        }
-                    ],
-                    margin: [0, 20, 0, 0]
-                }
-            ],
-            styles: {
-                header: {
-                    fontSize: 16,
-                    bold: true
-                }
-            },
-            pageOrientation: 'landscape'
-        };
 
-        pdfMake.createPdf(docDefinition).download('Ledger_Report.pdf');
-    }
-
-
-    function buildLedgerTableBody() {
+    function buildjournalentriesBody() {
         const body = [];
 
         // Headers
