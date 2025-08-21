@@ -118,7 +118,7 @@ class Vendor
     l.loc_name
 FROM Employee em
 LEFT JOIN Sector s ON s.sector_id = em.sector_id
-LEFT JOIN Attendance a ON a.emp_id = em.emp_id AND a.attendance_date = CURDATE()
+LEFT JOIN Attendance a ON a.emp_id = em.emp_id
 LEFT JOIN Location l ON l.loc_id = a.location_id
 WHERE em.status = 'active'
 GROUP BY em.emp_id, a.attendance_date, a.status, a.shift, l.loc_id, l.loc_name, s.sector_name;
