@@ -8,7 +8,7 @@ use app\modules\auth\classes\Signup;
 class Deo
 {
 
-  
+
     function markAttendance($data)
     {
         // Validate required fields
@@ -112,115 +112,115 @@ ON DUPLICATE KEY UPDATE
 
 
 
-public function savePaySlipEntry($data)
-{
-    // 1. Check if payslip already exists for same employee & date range
-    $existsQuery = "SELECT PaySlipID FROM PaySlip 
+    public function savePaySlipEntry($data)
+    {
+        // 1. Check if payslip already exists for same employee & date range
+        $existsQuery = "SELECT PaySlipID FROM PaySlip 
                     WHERE EmployeeID = :EmployeeID 
                       AND FromDate = :FromDate 
                       AND ToDate   = :ToDate";
-    $existsParams = [
-        [":EmployeeID", $data['emp_id']],
-        [":FromDate",   $data['from_date']],
-        [":ToDate",     $data['to_date']]
-    ];
-    $existData = DBController::sendData($existsQuery, $existsParams);
-    
-    if ($existData && count($existData) > 0) {
-        return [
-            "return_code" => false,
-            "return_data" => "Payslip is already generated for this date range."
+        $existsParams = [
+            [":EmployeeID", $data['emp_id']],
+            [":FromDate",   $data['from_date']],
+            [":ToDate",     $data['to_date']]
         ];
-    }
+        $existData = DBController::sendData($existsQuery, $existsParams);
 
-    // 2. Fetch last payslip for this employee
-    $lastQuery = "SELECT NewOpeningBalance, NewCurrentAdvance 
+        if ($existData && count($existData) > 0) {
+            return [
+                "return_code" => false,
+                "return_data" => "Payslip is already generated for this date range."
+            ];
+        }
+
+        // 2. Fetch last payslip for this employee
+        $lastQuery = "SELECT NewOpeningBalance, NewCurrentAdvance 
                   FROM PaySlip 
                   WHERE EmployeeID = :EmployeeID
                   ORDER BY PaySlipID DESC LIMIT 1";
-                  
-    $lastParams = [
-        [":EmployeeID", $data['emp_id']]
-    ];
-    $lastData = DBController::sendData($lastQuery, $lastParams);
 
-    // 3. Determine Opening Balance & Current Advance
-    if ($lastData && count($lastData) > 0) {
-        $OB = $lastData['NewOpeningBalance'];
-        $CA = $lastData['NewCurrentAdvance'];
-    } else {
-        // First time entry → set both to 0
-        $OB = 0;
-        $CA = 0;
-    }
+        $lastParams = [
+            [":EmployeeID", $data['emp_id']]
+        ];
+        $lastData = DBController::sendData($lastQuery, $lastParams);
 
-    // 4. Values from request
-    $days    = $data['present_days'];
-    $Adv     = $data['advance'];
-    $amtPaid = $data['amount_paid'];
+        // 3. Determine Opening Balance & Current Advance
+        if ($lastData && count($lastData) > 0) {
+            $OB = $lastData['NewOpeningBalance'];
+            $CA = $lastData['NewCurrentAdvance'];
+        } else {
+            // First time entry → set both to 0
+            $OB = 0;
+            $CA = 0;
+        }
 
-    // 5. Salary calculations
-    $totalPay    = $days * 500;
-    $grossAmount = $totalPay + $OB - $CA;
-    $netPay      = $grossAmount - $Adv;
-    $amountDue   = $netPay - $amtPaid;
+        // 4. Values from request
+        $days    = $data['present_days'];
+        $Adv     = $data['advance'];
+        $amtPaid = $data['amount_paid'];
 
-    // 6. New balances
-    if ($amountDue < 0) {
-        $newOpeningBalance = 0;
-        $newCurrentAdvance = $CA + abs($amountDue);
-    } else {
-        $newOpeningBalance = $amountDue;
-        $newCurrentAdvance = $CA;
-    }
+        // 5. Salary calculations
+        $totalPay    = $days * 500;
+        $grossAmount = $totalPay + $OB - $CA;
+        $netPay      = $grossAmount - $Adv;
+        $amountDue   = $netPay - $amtPaid;
 
-    // 7. Insert new payslip
-    $query = "INSERT INTO PaySlip 
+        // 6. New balances
+        if ($amountDue < 0) {
+            $newOpeningBalance = 0;
+            $newCurrentAdvance = $CA + abs($amountDue);
+        } else {
+            $newOpeningBalance = $amountDue;
+            $newCurrentAdvance = $CA;
+        }
+
+        // 7. Insert new payslip
+        $query = "INSERT INTO PaySlip 
     (EmployeeID, FromDate, ToDate, PresentDays, OpeningBalance, Advance, CurrentAdvance, AmountPaid, TotalPay, IsGenerated,
      GrossAmount, NetPay, AmountDue, NewOpeningBalance, NewCurrentAdvance, NewBalance)
     VALUES 
     (:EmployeeID, :FromDate, :ToDate, :PresentDays, :OpeningBalance, :Advance, :CurrentAdvance, :AmountPaid, :TotalPay, :IsGenerated,
      :GrossAmount, :NetPay, :AmountDue, :NewOpeningBalance, :NewCurrentAdvance, :NewBalance)";
 
-    $params = [
-        [":EmployeeID", $data['emp_id']],
-        [":FromDate", $data['from_date']],
-        [":ToDate", $data['to_date']],
-        [":PresentDays", $days],
-        [":OpeningBalance", $OB],
-        [":Advance", $Adv],
-        [":CurrentAdvance", $CA],
-        [":AmountPaid", $amtPaid],
-        [":TotalPay", $totalPay],
-        [":IsGenerated", 0],
-        [":GrossAmount", $grossAmount],
-        [":NetPay", $netPay],
-        [":AmountDue", $amountDue],
-        [":NewOpeningBalance", $newOpeningBalance],
-        [":NewCurrentAdvance", $newCurrentAdvance],
-        [":NewBalance", $amountDue]
-    ];
-
-    $result = DBController::ExecuteSQL($query, $params);
-
-    // Update related status
-    $this->updatePaySlipStatus($data);
-
-    if ($result) {
-        return [
-            "return_code" => true,
-            "return_data" => "Payslip entry saved successfully."
+        $params = [
+            [":EmployeeID", $data['emp_id']],
+            [":FromDate", $data['from_date']],
+            [":ToDate", $data['to_date']],
+            [":PresentDays", $days],
+            [":OpeningBalance", $OB],
+            [":Advance", $Adv],
+            [":CurrentAdvance", $CA],
+            [":AmountPaid", $amtPaid],
+            [":TotalPay", $totalPay],
+            [":IsGenerated", 0],
+            [":GrossAmount", $grossAmount],
+            [":NetPay", $netPay],
+            [":AmountDue", $amountDue],
+            [":NewOpeningBalance", $newOpeningBalance],
+            [":NewCurrentAdvance", $newCurrentAdvance],
+            [":NewBalance", $amountDue]
         ];
-    } else {
-        return [
-            "return_code" => false,
-            "return_data" => "Failed to save payslip entry."
-        ];
+
+        $result = DBController::ExecuteSQL($query, $params);
+
+        // Update related status
+        $this->updatePaySlipStatus($data);
+
+        if ($result) {
+            return [
+                "return_code" => true,
+                "return_data" => "Payslip entry saved successfully."
+            ];
+        } else {
+            return [
+                "return_code" => false,
+                "return_data" => "Failed to save payslip entry."
+            ];
+        }
     }
-}
 
 
-  function updatePaySlipStatus($data)
+    function updatePaySlipStatus($data)
     {
         if (!isset($data['emp_id'])) {
             return [
@@ -253,23 +253,30 @@ public function savePaySlipEntry($data)
 
 
 
-    function saveAdvanceAmount($data)
+    function savePaymentData($data)
     {
-        // Check if any row already exists
-        $checkQuery = "SELECT COUNT(*) AS total FROM Master_AdvancePayment";
-        $countResult = DBController::sendData($checkQuery);
+        // Check if any row exists for this employee
+        $checkQuery = "SELECT COUNT(*) AS total FROM Master_AdvancePayment WHERE EmpID = :EmpID";
+        $checkParams = [[":EmpID", $data['emp_id']]];
+        $countResult = DBController::sendData($checkQuery, $checkParams);
 
         if ($countResult['total'] > 0) {
-            // There is already a record, so update
-            $query = "UPDATE Master_AdvancePayment SET Amount = :Amount";
+            // Update existing record for this employee
+            $query = "UPDATE Master_AdvancePayment 
+                  SET TypesOfPayment = :TypesOfPayment, Amount = :Amount 
+                  WHERE EmpID = :EmpID";
         } else {
-            // No record, insert a new one
-            $query = "INSERT INTO Master_AdvancePayment (Amount) VALUES (:Amount)";
+            // Insert new record
+            $query = "INSERT INTO Master_AdvancePayment (EmpID, TypesOfPayment, Amount) 
+                  VALUES (:EmpID, :TypesOfPayment, :Amount)";
         }
 
         $params = [
-            [":Amount", $data['advancepayment']]
+            [":EmpID", $data['emp_id']],
+            [":TypesOfPayment", $data['typesofpayment']],
+            [":Amount", $data['amount']]
         ];
+
         $result = DBController::ExecuteSQL($query, $params);
 
         return [
@@ -279,6 +286,7 @@ public function savePaySlipEntry($data)
                 : "Failed to save data."
         ];
     }
+
 
     function saveAllowanceAmount($data)
     {
@@ -308,8 +316,9 @@ public function savePaySlipEntry($data)
     }
 
 
-    function saveAccountName($data){
-   
+    function saveAccountName($data)
+    {
+
         $query = "INSERT INTO Master_AccountName  (Account_Name) VALUES (:Account_Name)";
         $params = [
             [":Account_Name", $data['account_name']]
@@ -325,8 +334,9 @@ public function savePaySlipEntry($data)
     }
 
 
-    function getAccountName(){
-         $query = "SELECT * FROM Master_AccountName;";
+    function getAccountName()
+    {
+        $query = "SELECT * FROM Master_AccountName;";
         $work = DBController::getDataSet($query);
         if ($work)
             return array("return_code" => true, "return_data" => $work);
@@ -334,9 +344,10 @@ public function savePaySlipEntry($data)
     }
 
 
-    function getAdvanceAmount()
+    function getPaymentsData()
     {
-        $query = "SELECT * FROM Master_AdvancePayment ;";
+        $query = "SELECT map.*,e.emp_name FROM `Master_AdvancePayment` map
+        INNER JOIN Employee e on e.emp_id=map.EmpID;;";
         $work = DBController::getDataSet($query);
         if ($work)
             return array("return_code" => true, "return_data" => $work);
@@ -353,14 +364,4 @@ public function savePaySlipEntry($data)
             return array("return_code" => true, "return_data" => $work);
         return array("return_code" => false, "return_data" => "No  data  found");
     }
-
-
-
-
-
-  
-
-
-
-    
 }

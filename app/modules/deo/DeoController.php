@@ -34,12 +34,12 @@ class DeoController implements Controller
                 return (new Deo())->updatePaySlipStatus($jsondata);
 
 
-            case 'saveAdvanceAmount':
-                return (new Deo())->saveAdvanceAmount($jsondata);
+            case 'savePaymentData':
+                return (new Deo())->savePaymentData($jsondata);
 
 
-            case 'getAdvanceAmount':
-                return (new Deo())->getAdvanceAmount();
+            case 'getPaymentsData':
+                return (new Deo())->getPaymentsData();
 
 
             case 'saveAllowanceAmount':

@@ -79,7 +79,7 @@
                      <a href="#" class="nav-link">
                          <i class="fas fa-check"></i>
                          <p>
-                             Other Payments
+                              Pay Modules
                              <i class="fas fa-angle-left right"></i>
                          </p>
                      </a>
@@ -87,7 +87,7 @@
                          <li class="nav-item">
                              <a href="deo-advancepayment" class="nav-link">
                                  <i class="fas fa-file"></i>
-                                 <p>Advance Payment </p>
+                                 <p>Payment </p>
                              </a>
                          </li>
 
