@@ -174,7 +174,7 @@ GROUP BY em.emp_id, a.attendance_date, a.status, a.shift, l.loc_id, l.loc_name, 
 {
     // 1. Get employees with IsGenerated flag
     $empQuery = "
-       SELECT 
+      SELECT 
     e.emp_id, 
     e.emp_name,
     ps.FromDate,
@@ -187,6 +187,7 @@ GROUP BY em.emp_id, a.attendance_date, a.status, a.shift, l.loc_id, l.loc_name, 
     ps.AmountDue,
     ps.TotalPay,
     ps.OpeningBalance,
+    ps.PaySlipID,
     CASE WHEN MAX(ps.IsGenerated) = 1 THEN 1 ELSE 0 END AS IsGenerated
 FROM Employee e
 LEFT JOIN PaySlip ps 
@@ -244,15 +245,16 @@ WHERE (ps.IsGenerated IS NULL OR ps.IsGenerated = 0);
 
 
 
-    function getPaySlipsDataByEmpID($data)
+    function getPaySlipsDataByEmpIDandSlipID($data)
     {
 
         $query = "SELECT ps.*,e.emp_name,e.emp_contact,e.emp_id,e.emp_contact,e.emp_email,e.emp_address FROM `PaySlip` ps
 INNER JOIN Employee e on e.emp_id =ps.EmployeeID 
-WHERE ps.EmployeeID=:EmployeeID;
+WHERE ps.EmployeeID=:EmployeeID AND ps.PaySlipID=:PaySlipID;
     ";
         $param = [
-            [":EmployeeID", strip_tags($data["emp_id"])]
+            [":EmployeeID", strip_tags($data["emp_id"])],
+            [":PaySlipID", strip_tags($data["payslipID"])],
         ];
 
         $res = DBController::sendData($query, $param);

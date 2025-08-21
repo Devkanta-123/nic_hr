@@ -47,8 +47,8 @@ class VendorController implements Controller
 
 
                  
-            case 'getPaySlipsDataByEmpID':
-                return (new Vendor())->getPaySlipsDataByEmpID($jsondata);
+            case 'getPaySlipsDataByEmpIDandSlipID':
+                return (new Vendor())->getPaySlipsDataByEmpIDandSlipID($jsondata);
 
                 
 
