@@ -201,10 +201,10 @@
                     break;
 
                 default:
-                    showWarningNotification("warning");
+                    showWarningNotification(rc.return_data);
             }
         } else {
-            showWarningNotification("warning");
+            showWarningNotification(rc.return_data);
         }
     }
 
