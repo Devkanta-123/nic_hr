@@ -1,203 +1,116 @@
 <!-- summernote -->
 <link rel="stylesheet" href="assets/admin/plugins/summernote/summernote-bs4.css">
 <link rel="stylesheet"
-    href="assets/admin/plugins/multi-select-dropdown-list-with-checkbox-jquery/jquery.multiselect.css">
+  href="assets/admin/plugins/multi-select-dropdown-list-with-checkbox-jquery/jquery.multiselect.css">
 
 <link rel="stylesheet" href="assets/admin/plugins/bootstrap-toggle-master/css/bootstrap-toggle.min.css">
 <!-- Bootstrap Switch -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.4/css/bootstrap3/bootstrap-switch.min.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.4/css/bootstrap3/bootstrap-switch.min.css"
+  rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.4/js/bootstrap-switch.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 
 
 
 <style>
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(-50px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-50px);
     }
 
-    .slide-in {
-        animation: slideIn 0.5s ease-in-out;
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
+  }
 
-    .custom-btn {
-        border: 2px solid #fff;
-        /* White border */
-        border-radius: 30px;
-        /* Adjust the value to control the roundness of the button */
-        background: linear-gradient(to right, #3498db, #e74c3c);
-        /* Adjust the colors as desired */
-        color: #fff;
-        /* Text color */
-        padding: 5px 10px;
-        /* Adjust padding as needed */
-        display: inline-block;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        /* Adjust shadow as needed */
-    }
+  .slide-in {
+    animation: slideIn 0.5s ease-in-out;
+  }
+
+  .custom-btn {
+    border: 2px solid #fff;
+    /* White border */
+    border-radius: 30px;
+    /* Adjust the value to control the roundness of the button */
+    background: linear-gradient(to right, #3498db, #e74c3c);
+    /* Adjust the colors as desired */
+    color: #fff;
+    /* Text color */
+    padding: 5px 10px;
+    /* Adjust padding as needed */
+    display: inline-block;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    /* Adjust shadow as needed */
+  }
 </style>
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper" id="maincontent">
-  <div class="invoice p-3 mb-3">
-              <!-- title row -->
-              <div class="row">
-                <div class="col-12">
-                  <h4>
-                    <i class="fas fa-globe"></i> AdminLTE, Inc.
-                    <small class="float-right">Date: 2/10/2014</small>
-                  </h4>
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12 mt-3">
+          <div class="card">
+            <div class="card-header">
+              <div class="row align-items-center">
+                <!-- From Date -->
+                <div class="col-md-3">
+                  <label for="from_date" class="mb-0">From Date:</label>
+                  <input type="date" id="from_date" class="form-control" autocomplete="off">
                 </div>
-                <!-- /.col -->
-              </div>
-              <!-- info row -->
-              <div class="row invoice-info">
-                <div class="col-sm-4 invoice-col">
-                  From
-                  <address>
-                    <strong>Admin, Inc.</strong><br>
-                    795 Folsom Ave, Suite 600<br>
-                    San Francisco, CA 94107<br>
-                    Phone: (804) 123-5432<br>
-                    Email: info@almasaeedstudio.com
-                  </address>
-                </div>
-                <!-- /.col -->
-                <div class="col-sm-4 invoice-col">
-                  To
-                  <address>
-                    <strong>John Doe</strong><br>
-                    795 Folsom Ave, Suite 600<br>
-                    San Francisco, CA 94107<br>
-                    Phone: (555) 539-1037<br>
-                    Email: john.doe@example.com
-                  </address>
-                </div>
-                <!-- /.col -->
-                <div class="col-sm-4 invoice-col">
-                  <b>Invoice #007612</b><br>
-                  <br>
-                  <b>Order ID:</b> 4F3S8J<br>
-                  <b>Payment Due:</b> 2/22/2014<br>
-                  <b>Account:</b> 968-34567
-                </div>
-                <!-- /.col -->
-              </div>
-              <!-- /.row -->
 
-              <!-- Table row -->
-              <div class="row">
-                <div class="col-12 table-responsive">
-                  <table class="table table-striped">
-                    <thead>
-                    <tr>
-                      <th>Qty</th>
-                      <th>Product</th>
-                      <th>Serial #</th>
-                      <th>Description</th>
-                      <th>Subtotal</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                      <td>1</td>
-                      <td>Call of Duty</td>
-                      <td>455-981-221</td>
-                      <td>El snort testosterone trophy driving gloves handsome</td>
-                      <td>$64.50</td>
-                    </tr>
-                    <tr>
-                      <td>1</td>
-                      <td>Need for Speed IV</td>
-                      <td>247-925-726</td>
-                      <td>Wes Anderson umami biodiesel</td>
-                      <td>$50.00</td>
-                    </tr>
-                    <tr>
-                      <td>1</td>
-                      <td>Monsters DVD</td>
-                      <td>735-845-642</td>
-                      <td>Terry Richardson helvetica tousled street art master</td>
-                      <td>$10.70</td>
-                    </tr>
-                    <tr>
-                      <td>1</td>
-                      <td>Grown Ups Blue Ray</td>
-                      <td>422-568-642</td>
-                      <td>Tousled lomo letterpress</td>
-                      <td>$25.99</td>
-                    </tr>
-                    </tbody>
-                  </table>
+                <!-- To Date -->
+                <div class="col-md-3">
+                  <label for="to_date" class="mb-0">To Date:</label>
+                  <input type="date" id="to_date" class="form-control" autocomplete="off">
                 </div>
-                <!-- /.col -->
-              </div>
-              <!-- /.row -->
 
-              <div class="row">
-                <!-- accepted payments column -->
-                <div class="col-6">
-                  <p class="lead">Payment Methods:</p>
-                  <img src="../../dist/img/credit/visa.png" alt="Visa">
-                  <img src="../../dist/img/credit/mastercard.png" alt="Mastercard">
-                  <img src="../../dist/img/credit/american-express.png" alt="American Express">
-                  <img src="../../dist/img/credit/paypal2.png" alt="Paypal">
-
-                  <p class="text-muted well well-sm shadow-none" style="margin-top: 10px;">
-                    Etsy doostang zoodles disqus groupon greplin oooj voxy zoodles, weebly ning heekya handango imeem
-                    plugg
-                    dopplr jibjab, movity jajah plickers sifteo edmodo ifttt zimbra.
-                  </p>
+                <!-- Employee Select -->
+                <div class="col-md-4">
+                  <label for="emp_id" class="mb-0">Employee:</label>
+                  <select class="form-control" id="emp_id" name="emp_id">
+                    <option value="">Select Employee</option>
+                  </select>
                 </div>
-                <!-- /.col -->
-                <div class="col-6">
-                  <p class="lead">Amount Due 2/22/2014</p>
 
-                  <div class="table-responsive">
-                    <table class="table">
-                      <tbody><tr>
-                        <th style="width:50%">Subtotal:</th>
-                        <td>$250.30</td>
-                      </tr>
-                      <tr>
-                        <th>Tax (9.3%)</th>
-                        <td>$10.34</td>
-                      </tr>
-                      <tr>
-                        <th>Shipping:</th>
-                        <td>$5.80</td>
-                      </tr>
-                      <tr>
-                        <th>Total:</th>
-                        <td>$265.24</td>
-                      </tr>
-                    </tbody></table>
-                  </div>
-                </div>
-                <!-- /.col -->
-              </div>
-              <!-- /.row -->
-
-              <!-- this row will not appear when printing -->
-              <div class="row no-print">
-                <div class="col-12">
-                  <a href="invoice-print.html" rel="noopener" target="_blank" class="btn btn-default"><i class="fas fa-print"></i> Print</a>
-                  <button type="button" class="btn btn-success float-right"><i class="far fa-credit-card"></i> Submit
-                    Payment
-                  </button>
-                  <button type="button" class="btn btn-primary float-right" style="margin-right: 5px;">
-                    <i class="fas fa-download"></i> Generate PDF
-                  </button>
+                <!-- Button -->
+                <div class="col-md-2">
+                  <button id="loadBtn" class="btn btn-success btn-block">Load Data</button>
                 </div>
               </div>
             </div>
-    <!-- /.content -->
+
+
+
+
+
+            <!-- Ends here  -->
+
+
+            <div class="card-body">
+              <p id="summary">Total Present: 0 | Absent: 0 | Halfday: 0</p>
+              <table id="empAttendance" class="table table-bordered table-striped">
+                <thead>
+                  <tr>
+                    <th scope="col">Emp Name</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Status</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+
+            <!-- /.card-body -->
+          </div>
+        </div>
+      </div>
+      <!-- /.row -->
+    </div>
+    <!-- /.container-fluid -->
+  </section>
+  <!-- /.content -->
 </div>
 
 <!-- /.content-wrapper -->
@@ -210,167 +123,239 @@
 <script src="assets/admin/plugins/bootstrap-toggle-master/js/bootstrap-toggle.min.js"></script>
 
 <script>
-    $(function() {
-        getAttendanceReport()
-        var today = new Date().toISOString().split('T')[0];
-        // Set max attribute to today
-        $('#dateInput').attr('max', today);
+  $(function () {
+    getActiveEmployeesForAttendance();
+    getActiveEmployeeList();
+  });
+
+  let allLocations = [];
+  let employeeData = [];
+
+  let isLocationLoaded = false;
+  let isEmployeeLoaded = false;
+
+  function checkAndLoadTable() {
+    if (isLocationLoaded && isEmployeeLoaded) {
+      loaddata(employeeData);
+    }
+  }
+  $("#loadBtn").on("click", function () {
+    loaddata();
+  });
+
+
+
+  function getActiveEmployeesForAttendance() {
+    var obj = new Object();
+    obj.Module = "Employee";
+    obj.Page_key = "getActiveEmployeesForAttendance";
+    var json = new Object();
+    obj.JSON = json;
+    TransportCall(obj);
+  }
+
+
+  function getActiveEmployeeList() {
+    var obj = new Object();
+    obj.Module = "Employee";
+    obj.Page_key = "getActiveEmployeeList";
+    var json = new Object();
+    obj.JSON = json;
+    TransportCall(obj);
+  }
+
+
+
+  function onSuccess(rc) {
+    debugger;
+    if (rc.return_code) {
+      switch (rc.Page_key) {
+        case "getActiveEmployeesForAttendance":
+          employeeData = rc.return_data;
+          isEmployeeLoaded = true;
+          console.log("Employees:", employeeData);
+          break;
+
+        case "getActiveEmployeeList":
+          populateEmployeeDropdown(rc.return_data);
+          break;
+
+
+        case "markAttendance":
+          notify('success', rc.return_data);
+          console.log(rc.return_data);
+          // optional: you might want to reset flags if reloading
+          isEmployeeLoaded = false;
+          //getActiveEmployeesForAttendance();
+          break;
+
+        default:
+          alert(rc.Page_key);
+      }
+    } else {
+      alert(rc.return_data);
+    }
+  }
+
+
+  function populateEmployeeDropdown(emp) {
+    const $empselect = $('#emp_id');
+    $empselect.empty(); // Clear previous options
+    $empselect.append('<option value="">Select Employee</option>');
+    emp.forEach(function (emp) {
+      $empselect.append(
+        $('<option>', {
+          value: emp.emp_id,
+          text: emp.emp_name
+        })
+      );
+    });
+  }
+
+  const today = new Date().toISOString().split("T")[0];
+  // restrict date picker
+  $("#to_date").attr("max", today);
+  $("#from_date").attr("max", today);
+  $("#to_date").val(today);
+
+
+  // ✅ Load data (always show all employees, overlay attendance if exists)
+  function filterAndLoadData(selectedDate) {
+    const today = new Date().toISOString().split("T")[0];
+    const isToday = (selectedDate === today);
+
+    // pick only records that match selectedDate
+    const existingForDate = employeeData.filter(item => item.attendance_date === selectedDate);
+
+    // build rows
+    loaddata(existingForDate, selectedDate, isToday);
+  }
+
+  function loaddata() {
+    const table = $("#empAttendance");
+
+    // Destroy old DataTable safely
+    if ($.fn.DataTable.isDataTable(table)) {
+      table.DataTable().clear().destroy();
+    }
+
+    // Get filters
+    const fromDate = $("#from_date").val();
+    const toDate = $("#to_date").val();
+    const empId = $("#emp_id").val();
+
+    if (!fromDate || !toDate || !empId) {
+      notify("warning","Please select From Date, To Date, and Employee.");
+      return;
+    }
+
+    // Filter employeeData
+    const filteredData = employeeData.filter(emp => {
+      return (
+        emp.emp_id == empId &&
+        emp.attendance_date >= fromDate &&
+        emp.attendance_date <= toDate
+      );
     });
 
-    function getAttendanceReport() {
-        var obj = new Object();
-        obj.Module = "Employee";
-        obj.Page_key = "getAttendanceReport";
-        var json = new Object();
-        obj.JSON = json;
-        TransportCall(obj);
-    }
-    let employeeAttendanceData = [];
+    let text = "";
+    let presentCount = 0,
+      absentCount = 0,
+      halfdayCount = 0;
 
-    function onSuccess(rc) {
-        debugger;
-        if (rc.return_code) {
-            switch (rc.Page_key) {
-                case "getAttendanceReport":
-                    employeeAttendanceData = rc.return_data;
-                    // loadTodayAttendance();
-                    loaddata(rc.return_data)
-                    // document.querySelector('input[type="date"]').value = getTodayDate();
-                    break;
-                case "markAttendance":
-                    notify('success', rc.return_data);
-                    console.log(rc.return_data);
-                    getAttendanceReport();
-                    break;
+    filteredData.forEach(emp => {
+      const status = emp.attendance_status || "Absent"; // Default Absent if not found
 
+      // Count summary
+      if (status === "Present") presentCount++;
+      else if (status === "Halfday") halfdayCount++;
+      else absentCount++;
 
-                default:
-                    alert(rc.Page_key);
-            }
-        } else {
-            alert(rc.return_data);
+      text += `
+      <tr>
+        <td>${emp.emp_name}</td>
+        <td>${emp.attendance_date}</td>
+        <td>${status}</td>
+      </tr>`;
+    });
+
+    $("#empAttendance tbody").html(text);
+
+    // Update summary
+    $("#summary").text(
+      `Total Present: ${presentCount} | Absent: ${absentCount} | Halfday: ${halfdayCount}`
+    );
+
+    // Reinitialize DataTable
+    table.DataTable({
+      responsive: true,
+      order: [],
+      dom: "Bfrtip",
+      bInfo: true,
+      deferRender: true,
+      pageLength: 10,
+      buttons: [
+        {
+          extend: "excel",
+          exportOptions: { columns: ":not(.hidden-col)" }
+        },
+        {
+          extend: "pdfHtml5",
+          exportOptions: { columns: ":not(.hidden-col)" }
+        },
+        {
+          extend: "print",
+          exportOptions: { columns: ":not(.hidden-col)" }
         }
-        // alert(JSON.stringify(args));
+      ]
+    });
+  }
+
+
+
+  $("#saveAttendanceBtn").on("click", function () {
+    $("#empAttendance tbody tr").each(function () {
+      const empId = $(this).find(".attendance-status-radio").data("empid");
+      const status = $(`input[name='status_${empId}']:checked`).val() || null;
+      const shift = $(`#shift_${empId}`).val() || null;
+      const isExisting = $(`#status_present_${empId}`).data("existing");
+      const attendanceDate = $("#attendance_date").val();
+      // Only call if user has selected something
+      if (status) {
+        sendAttendance(empId, status, shift, attendanceDate, isExisting);
+      }
+    });
+  });
+
+
+  //saveAttendanceBtn
+
+  function sendAttendance(emp_id, status, shift, selectedDate, isExisting = false) {
+    debugger;
+    const loc_id = $(`.location-select[data-empid="${emp_id}"]`).val();
+    if (!loc_id) {
+      notify('warning', ' Select the location');
+      return;
     }
 
-
-    function searchOnDate() {
-        const selectedDate = document.querySelector('input[type="date"]').value;
-        if (!selectedDate) {
-            loaddata(employeeAttendanceData); // If no date selected, show all
-            return;
-        }
-
-        const filteredData = employeeAttendanceData.filter(emp => emp.attendance_date === selectedDate);
-        loaddata(filteredData);
+    const attendance_date = $("#attendance_date").val();
+    if (!attendance_date) {
+      notify('error', 'Attendance date cannot be empty');
+      return;
     }
 
+    const obj = {
+      Module: "Deo",
+      Page_key: "markAttendance",
+      JSON: {
+        emp_id: emp_id,
+        status: status,
+        shift: shift || null,
+        location_id: loc_id || null,
+        attendance_date: attendance_date
+      }
+    };
 
-    function loaddata(data) {
-        const table = $("#empAttendance");
-
-        try {
-            if ($.fn.DataTable.isDataTable(table)) {
-                table.DataTable().clear().draw();
-                table.DataTable().destroy();
-            }
-        } catch (ex) {
-            console.error("Error destroying DataTable:", ex);
-        }
-
-        let text = "";
-
-        if (!data || data.length === 0) {
-            text += "<tr><td colspan='6'>No Data Found</td></tr>";
-        } else {
-            for (let i = 0; i < data.length; i++) {
-                const emp = data[i];
-                const attendanceStatus = emp.attendance_status || "Absent";
-
-                // ✅ Show shift if status is Present or Halfday
-                const showShift =
-                    attendanceStatus.toLowerCase() === "present" ||
-                    attendanceStatus.toLowerCase() === "halfday";
-
-                const shiftValue = showShift ? (emp.shift || "") : "";
-
-                // Badge color
-                let badgeClass = "danger";
-                if (attendanceStatus.toLowerCase() === "present") {
-                    badgeClass = "success";
-                } else if (attendanceStatus.toLowerCase() === "halfday") {
-                    badgeClass = "primary";
-                }
-
-                text += `<tr>`;
-                text += `<td>${emp.emp_name}</td>`;
-                text += `<td>${emp.emp_contact}</td>`;
-                text += `<td>${emp.sector || 'N/A'}</td>`;
-                text += `<td>${emp.attendance_date || 'N/A'}</td>`;
-                text += `<td>${emp.loc_name || 'N/A'}</td>`;
-                text += `<td>
-                        <small class="badge badge-${badgeClass}">
-                            ${attendanceStatus}
-                        </small>
-                          <small>
-                            ${shiftValue ? " (" + shiftValue + ")" : ""}
-                        </small>
-                    </td>`;
-                text += `</tr>`;
-            }
-        }
-
-        $("#empAttendance tbody").html(text);
-
-        if (data && data.length > 0) {
-            table.DataTable({
-                responsive: true,
-                order: [],
-                dom: 'Bfrtip',
-                bInfo: true,
-                deferRender: true,
-                pageLength: 10,
-                buttons: [{
-                        extend: 'excel',
-                        orientation: 'landscape',
-                        pageSize: 'A4',
-                        exportOptions: {
-                            columns: ':not(.hidden-col)'
-                        }
-                    },
-                    {
-                        extend: 'pdfHtml5',
-                        orientation: 'landscape',
-                        pageSize: 'A4',
-                        exportOptions: {
-                            columns: ':not(.hidden-col)'
-                        }
-                    },
-                    {
-                        extend: 'print',
-                        orientation: 'landscape',
-                        pageSize: 'A4',
-                        exportOptions: {
-                            columns: ':not(.hidden-col)'
-                        }
-                    }
-                ]
-            });
-        }
-    }
-
-
-    function getTodayDate() {
-        const today = new Date();
-        const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, '0');
-        const dd = String(today.getDate()).padStart(2, '0');
-        return `${yyyy}-${mm}-${dd}`;
-    }
-
-    function loadTodayAttendance() {
-        const today = getTodayDate();
-        const todaysData = employeeAttendanceData.filter(emp => emp.attendance_date === today);
-        loaddata(todaysData);
-    }
+    TransportCall(obj);
+  }
 </script>
