@@ -109,6 +109,7 @@
 
                                 </tbody>
                             </table>
+                            <button type="button" id="saveAttendanceBtn" class="btn btn-primary">Save</button>
                         </div>
                         <!-- /.card-body -->
                     </div>
@@ -178,18 +179,19 @@
                 case "getActiveEmployeesForAttendance":
                     employeeData = rc.return_data;
                     isEmployeeLoaded = true;
-                    console.log(employeeData);
+                    console.log("Employees:", employeeData);
                     if (allLocations && allLocations.length > 0) {
-                        loadFilterData(employeeData);
+                        initAttendanceModule();
                     }
                     break;
 
                 case "getLocations":
                     populateLocationDropdown(rc.return_data);
+                    allLocations = rc.return_data;
 
                     // only run if employees already loaded
                     if (isEmployeeLoaded) {
-                        loadFilterData(employeeData);
+                        initAttendanceModule();
                     }
                     break;
 
@@ -211,143 +213,186 @@
     }
 
 
+    function populateLocationDropdown(locations) {
+        if (!Array.isArray(locations)) {
+            console.warn("populateLocationDropdown received invalid data:", locations);
+            locations = [];
+        }
+        allLocations = locations;
 
-    function loadFilterData(filterData) {
+        // 🔑 Refresh location dropdowns in already-rendered table
+        $("#empAttendance tbody tr").each(function() {
+            const empId = $(this).find("select.location-select").data("empid");
+            let locationOptions = `<option value="">Select Location</option>`;
+
+            allLocations.forEach(loc => {
+                const selected = $(`#loc_id_${empId}`).val() == loc.loc_id ? "selected" : "";
+                locationOptions += `<option value="${loc.loc_id}" ${selected}>${loc.loc_name}</option>`;
+            });
+
+            $(`#loc_id_${empId}`).html(locationOptions);
+        });
+    }
+
+    function initAttendanceModule() {
         const today = new Date().toISOString().split("T")[0];
+
+        // restrict date picker
+        $("#attendance_date").attr("max", today);
         $("#attendance_date").val(today);
 
-        // Load today's data on page load
+        // date validation
+        $("#attendance_date").on("change", function() {
+            const selectedDate = $(this).val();
+            if (selectedDate > today) {
+                $("#loadBtn").prop("disabled", true);
+            } else {
+                $("#loadBtn").prop("disabled", false);
+            }
+        });
+
+        // load today's data on page load
         filterAndLoadData(today);
 
-        // Load on button click
-        $("#loadBtn").on("click", function() {
+        // load on button click (rebind only once)
+        $("#loadBtn").off("click").on("click", function() {
             const selectedDate = $("#attendance_date").val();
             filterAndLoadData(selectedDate);
         });
-
-        function filterAndLoadData(selectedDate) {
-            const filtered = filterData.filter(item => item.attendance_date === selectedDate);
-
-            const today = new Date().toISOString().split("T")[0];
-            const isToday = (selectedDate === today);
-
-            loaddata(filtered, selectedDate, isToday);
-        }
     }
 
+    // ✅ Load data (always show all employees, overlay attendance if exists)
+    function filterAndLoadData(selectedDate) {
+        const today = new Date().toISOString().split("T")[0];
+        const isToday = (selectedDate === today);
+
+        // pick only records that match selectedDate
+        const existingForDate = employeeData.filter(item => item.attendance_date === selectedDate);
+
+        // build rows
+        loaddata(existingForDate, selectedDate, isToday);
+    }
+
+    // ✅ Build attendance table
     function loaddata(data, selectedDate, isToday = false) {
-        debugger;
-        var table = $("#empAttendance");
+        const table = $("#empAttendance");
 
         // Destroy old DataTable safely
         if ($.fn.DataTable.isDataTable(table)) {
             table.DataTable().clear().destroy();
         }
 
+        let employees = [];
+
+        if (data && data.length > 0) {
+            // overlay data: start with all employees, then map attendance
+            const byId = {};
+            employeeData.forEach(emp => {
+                byId[emp.emp_id] = {
+                    ...emp,
+                    attendance_status: "",
+                    shift: "",
+                    loc_id: ""
+                };
+            });
+            data.forEach(att => {
+                byId[att.emp_id] = {
+                    ...byId[att.emp_id],
+                    ...att
+                };
+            });
+            employees = Object.values(byId);
+        } else {
+            // no records → show default blank rows
+            const unique = {};
+            employeeData.forEach(emp => {
+                if (!unique[emp.emp_id]) {
+                    unique[emp.emp_id] = {
+                        ...emp,
+                        attendance_status: "",
+                        shift: "",
+                        loc_id: ""
+                    };
+                }
+            });
+            employees = Object.values(unique);
+        }
+
         let text = "";
 
-        if ((!data || data.length === 0) && !isToday) {
-            // Case 1: Not today & no records → show "No Data Found"
-            text += "<tr><td colspan='3' class='text-center'>No Data Found</td></tr>";
-        } else {
-            // Case 2: Attendance data exists → show it
-            // Case 3: Today & no records → show unique employees with blank attendance
-            let employees;
+        for (let i = 0; i < employees.length; i++) {
+            const emp = employees[i];
+            const empId = emp.emp_id;
+            const attendanceStatus = emp.attendance_status || "";
+            const shiftValue = emp.shift || "";
+            const empLocationId = emp.loc_id || "";
 
-            if (data && data.length > 0) {
-                employees = data;
-            } else {
-                // Remove duplicates by emp_id
-                const unique = {};
-                employeeData.forEach(emp => {
-                    if (!unique[emp.emp_id]) {
-                        unique[emp.emp_id] = {
-                            ...emp,
-                            attendance_status: "",
-                            shift: "",
-                            loc_id: ""
-                        };
-                    }
-                });
-                employees = Object.values(unique);
-            }
+            const isExisting = attendanceStatus !== "";
 
-            for (let i = 0; i < employees.length; i++) {
-                const emp = employees[i];
-                const empId = emp.emp_id;
-                const attendanceStatus = emp.attendance_status || "";
-                const shiftValue = emp.shift || "";
-                const empLocationId = emp.loc_id || "";
+            text += `<tr data-existing="${isExisting}">`;
 
-                const isPresentOrHalfday =
-                    attendanceStatus === "Present" || attendanceStatus === "Halfday";
+            // Col 1 - Name
+            text += `<td>${emp.emp_name}</td>`;
 
-                text += `<tr>`;
+            // Col 2 - Location
+            let locationOptions = `<option value="">Select Location</option>`;
+            allLocations.forEach(loc => {
+                const selected = empLocationId == loc.loc_id ? "selected" : "";
+                locationOptions += `<option value="${loc.loc_id}" ${selected}>${loc.loc_name}</option>`;
+            });
 
-                // Col 1 - Name
-                text += `<td>${emp.emp_name}</td>`;
+            text += `<td>
+            <select class="form-control location-select" id="loc_id_${empId}" name="loc_id" data-empid="${empId}">
+                ${locationOptions}
+            </select>
+        </td>`;
 
-                // Col 2 - Location
-                let locationOptions = `<option value="">Select Location</option>`;
-                allLocations.forEach(loc => {
-                    const selected = empLocationId == loc.loc_id ? "selected" : "";
-                    locationOptions += `<option value="${loc.loc_id}" ${selected}>${loc.loc_name}</option>`;
-                });
+            // Col 3 - Attendance + Shift dropdown
+            text += `<td style="min-width: 500px;">`;
 
-                text += `<td>
-                <select class="form-control location-select" id="loc_id_${empId}" name="loc_id" data-empid="${empId}">
-                    ${locationOptions}
+            text += `
+            <div class="form-check form-check-inline">
+                <input class="form-check-input attendance-status-radio" type="radio" 
+                    name="status_${empId}" id="status_present_${empId}" value="Present" 
+                    data-empid="${empId}" data-existing="${isExisting}"
+                    ${attendanceStatus === "Present" ? "checked" : ""}>
+                <label class="form-check-label" for="status_present_${empId}">Present</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input attendance-status-radio" type="radio" 
+                    name="status_${empId}" id="status_halfday_${empId}" value="Halfday" 
+                    data-empid="${empId}" data-existing="${isExisting}"
+                    ${attendanceStatus === "Halfday" ? "checked" : ""}>
+                <label class="form-check-label" for="status_halfday_${empId}">Halfday</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input attendance-status-radio" type="radio" 
+                    name="status_${empId}" id="status_absent_${empId}" value="Absent" 
+                    data-empid="${empId}" data-existing="${isExisting}"
+                    ${attendanceStatus === "Absent" ? "checked" : ""}>
+                <label class="form-check-label" for="status_absent_${empId}">Absent</label>
+            </div>
+        `;
+
+            // Shift dropdown
+            let shiftOptions = `
+            <option value="">Select Shift</option>
+            <option value="Morning" ${shiftValue === "Morning" ? "selected" : ""}>Morning</option>
+            <option value="Night" ${shiftValue === "Night" ? "selected" : ""}>Night</option>
+            <option value="Morning + Night" ${shiftValue === "Morning + Night" ? "selected" : ""}>Morning + Night</option>
+        `;
+
+            text += `
+            <div class="form-check form-check-inline ml-2" style="width: 150px;">
+                <select class="form-control form-control-sm shift-select" 
+                        id="shift_${empId}" name="shift_${empId}" data-empid="${empId}">
+                    ${shiftOptions}
                 </select>
-            </td>`;
+            </div>
+        `;
 
-                // Col 3 - Attendance + Shift radios
-                text += `<td style="min-width: 450px;">`;
-
-                text += `
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input attendance-status-radio" type="radio" 
-                        name="status_${empId}" id="status_present_${empId}" value="Present" 
-                        data-empid="${empId}" ${attendanceStatus === "Present" ? "checked" : ""}>
-                    <label class="form-check-label" for="status_present_${empId}">Present</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input attendance-status-radio" type="radio" 
-                        name="status_${empId}" id="status_halfday_${empId}" value="Halfday" 
-                        data-empid="${empId}" ${attendanceStatus === "Halfday" ? "checked" : ""}>
-                    <label class="form-check-label" for="status_halfday_${empId}">Halfday</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input attendance-status-radio" type="radio" 
-                        name="status_${empId}" id="status_absent_${empId}" value="Absent" 
-                        data-empid="${empId}" ${attendanceStatus === "Absent" ? "checked" : ""}>
-                    <label class="form-check-label" for="status_absent_${empId}">Absent</label>
-                </div>
-            `;
-
-                // Shift radios
-                text += `
-                <span class="shift-options ml-3" id="shifts_${empId}" style="display: ${isPresentOrHalfday ? "inline-block" : "none"};">
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input shift-radio" type="radio" name="shift_${empId}" 
-                            id="morning_${empId}" value="Morning" data-empid="${empId}" ${shiftValue === "Morning" ? "checked" : ""}>
-                        <label class="form-check-label" for="morning_${empId}">Morning</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input shift-radio" type="radio" name="shift_${empId}" 
-                            id="night_${empId}" value="Night" data-empid="${empId}" ${shiftValue === "Night" ? "checked" : ""}>
-                        <label class="form-check-label" for="night_${empId}">Night</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input shift-radio" type="radio" name="shift_${empId}" 
-                            id="both_${empId}" value="Morning + Night" data-empid="${empId}" ${shiftValue === "Morning + Night" ? "checked" : ""}>
-                        <label class="form-check-label" for="both_${empId}">Morning + Night</label>
-                    </div>
-                </span>
-            `;
-
-                text += `</td>`;
-                text += `</tr>`;
-            }
+            text += `</td>`;
+            text += `</tr>`;
         }
 
         $("#empAttendance tbody").html(text);
@@ -380,68 +425,45 @@
                 }
             ]
         });
-
-        // Event bindings
-        $(".attendance-status-radio").on("change", function() {
-            const empId = $(this).data("empid");
-            const status = $(this).val();
-
-            if (status === "Present" || status === "Halfday") {
-                $(`#shifts_${empId}`).show();
-            } else {
-                $(`#shifts_${empId}`).hide();
-            }
-
-            const shift = $(`input[name='shift_${empId}']:checked`).val() || null;
-            sendAttendance(empId, status, shift, selectedDate);
-        });
-
-        $(".shift-radio").on("change", function() {
-            const empId = $(this).data("empid");
-            const shift = $(this).val();
-            const status = $(`input[name='status_${empId}']:checked`).val() || "Present";
-            sendAttendance(empId, status, shift, selectedDate);
-        });
     }
 
 
 
 
-    function populateLocationDropdown(locations) {
-        debugger;
-        if (!Array.isArray(locations)) {
-            console.warn("populateLocationDropdown received invalid data:", locations);
-            locations = [];
-        }
-        allLocations = locations;
 
-        // 🔑 Refresh location dropdowns in already-rendered table
+
+
+    $("#saveAttendanceBtn").on("click", function() {
         $("#empAttendance tbody tr").each(function() {
-            const empId = $(this).find("select.location-select").data("empid");
-            let locationOptions = `<option value="">Select Location</option>`;
-
-            allLocations.forEach(loc => {
-                const selected = $(`#loc_id_${empId}`).val() == loc.loc_id ? "selected" : "";
-                locationOptions += `<option value="${loc.loc_id}" ${selected}>${loc.loc_name}</option>`;
-            });
-
-            $(`#loc_id_${empId}`).html(locationOptions);
+            const empId = $(this).find(".attendance-status-radio").data("empid");
+            const status = $(`input[name='status_${empId}']:checked`).val() || null;
+            const shift = $(`#shift_${empId}`).val() || null;
+            const isExisting = $(`#status_present_${empId}`).data("existing");
+            const attendanceDate = $("#attendance_date").val();
+            // Only call if user has selected something
+            if (status) {
+                sendAttendance(empId, status, shift, attendanceDate, isExisting);
+            }
         });
-    }
+    });
 
-    function sendAttendance(emp_id, status, shift) {
+
+    //saveAttendanceBtn
+
+    function sendAttendance(emp_id, status, shift, selectedDate, isExisting = false) {
         debugger;
-        // Use the correct selector
         const loc_id = $(`.location-select[data-empid="${emp_id}"]`).val();
-
-        if ((status === "Present" || status === "Halfday") && (!shift || shift.trim() === "" || loc_id === "")) {
+        if (!loc_id) {
+            notify('warning', ' Select the location');
             return;
         }
+
         const attendance_date = $("#attendance_date").val();
         if (!attendance_date) {
             notify('error', 'Attendance date cannot be empty');
             return;
         }
+
         const obj = {
             Module: "Deo",
             Page_key: "markAttendance",

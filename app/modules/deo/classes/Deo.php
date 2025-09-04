@@ -26,12 +26,12 @@ class Deo
         $location_id = isset($data['location_id']) ? $data['location_id'] : null;
 
         // Optional: Validate shift if Present
-        if ($status === "Present" && empty($shift)) {
-            return [
-                "return_code" => false,
-                "return_data" => "Shift must be provided for Present status."
-            ];
-        }
+        // if ($status === "Present" && empty($shift)) {
+        //     return [
+        //         "return_code" => false,
+        //         "return_data" => "Shift must be provided for Present status."
+        //     ];
+        // }
 
         // Insert or update attendance for the current date
         $query = "
