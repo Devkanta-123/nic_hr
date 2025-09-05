@@ -77,8 +77,10 @@ ON DUPLICATE KEY UPDATE
         }
 
         $entries = $data['entries'];
-        $query = "INSERT INTO Ledger_Entries (entry_date, ledger_head, particulars, debit, credit)
-              VALUES (:entry_date, :ledger_head, :particulars, :debit, :credit)";
+        $query = "INSERT INTO Ledger_Entries 
+                (entry_date, ledger_head, particulars, debit, credit, account_nameID)
+              VALUES 
+                (:entry_date, :ledger_head, :particulars, :debit, :credit, :account_nameID)";
 
         $allSuccess = true;
 
@@ -91,6 +93,7 @@ ON DUPLICATE KEY UPDATE
                 [":particulars", $entry['particulars']],
                 [":debit", $entry['type'] === 'Dr' ? $entry['amount'] : 0],
                 [":credit", $entry['type'] === 'Cr' ? $entry['amount'] : 0],
+                [":account_nameID", $entry['account_id']], // ✅ from UI data
             ];
 
             $result = DBController::ExecuteSQL($query, $params);
@@ -107,6 +110,7 @@ ON DUPLICATE KEY UPDATE
                 : "Some entries failed to save."
         ];
     }
+
 
 
 

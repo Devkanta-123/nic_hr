@@ -69,10 +69,11 @@
                                                 <option value="credit">Credit</option>
                                             </select>
                                         </div>
-                                      <div class="form-group col-md-6">
-    <label for="entryDate">Date</label>
-    <input type="date" class="form-control" id="entryDate" value="<?php echo date('Y-m-d'); ?>">
-</div>
+                                        <div class="form-group col-md-6">
+                                            <label for="entryDate">Date</label>
+                                            <input type="date" class="form-control" id="entryDate"
+                                                value="<?php echo date('Y-m-d'); ?>">
+                                        </div>
 
                                     </div>
 
@@ -80,11 +81,15 @@
                                     <div class="form-row">
                                         <div class="form-group col-md-6">
                                             <label for="particulars">Particulars</label>
-                                            <input type="text" class="form-control" id="particulars" placeholder="Enter particulars">
+                                            <input type="text" class="form-control" id="particulars"
+                                                placeholder="Enter particulars">
                                         </div>
                                         <div class="form-group col-md-6">
-                                            <label for="jf">J.F. Number</label>
-                                            <input type="text" class="form-control" id="jf" placeholder="Journal Folio No.">
+                                            <label for="account_name">Account Name</label>
+                                            <select id="account_name" class="form-control">
+                                                <!-- example static options -->
+
+                                            </select>
                                         </div>
                                     </div>
 
@@ -92,10 +97,12 @@
                                     <div class="form-row">
                                         <div class="form-group col-md-6">
                                             <label for="amount">Amount</label>
-                                            <input type="number" class="form-control" id="amount" placeholder="Enter amount" min="0" step="0.01">
+                                            <input type="number" class="form-control" id="amount"
+                                                placeholder="Enter amount" min="0" step="0.01">
                                         </div>
                                         <div class="form-group col-md-6 d-flex align-items-end">
-                                            <button type="button" id="addEntryBtn" class="btn btn-primary">Add Entry</button>
+                                            <button type="button" id="addEntryBtn" class="btn btn-primary">Add
+                                                Entry</button>
                                         </div>
                                     </div>
 
@@ -103,42 +110,43 @@
                             </div>
                         </div>
 
-                       <div class="card">
-    <div class="card-body"  id="ledgerContent">
-        <table id="ledgerTable" class="table table-bordered table-striped">
-            <thead>
-                <tr class="text-center">
-                    <th colspan="4">Dr.</th>
-                    <th colspan="4">Cr.</th>
-                </tr>
-                <tr>
-                    <th>Date</th>
-                    <th>Particulars</th>
-                    <th>J.F.</th>
-                    <th>Amount</th>
-                    <th>Date</th>
-                    <th>Particulars</th>
-                    <th>J.F.</th>
-                    <th>Amount</th>
-                </tr>
-            </thead>
-            <tbody id="ledgerBody"></tbody>
-            <tfoot>
-                <tr class="font-weight-bold bg-light">
-                    <td colspan="3" class="text-right">Total Debit</td>
-                    <td id="totalDebit">0.00</td>
-                    <td colspan="3" class="text-right">Total Credit</td>
-                    <td id="totalCredit">0.00</td>
-                </tr>
-            </tfoot>
-        </table>
+                        <div class="card">
+                            <div class="card-body" id="ledgerContent">
+                                <table id="ledgerTable" class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr class="text-center">
+                                            <th colspan="4">Dr.</th>
+                                            <th colspan="4">Cr.</th>
+                                        </tr>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Particulars</th>
+                                            <th>Account</th>
+                                            <th>Amount</th>
+                                            <th>Date</th>
+                                            <th>Particulars</th>
+                                            <th>Account</th>
+                                            <th>Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ledgerBody"></tbody>
+                                    <tfoot>
+                                        <tr class="font-weight-bold bg-light">
+                                            <td colspan="3" class="text-right">Total Debit</td>
+                                            <td id="totalDebit">0.00</td>
+                                            <td colspan="3" class="text-right">Total Credit</td>
+                                            <td id="totalCredit">0.00</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
 
-        <div class="text-right mt-3">
-            <button class="btn btn-primary mr-2" onclick="saveLedgerEntry()">Save</button>
-            <button class="btn btn-danger" onclick="generatePDF()">Export to PDF</button>
-        </div>
-    </div>
-</div>
+                                <div class="text-right mt-3">
+                                    <button class="btn btn-primary mr-2" onclick="saveLedgerEntry()">Save</button>
+                                    <button class="btn btn-danger" onclick="generatePDF()">Export to PDF</button>
+                                </div>
+                            </div>
+                        </div>
+
 
                     </div>
                 </div>
@@ -171,136 +179,177 @@
 
 
 <script>
+    $(function () {
+        getAccountName();
+    });
+
+    function getAccountName() {
+        var obj = new Object();
+        obj.Module = "Deo";
+        obj.Page_key = "getAccountName";
+        var json = new Object();
+        obj.JSON = json;
+        TransportCall(obj);
+    }
+
     let totalDebit = 0;
-let totalCredit = 0;
+    let totalCredit = 0;
 
-$('#addEntryBtn').click(function () {
-    const type = $('#type').val();
-    const date = $('#entryDate').val();
-    const particulars = $('#particulars').val();
-    const jf = $('#jf').val();
-    const amount = parseFloat($('#amount').val());
+    $('#addEntryBtn').click(function () {
+        const type = $('#type').val();
+        const date = $('#entryDate').val();
+        const particulars = $('#particulars').val();
+        const accountId = $('#account_name').val();
+        const accountName = $('#account_name option:selected').text();
+        const amount = parseFloat($('#amount').val());
 
-    if (!date || !particulars || !jf || isNaN(amount) || amount <= 0) {
-        alert('Please fill all fields correctly.');
-        return;
-    }
-
-    let matchedRow = null;
-
-    $('#ledgerBody tr').each(function () {
-        const drDate = $(this).find('td:eq(0)').text();
-        const crDate = $(this).find('td:eq(4)').text();
-
-        if (type === 'debit' && crDate === date && drDate === '') {
-            matchedRow = $(this);
-            return false;
-        } else if (type === 'credit' && drDate === date && crDate === '') {
-            matchedRow = $(this);
-            return false;
+        if (!date || !particulars || !accountId || isNaN(amount) || amount <= 0) {
+            alert('Please fill all fields correctly.');
+            return;
         }
+
+        let matchedRow = null;
+
+        $('#ledgerBody tr').each(function () {
+            const drDate = $(this).find('td:eq(0)').text();
+            const crDate = $(this).find('td:eq(4)').text();
+
+            if (type === 'debit' && crDate === date && drDate === '') {
+                matchedRow = $(this);
+                return false;
+            } else if (type === 'credit' && drDate === date && crDate === '') {
+                matchedRow = $(this);
+                return false;
+            }
+        });
+
+        if (matchedRow) {
+            if (type === 'debit') {
+                matchedRow.find('td:eq(0)').text(date);
+                matchedRow.find('td:eq(1)').text('To ' + particulars);
+                matchedRow.find('td:eq(2)')
+                    .text(accountName)
+                    .attr('data-accountid', accountId);
+                matchedRow.find('td:eq(3)').text(amount.toFixed(2));
+                totalDebit += amount;
+            } else {
+                matchedRow.find('td:eq(4)').text(date);
+                matchedRow.find('td:eq(5)').text('By ' + particulars);
+                matchedRow.find('td:eq(6)')
+                    .text(accountName)
+                    .attr('data-accountid', accountId);
+                matchedRow.find('td:eq(7)').text(amount.toFixed(2));
+                totalCredit += amount;
+            }
+        } else {
+            const newRow = $('<tr></tr>');
+            if (type === 'debit') {
+                newRow.html(`
+        <td>${date}</td>
+        <td>To ${particulars}</td>
+        <td data-accountid="${accountId}">${accountName}</td>
+        <td>${amount.toFixed(2)}</td>
+        <td></td><td></td><td></td><td></td>
+      `);
+                totalDebit += amount;
+            } else {
+                newRow.html(`
+        <td></td><td></td><td></td><td></td>
+        <td>${date}</td>
+        <td>By ${particulars}</td>
+        <td data-accountid="${accountId}">${accountName}</td>
+        <td>${amount.toFixed(2)}</td>
+      `);
+                totalCredit += amount;
+            }
+            $('#ledgerBody').append(newRow);
+        }
+
+        $('#totalDebit').text(totalDebit.toFixed(2));
+        $('#totalCredit').text(totalCredit.toFixed(2));
+
+        $('#ledgerForm')[0].reset();
     });
 
-    if (matchedRow) {
-        if (type === 'debit') {
-            matchedRow.find('td:eq(0)').text(date);
-            matchedRow.find('td:eq(1)').text('To ' + particulars);
-            matchedRow.find('td:eq(2)').text(jf);
-            matchedRow.find('td:eq(3)').text(amount.toFixed(2));
-            totalDebit += amount;
-        } else {
-            matchedRow.find('td:eq(4)').text(date);
-            matchedRow.find('td:eq(5)').text('By ' + particulars);
-            matchedRow.find('td:eq(6)').text(jf);
-            matchedRow.find('td:eq(7)').text(amount.toFixed(2));
-            totalCredit += amount;
-        }
-    } else {
-        const newRow = $('<tr></tr>');
-        if (type === 'debit') {
-            newRow.html(`
-                <td>${date}</td>
-                <td>To ${particulars}</td>
-                <td>${jf}</td>
-                <td>${amount.toFixed(2)}</td>
-                <td></td><td></td><td></td><td></td>
-            `);
-            totalDebit += amount;
-        } else {
-            newRow.html(`
-                <td></td><td></td><td></td><td></td>
-                <td>${date}</td>
-                <td>By ${particulars}</td>
-                <td>${jf}</td>
-                <td>${amount.toFixed(2)}</td>
-            `);
-            totalCredit += amount;
-        }
-        $('#ledgerBody').append(newRow);
+
+    function populateAccounts(data) {
+        const $account_datas = $('#account_name');
+        $account_datas.empty(); // Clear previous options
+        $account_datas.append('<option value="">Select Account</option>');
+        data.forEach(function (data) {
+            $account_datas.append(
+                $('<option>', {
+                    value: data.id,
+                    text: data.account_name
+                })
+            );
+        });
     }
 
-    $('#totalDebit').text(totalDebit.toFixed(2));
-    $('#totalCredit').text(totalCredit.toFixed(2));
-
-    $('#ledgerForm')[0].reset();
-});
-
-function saveLedgerEntry() {
-    const entries = [];
-
-    $('#ledgerBody tr').each(function () {
-        const drDate = $(this).find('td:eq(0)').text().trim();
-        const drParticulars = $(this).find('td:eq(1)').text().trim();
-        const drJF = $(this).find('td:eq(2)').text().trim();
-        const drAmount = $(this).find('td:eq(3)').text().trim();
-
-        const crDate = $(this).find('td:eq(4)').text().trim();
-        const crParticulars = $(this).find('td:eq(5)').text().trim();
-        const crJF = $(this).find('td:eq(6)').text().trim();
-        const crAmount = $(this).find('td:eq(7)').text().trim();
-
-        if (drDate || drParticulars || drAmount) {
-            entries.push({
-                type: 'Dr',
-                date: drDate,
-                particulars: drParticulars,
-                jf: drJF,
-                amount: parseFloat(drAmount) || 0
-            });
-        }
-
-        if (crDate || crParticulars || crAmount) {
-            entries.push({
-                type: 'Cr',
-                date: crDate,
-                particulars: crParticulars,
-                jf: crJF,
-                amount: parseFloat(crAmount) || 0
-            });
-        }
-    });
-
-    const payload = {
-        Module: "Deo",
-        Page_key: "saveLedgerEntry",
-        JSON: {
-            entries: entries
-        }
-    };
-
-    console.log("Saved Entries:", payload);
-     TransportCall(payload);
-}
 
 
-function generatePDF() {
-    const docDefinition = {
-        content: [
-            { text: 'Ledger Report', style: 'header', alignment: 'center', margin: [0, 0, 0, 10] },
+    function saveLedgerEntry() {
+        debugger;
+        const entries = [];
+
+        $('#ledgerBody tr').each(function () {
+            const drDate = $(this).find('td:eq(0)').text().trim();
+            const drParticulars = $(this).find('td:eq(1)').text().trim();
+            const drAccountId = $(this).find('td:eq(2)').attr('data-accountid');
+            const drAccountName = $(this).find('td:eq(2)').text().trim();
+            const drAmount = $(this).find('td:eq(3)').text().trim();
+
+            const crDate = $(this).find('td:eq(4)').text().trim();
+            const crParticulars = $(this).find('td:eq(5)').text().trim();
+            const crAccountId = $(this).find('td:eq(6)').attr('data-accountid');
+            const crAccountName = $(this).find('td:eq(6)').text().trim();
+            const crAmount = $(this).find('td:eq(7)').text().trim();
+
+            if (drDate || drParticulars || drAmount) {
+                entries.push({
+                    type: 'Dr',
+                    date: drDate,
+                    particulars: drParticulars,
+                    account_id: drAccountId,
+                    account_name: drAccountName,
+                    amount: parseFloat(drAmount) || 0
+                });
+            }
+
+            if (crDate || crParticulars || crAmount) {
+                entries.push({
+                    type: 'Cr',
+                    date: crDate,
+                    particulars: crParticulars,
+                    account_id: crAccountId,
+                    account_name: crAccountName,
+                    amount: parseFloat(crAmount) || 0
+                });
+            }
+        });
+
+        const payload = {
+            Module: "Deo",
+            Page_key: "saveLedgerEntry",
+            JSON: { entries: entries }
+        };
+
+        console.log("Saved Entries:", payload);
+        TransportCall(payload);
+    }
+
+    function generatePDF() {
+        const docDefinition = {
+            content: [{
+                text: 'Ledger Report',
+                style: 'header',
+                alignment: 'center',
+                margin: [0, 0, 0, 10]
+            },
             {
                 table: {
                     headerRows: 2,
-                    widths: [ '*', '*', '*', '*', '*', '*', '*', '*' ],
+                    widths: ['*', '*', '*', '*', '*', '*', '*', '*'],
                     body: buildLedgerTableBody()
                 },
                 layout: {
@@ -310,72 +359,121 @@ function generatePDF() {
                 }
             },
             {
-                columns: [
-                    { width: '*', text: '' },
-                    {
-                        width: 'auto',
-                        table: {
-                            body: [
-                                [
-                                    { text: 'Total Debit', bold: true, alignment: 'right' },
-                                    { text: $('#totalDebit').text(), alignment: 'right' }
-                                ],
-                                [
-                                    { text: 'Total Credit', bold: true, alignment: 'right' },
-                                    { text: $('#totalCredit').text(), alignment: 'right' }
-                                ]
+                columns: [{
+                    width: '*',
+                    text: ''
+                },
+                {
+                    width: 'auto',
+                    table: {
+                        body: [
+                            [{
+                                text: 'Total Debit',
+                                bold: true,
+                                alignment: 'right'
+                            },
+                            {
+                                text: $('#totalDebit').text(),
+                                alignment: 'right'
+                            }
+                            ],
+                            [{
+                                text: 'Total Credit',
+                                bold: true,
+                                alignment: 'right'
+                            },
+                            {
+                                text: $('#totalCredit').text(),
+                                alignment: 'right'
+                            }
                             ]
-                        },
-                        layout: 'noBorders'
-                    }
+                        ]
+                    },
+                    layout: 'noBorders'
+                }
                 ],
                 margin: [0, 20, 0, 0]
             }
-        ],
-        styles: {
-            header: {
-                fontSize: 16,
-                bold: true
-            }
+            ],
+            styles: {
+                header: {
+                    fontSize: 16,
+                    bold: true
+                }
+            },
+            pageOrientation: 'landscape'
+        };
+
+        pdfMake.createPdf(docDefinition).download('Ledger_Report.pdf');
+    }
+
+
+    function buildLedgerTableBody() {
+        const body = [];
+
+        // Headers
+        body.push([{
+            text: 'Dr.',
+            colSpan: 4,
+            alignment: 'center',
+            bold: true
+        }, {}, {}, {},
+        {
+            text: 'Cr.',
+            colSpan: 4,
+            alignment: 'center',
+            bold: true
+        }, {}, {}, {}
+        ]);
+
+        body.push([{
+            text: 'Date',
+            bold: true
         },
-        pageOrientation: 'landscape'
-    };
+        {
+            text: 'Particulars',
+            bold: true
+        },
+        {
+            text: 'J.F.',
+            bold: true
+        },
+        {
+            text: 'Amount',
+            bold: true
+        },
+        {
+            text: 'Date',
+            bold: true
+        },
+        {
+            text: 'Particulars',
+            bold: true
+        },
+        {
+            text: 'J.F.',
+            bold: true
+        },
+        {
+            text: 'Amount',
+            bold: true
+        }
+        ]);
 
-    pdfMake.createPdf(docDefinition).download('Ledger_Report.pdf');
-}
-
-
-function buildLedgerTableBody() {
-    const body = [];
-
-    // Headers
-    body.push([
-        { text: 'Dr.', colSpan: 4, alignment: 'center', bold: true }, {}, {}, {},
-        { text: 'Cr.', colSpan: 4, alignment: 'center', bold: true }, {}, {}, {}
-    ]);
-
-    body.push([
-        { text: 'Date', bold: true },
-        { text: 'Particulars', bold: true },
-        { text: 'J.F.', bold: true },
-        { text: 'Amount', bold: true },
-        { text: 'Date', bold: true },
-        { text: 'Particulars', bold: true },
-        { text: 'J.F.', bold: true },
-        { text: 'Amount', bold: true }
-    ]);
-
-    // Data Rows
-    $('#ledgerBody tr').each(function () {
-        const row = [];
-        $(this).find('td').each(function () {
-            row.push({ text: $(this).text(), alignment: 'left' });
+        // Data Rows
+        $('#ledgerBody tr').each(function () {
+            const row = [];
+            $(this).find('td').each(function () {
+                row.push({
+                    text: $(this).text(),
+                    alignment: 'left'
+                });
+            });
+            body.push(row);
         });
-        body.push(row);
-    });
 
-    return body;
-}
+        return body;
+    }
 
     function getActiveEmployeesForAttendance() {
         var obj = new Object();
@@ -391,9 +489,12 @@ function buildLedgerTableBody() {
         if (rc.return_code) {
             switch (rc.Page_key) {
                 case "saveLedgerEntry":
-                   notify('success',rc.return_data);
+                    notify('success', rc.return_data);
                     break;
-               
+                case "getAccountName":
+                    console.log(rc.return_data)
+                    populateAccounts(rc.return_data);
+                    break;
 
 
                 default:
@@ -412,7 +513,7 @@ function buildLedgerTableBody() {
             if ($.fn.DataTable.isDataTable(table)) {
                 table.DataTable().destroy();
             }
-        } catch (ex) {}
+        } catch (ex) { }
 
         let text = "";
 
@@ -487,29 +588,29 @@ function buildLedgerTableBody() {
             deferRender: true,
             pageLength: 10,
             buttons: [{
-                    extend: 'excel',
-                    orientation: 'landscape',
-                    pageSize: 'A4',
-                    exportOptions: {
-                        columns: ':not(.hidden-col)'
-                    }
-                },
-                {
-                    extend: 'pdfHtml5',
-                    orientation: 'landscape',
-                    pageSize: 'A4',
-                    exportOptions: {
-                        columns: ':not(.hidden-col)'
-                    }
-                },
-                {
-                    extend: 'print',
-                    orientation: 'landscape',
-                    pageSize: 'A4',
-                    exportOptions: {
-                        columns: ':not(.hidden-col)'
-                    }
+                extend: 'excel',
+                orientation: 'landscape',
+                pageSize: 'A4',
+                exportOptions: {
+                    columns: ':not(.hidden-col)'
                 }
+            },
+            {
+                extend: 'pdfHtml5',
+                orientation: 'landscape',
+                pageSize: 'A4',
+                exportOptions: {
+                    columns: ':not(.hidden-col)'
+                }
+            },
+            {
+                extend: 'print',
+                orientation: 'landscape',
+                pageSize: 'A4',
+                exportOptions: {
+                    columns: ':not(.hidden-col)'
+                }
+            }
             ]
         });
 
@@ -517,7 +618,7 @@ function buildLedgerTableBody() {
         $("[data-bootstrap-switch]").bootstrapSwitch();
 
         // Toggle switch event
-        $(".attendance-bootstrap-switch").on("switchChange.bootstrapSwitch", function(event, state) {
+        $(".attendance-bootstrap-switch").on("switchChange.bootstrapSwitch", function (event, state) {
             const empId = $(this).data("empid");
 
             if (state) {
@@ -529,7 +630,7 @@ function buildLedgerTableBody() {
         });
 
         // Shift radio change
-        $(".shift-radio").on("change", function() {
+        $(".shift-radio").on("change", function () {
             const empId = $(this).data("empid");
             const shift = $(this).val();
             sendAttendance(empId, "Present", shift);
@@ -537,7 +638,7 @@ function buildLedgerTableBody() {
     }
 
 
-   
+
 
 
     function onRestoreLeads(data) {
@@ -564,11 +665,11 @@ function buildLedgerTableBody() {
     }
 
     // Modal Animation For Delete Lead Modal 
-    $('#RestoreLeadModal').on('show.bs.modal', function() {
+    $('#RestoreLeadModal').on('show.bs.modal', function () {
         $(this).find('.modal-dialog').addClass('slide-in');
     });
 
-    $('#RestoreLeadModal').on('hidden.bs.modal', function() {
+    $('#RestoreLeadModal').on('hidden.bs.modal', function () {
         // Reset the modal animation class when the modal is hidden
         $(this).find('.modal-dialog').removeClass('slide-in');
     });

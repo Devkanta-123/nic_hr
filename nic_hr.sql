@@ -508,3 +508,7 @@ CREATE TABLE Master_AccountName (
     account_name VARCHAR(100) NOT NULL
 );
 
+
+
+ALTER TABLE Ledger_Entries 
+ADD COLUMN account_nameID INT AFTER ledger_head;

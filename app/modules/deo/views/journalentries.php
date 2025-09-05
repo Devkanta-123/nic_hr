@@ -66,7 +66,7 @@
                                             <label for="type">Entry Type</label>
                                             <select class="form-control" id="type">
                                                 <option value="Payment">Payment</option>
-                                                <option value="Receive">Receive</option>
+                                                <option value="Receipt">Receipt</option>
                                             </select>
                                         </div>
                                         <div class="form-group col-md-6">
@@ -119,12 +119,21 @@
                                             <th>Qty</th>
                                             <th>Rate</th>
                                             <th class="text-right">Payment (Dr)</th>
-                                            <th class="text-right">Receive (Cr)</th>
+                                            <th class="text-right">Receipt (Cr)</th> <!-- ✅ Renamed -->
                                             <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody id="ledgerBody"></tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th colspan="4" class="text-right">Total</th>
+                                            <th class="text-right" id="totalPayment">0.00</th>
+                                            <th class="text-right" id="totalReceipt">0.00</th>
+                                            <th></th>
+                                        </tr>
+                                    </tfoot>
                                 </table>
+
                                 <div class="text-right mt-3">
                                     <button class="btn btn-primary mr-2" onclick="saveLedgerEntry()">Save</button>
                                     <button class="btn btn-danger" onclick="generatePDF()">Export to PDF</button>
@@ -184,38 +193,39 @@
         $('#amount').val(qty * rate);
     });
 
-     $('#addEntryBtn').click(function () {
-        debugger;
+    $('#addEntryBtn').click(function() {
         const type = $('#type').val();
         const accountId = $('#account_name').val();
         const accountName = $('#account_name option:selected').text();
         const qty = $('#qty').val();
         const rate = $('#rate').val();
         const particulars = $('#particulars').val();
-        const amount    = $('#amount').val();
+        const amount = parseFloat($('#amount').val()) || 0;
 
-        if (accountId === '' || particulars === '' || amount == 0) {
+        if (accountId === '' || particulars === '' || amount === 0) {
             alert("Please select account and enter particulars/amount");
             return;
         }
 
         let paymentCol = '';
-        let receiveCol = '';
-        if (type === "Payment") paymentCol = amount; 
-        else receiveCol = amount;
+        let receiptCol = '';
+        if (type === "Payment") paymentCol = amount.toFixed(2);
+        else receiptCol = amount.toFixed(2);
 
         let row = `
-            <tr data-account-id="${accountId}">
-                <td>${accountName}</td>
-                <td>${particulars}</td>
-                <td>${qty}</td>
-                <td>${rate}</td>
-                <td class="text-right">${paymentCol}</td>
-                <td class="text-right">${receiveCol}</td>
-                <td><button class="btn btn-sm btn-danger deleteRowBtn">Remove</button></td>
-            </tr>
-        `;
+        <tr data-account-id="${accountId}">
+            <td>${accountName}</td>
+            <td>${particulars}</td>
+            <td>${qty}</td>
+            <td>${rate}</td>
+            <td class="text-right paymentVal">${paymentCol}</td>
+            <td class="text-right receiptVal">${receiptCol}</td>
+            <td><button class="btn btn-sm btn-danger deleteRowBtn">Remove</button></td>
+        </tr>
+    `;
         $('#ledgerBody').append(row);
+
+        updateTotals();
 
         $('#journalForm')[0].reset();
     });
@@ -223,7 +233,22 @@
     // Delete row on click
     $(document).on('click', '.deleteRowBtn', function() {
         $(this).closest('tr').remove();
+        updateTotals();
     });
+
+    // ✅ Function to calculate totals
+    function updateTotals() {
+        let totalPayment = 0,
+            totalReceipt = 0;
+
+        $('#ledgerBody tr').each(function() {
+            totalPayment += parseFloat($(this).find('.paymentVal').text()) || 0;
+            totalReceipt += parseFloat($(this).find('.receiptVal').text()) || 0;
+        });
+
+        $('#totalPayment').text(totalPayment.toFixed(2));
+        $('#totalReceipt').text(totalReceipt.toFixed(2));
+    }
 
 
 
@@ -274,29 +299,36 @@
         console.log("Saved Entries:", payload);
         TransportCall(payload);
     }
-function generatePDF() {
-    // Temporarily hide the Action column
-    $('#journalentries th:last-child, #journalentries td:last-child').hide();
 
-    // Create a wrapper with title + table cloned
-    const printable = document.createElement('div');
-    printable.innerHTML = `
+    function generatePDF() {
+        // Temporarily hide the Action column
+        $('#journalentries th:last-child, #journalentries td:last-child').hide();
+
+        // Create a wrapper with title + table cloned
+        const printable = document.createElement('div');
+        printable.innerHTML = `
         <h3 class="text-center mb-3">Journal Entry</h3>
         ${document.getElementById('journalentries').outerHTML}
     `;
 
-    var opt = {
-        margin: 0.5,
-        filename: 'Journal_Entry.pdf',
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-    };
+        var opt = {
+            margin: 0.5,
+            filename: 'Journal_Entry.pdf',
+            html2canvas: {
+                scale: 2
+            },
+            jsPDF: {
+                unit: 'in',
+                format: 'letter',
+                orientation: 'portrait'
+            }
+        };
 
-    html2pdf().from(printable).set(opt).save().then(() => {
-        // show the column back after generating
-        $('#journalentries th:last-child, #journalentries td:last-child').show();
-    });
-}
+        html2pdf().from(printable).set(opt).save().then(() => {
+            // show the column back after generating
+            $('#journalentries th:last-child, #journalentries td:last-child').show();
+        });
+    }
 
 
 
