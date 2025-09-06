@@ -243,6 +243,7 @@
     let allAttendance = []; // raw attendance
     let AdvanceMasterdata = {}; // just amount
     function onSuccess(rc) {
+        debugger;
         if (rc.return_code) {
             switch (rc.Page_key) {
                 case "getEmployeesAttendanceForPaySlip":
@@ -251,7 +252,7 @@
                     allEmployees = rc.return_data.employees;
                     allAttendance = rc.return_data.attendance;
                     console.log(allEmployees);
-                    console.log(allAttendance);
+                    console.log(AdvanceMasterdata);
                     break;
 
                 case "getEmployeesAttendanceFilter":
@@ -464,7 +465,12 @@
                 text += `<td>${emp.present_days || 0}</td>`;
                 text += `<td>${emp.AmountDue || 0}</td>`;
                 text += `<td>${emp.TotalPay || 0}</td>`;
-                text += `<td>${emp.Advance || AdvanceMasterdata.advanceamount || 0}</td>`;
+                   // ✅ Get advance amount(s) from AdvanceMasterdata
+                const advanceEntries = AdvanceMasterdata.filter(a => a.EmpID == emp.emp_id);
+                const advanceAmount = advanceEntries.length > 0 ?
+                    advanceEntries.reduce((sum, a) => sum + parseFloat(a.Amount || 0), 0) :
+                    0;
+                text += `<td>${emp.Advance || advanceAmount.toFixed(2)|| 0}</td>`;
                 text += `<td>${emp.GrossAmount || 0}</td>`;
                 text += `<td>${emp.NetPay || 0}</td>`;
 
@@ -509,6 +515,95 @@
 
 
 
+    // function loaddata(data, AdvanceMasterdata, selectedFrom, selectedTo) {
+    //     debugger;
+    //     const table = $("#payslipempAttendance");
+
+    //     if ($.fn.DataTable.isDataTable(table)) {
+    //         table.DataTable().clear().destroy();
+    //     }
+    //     table.find('tbody').empty();
+
+    //     let text = "";
+
+    //     if (!data || data.length === 0) {
+    //         text = "<tr><td colspan='9' class='text-center'>No Data Found</td></tr>";
+    //     } else {
+    //         // 🔹 Group data by emp_id
+    //         const grouped = {};
+    //         data.forEach(emp => {
+    //             if (!grouped[emp.emp_id]) grouped[emp.emp_id] = [];
+    //             grouped[emp.emp_id].push(emp);
+    //         });
+
+    //         // 🔹 Build rows
+    //         Object.values(grouped).forEach(empRecords => {
+    //             // First try to find record with exact matching date range
+    //             let emp = empRecords.find(e => e.FromDate === selectedFrom && e.ToDate === selectedTo);
+
+    //             // If not found, fall back to the latest (or first) record
+    //             if (!emp) {
+    //                 emp = empRecords[empRecords.length - 1];
+    //             }
+
+    //             const isSameRange = (emp.FromDate === selectedFrom && emp.ToDate === selectedTo);
+
+    //             text += `<tr>`;
+    //             text += `<td>${emp.emp_name}</td>`;
+    //             text += `<td>${emp.PresentDays || 0}</td>`;
+    //             text += `<td>${emp.AmountDue || 0}</td>`;
+    //             text += `<td>${emp.TotalPay || 0}</td>`;
+
+    //             // ✅ Get advance amount(s) from AdvanceMasterdata
+    //             const advanceEntries = AdvanceMasterdata.filter(a => a.EmpID == emp.emp_id);
+    //             const advanceAmount = advanceEntries.length > 0 ?
+    //                 advanceEntries.reduce((sum, a) => sum + parseFloat(a.Amount || 0), 0) :
+    //                 0;
+
+    //             text += `<td>${advanceAmount.toFixed(2)}</td>`;
+    //             text += `<td>${emp.GrossAmount || 0}</td>`;
+    //             text += `<td>${emp.NetPay || 0}</td>`;
+
+    //             if (emp.IsGenerated == 1 && isSameRange) {
+    //                 // ✅ Already generated for this selected range
+    //                 text += `<td>${emp.AmountPaid}</td>`;
+    //                 text += `<td>
+    //                 <button class="btn btn-sm btn-success generate-btn"
+    //                     data-empid="${emp.emp_id}"
+    //                     data-payslipid="${emp.PaySlipID}"
+    //                     data-from="${emp.FromDate}"
+    //                     data-to="${emp.ToDate}">Generate PaySlip</button>
+    //             </td>`;
+    //             } else {
+    //                 // ❌ Not generated for this range → allow entry
+    //                 text += `<td>
+    //                 <input type="number" class="form-control amount-input"
+    //                     id="amount-${emp.emp_id}" placeholder="Enter Amount">
+    //             </td>`;
+    //                 text += `<td>
+    //                 <button class="btn btn-sm btn-primary entry-btn"
+    //                     data-empid="${emp.emp_id}"
+    //                     data-empname="${emp.emp_name}"
+    //                     data-present="${emp.PresentDays || 0}"
+    //                     data-inputid="amount-${emp.emp_id}">Save</button>
+    //             </td>`;
+    //             }
+
+    //             text += `</tr>`;
+    //         });
+    //     }
+
+    //     $("#payslipempAttendance tbody").html(text);
+
+    //     table.DataTable({
+    //         responsive: true,
+    //         pageLength: 10,
+    //         order: [],
+    //         destroy: true
+    //     });
+    // }
+
+
 
 
 
@@ -536,9 +631,13 @@
         submitPaySlipEntry();
     });
 
-
     function submitPaySlipEntry() {
-        const advance = AdvanceMasterdata.advanceamount;
+        // ✅ Get only the clicked employee’s advance amount
+        const advanceEntries = AdvanceMasterdata.filter(a => a.EmpID == emp_id);
+        const advance = advanceEntries.length > 0 ?
+            advanceEntries.reduce((sum, a) => sum + parseFloat(a.Amount || 0), 0) :
+            0;
+
         // Also fetch from/to date from inputs
         const fromDate = $("#fromDate").val();
         const toDate = $("#Todate").val();
@@ -565,10 +664,10 @@
             JSON: {
                 emp_id: emp_id,
                 present_days: present_days,
-                from_date: fromDate, // ✅ added
-                to_date: toDate, // ✅ added
+                from_date: fromDate,
+                to_date: toDate,
                 total_pay: total_pay,
-                advance: advance,
+                advance: advance, // ✅ only this employee’s advance
                 amount_paid: amountPaid
             }
         };
@@ -582,7 +681,7 @@
         const empId = $(this).data('empid');
         const payslipID = $(this).data('payslipid'); // lowercase
         console.log(empId, payslipID);
-        getPaySlipsDataByEmpIDandSlipID(empId,payslipID)
+        getPaySlipsDataByEmpIDandSlipID(empId, payslipID)
     });
 
     function getPaySlipsDataByEmpIDandSlipID(empId, payslipID) {

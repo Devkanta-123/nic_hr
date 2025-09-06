@@ -147,33 +147,33 @@ GROUP BY em.emp_id, a.attendance_date, a.status, a.shift, l.loc_id, l.loc_name, 
 
 
 
-//     function getEmployeesAttendanceForPaySlip()
-//     {
-//         $query = "
-//      SELECT 
-//     e.emp_id, 
-//     e.emp_name, 
-//     ps.IsGenerated,
-//     COUNT(*) AS total_days,
-//     SUM(CASE WHEN a.status = 'Present' THEN 1 ELSE 0 END) AS present_days
-// FROM attendance a 
-// INNER JOIN employee e ON e.emp_id = a.emp_id
-// LEFT JOIN payslip ps ON ps.EmployeeID = e.emp_id
-// WHERE ps.IsGenerated IS NULL OR ps.IsGenerated = 0
-// GROUP BY e.emp_id, e.emp_name, ps.IsGenerated;
-//     ";
+    //     function getEmployeesAttendanceForPaySlip()
+    //     {
+    //         $query = "
+    //      SELECT 
+    //     e.emp_id, 
+    //     e.emp_name, 
+    //     ps.IsGenerated,
+    //     COUNT(*) AS total_days,
+    //     SUM(CASE WHEN a.status = 'Present' THEN 1 ELSE 0 END) AS present_days
+    // FROM attendance a 
+    // INNER JOIN employee e ON e.emp_id = a.emp_id
+    // LEFT JOIN payslip ps ON ps.EmployeeID = e.emp_id
+    // WHERE ps.IsGenerated IS NULL OR ps.IsGenerated = 0
+    // GROUP BY e.emp_id, e.emp_name, ps.IsGenerated;
+    //     ";
 
-//         $res = DBController::getDataSet($query);
+    //         $res = DBController::getDataSet($query);
 
-//         if ($res)
-//             return array("return_code" => true, "return_data" => $res);
+    //         if ($res)
+    //             return array("return_code" => true, "return_data" => $res);
 
-//         return array("return_code" => false, "return_data" => "No data Available");
-//     }
-  function getEmployeesAttendanceForPaySlip()
-{
-    // 1. Get employees with IsGenerated flag
-    $empQuery = "
+    //         return array("return_code" => false, "return_data" => "No data Available");
+    //     }
+    function getEmployeesAttendanceForPaySlip()
+    {
+        // 1. Get employees with IsGenerated flag
+        $empQuery = "
       SELECT 
     e.emp_id, 
     e.emp_name,
@@ -195,30 +195,30 @@ LEFT JOIN PaySlip ps
 WHERE e.status = 'active'
 GROUP BY e.emp_id, e.emp_name, ps.FromDate, ps.ToDate;
     ";
-    $employees = DBController::getDataSet($empQuery);
+        $employees = DBController::getDataSet($empQuery);
 
-    // 2. Full attendance raw
-    $attQuery = "SELECT emp_id, attendance_date, status FROM Attendance";
-    $attendanceList = DBController::getDataSet($attQuery);
+        // 2. Full attendance raw
+        $attQuery = "SELECT emp_id, attendance_date, status FROM Attendance";
+        $attendanceList = DBController::getDataSet($attQuery);
 
-    // 3. Allowance master
-    $allowanceQuery = "SELECT maa.amount as allowanceamount FROM Master_AllowanceAmount maa";
-    $allowanceData = DBController::sendData($allowanceQuery);
+        // 3. Allowance master
+        $allowanceQuery = "SELECT maa.amount as allowanceamount FROM Master_AllowanceAmount maa";
+        $allowanceData = DBController::sendData($allowanceQuery);
 
-    // 4. Advance master
-    $advanceQuery = "SELECT map.amount as advanceamount FROM Master_AdvancePayment map";
-    $advanceData = DBController::sendData($advanceQuery);
+        // 4. Advance master
+        $advanceQuery = "SELECT  *  FROM Master_AdvancePayment";
+        $advanceData = DBController::getDataSet($advanceQuery);
 
-    return [
-        "return_code" => true,
-        "return_data" => [
-            "employees"  => $employees,
-            "attendance" => $attendanceList,
-            "allowance"  => $allowanceData,
-            "advance"    => $advanceData
-        ]
-    ];
-}
+        return [
+            "return_code" => true,
+            "return_data" => [
+                "employees"  => $employees,
+                "attendance" => $attendanceList,
+                "allowance"  => $allowanceData,
+                "advance"    => $advanceData
+            ]
+        ];
+    }
 
 
     function getEmployeesAttendanceFilter()
@@ -298,6 +298,4 @@ WHERE ps.EmployeeID=:EmployeeID AND ps.PaySlipID=:PaySlipID;
             return array("return_code" => false, "return_data" => "Failed to update status.");
         }
     }
-
-    
 }

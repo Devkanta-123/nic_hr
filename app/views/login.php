@@ -1,5 +1,6 @@
 <!doctype html>
-<html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg" data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
+<html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg"
+    data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
 
 <head>
 
@@ -31,49 +32,54 @@
         <div class="bg-overlay"></div>
         <!-- auth-page content -->
         <div class="auth-page-content overflow-hidden pt-lg-5">
-     <!-- Wrapper for full screen height and center alignment -->
-<div class="d-flex justify-content-center align-items-center vh-100">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-6">
-                <div class="card overflow-hidden card-bg-fill galaxy-border-none"> 
-                    <div class="col-lg-12">
-                        <div class="p-lg-5 p-4">
-                            <div>
-                                <h5 class="text-primary">Welcome Back !</h5>
-                                <p class="text-muted">Sign in to continue to NIC HR.</p>
-                            </div>
-                            <div class="mt-4">
-                                <form action="" id="login-form">
-                                    <div class="mb-3">
-                                        <label for="username" class="form-label">Username</label>
-                                        <input type="text" class="form-control" id="Username" name="Username" placeholder="Enter username" autocomplete="off">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label" for="password-input">Password</label>
-                                        <div class="position-relative auth-pass-inputgroup mb-3">
-                                            <input type="password" class="form-control pe-5 password-input" id="Password" name="Password" placeholder="Enter password" autocomplete="off">
-                                            <button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon material-shadow-none" type="button" id="password-addon">
-                                                <i class="ri-eye-fill align-middle"></i>
-                                            </button>
+            <!-- Wrapper for full screen height and center alignment -->
+            <div class="d-flex justify-content-center align-items-center vh-100">
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-6">
+                            <div class="card overflow-hidden card-bg-fill galaxy-border-none">
+                                <div class="col-lg-12">
+                                    <div class="p-lg-5 p-4">
+                                        <div>
+                                            <h5 class="text-primary">Welcome Back !</h5>
+                                            <p class="text-muted">Sign in to continue to NIC HR.</p>
+                                        </div>
+                                        <div class="mt-4">
+                                            <form action="" id="login-form">
+                                                <div class="mb-3">
+                                                    <label for="username" class="form-label">Username</label>
+                                                    <input type="text" class="form-control" id="Username"
+                                                        name="Username" placeholder="Enter username" autocomplete="off">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label" for="password-input">Password</label>
+                                                    <div class="position-relative auth-pass-inputgroup mb-3">
+                                                        <input type="password" class="form-control pe-5 password-input"
+                                                            id="Password" name="Password" placeholder="Enter password"
+                                                            autocomplete="off">
+                                                        <button
+                                                            class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon material-shadow-none"
+                                                            type="button" id="password-addon">
+                                                            <i class="ri-eye-fill align-middle"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="mt-4">
+                                                    <button class="btn btn-success w-100" type="submit">Sign In</button>
+                                                </div>
+                                            </form>
                                         </div>
                                     </div>
-                                    <div class="mt-4">
-                                        <button class="btn btn-success w-100" type="submit">Sign In</button>
-                                    </div>
-                                </form>
+                                </div>
+                                <!-- end col -->
                             </div>
+                            <!-- end card -->
                         </div>
+                        <!-- end col -->
                     </div>
-                    <!-- end col -->
+                    <!-- end row -->
                 </div>
-                <!-- end card -->
             </div>
-            <!-- end col -->
-        </div>
-        <!-- end row -->
-    </div>
-</div>
 
             <!-- end container -->
         </div>
@@ -88,7 +94,7 @@
                             <p class="mb-0">&copy;
                                 <script>
                                     document.write(new Date().getFullYear())
-                                </script> NIC  HR
+                                </script> NIC HR
                                 <!-- <i class="mdi mdi-heart text-danger"></i> -->
                             </p>
                         </div>
@@ -158,26 +164,60 @@
             AuthCall();
         });
 
-
         function AuthCall() {
-            debugger;
-
             try {
+                var json = {
+                    Username: $("#Username").val(),
+                    Password: $("#Password").val()
+                };
 
-                var json = new Object();
-                json.Username = $("#Username")[0].value;
-                json.Password = $("#Password")[0].value;
-                var svcdta = new Object();
-                svcdta.Module = "Auth";
-                svcdta.Page_key = "Login";
-                svcdta.JSON = json;
+                var svcdta = {
+                    Module: "Auth",
+                    Page_key: "Login",
+                    JSON: json
+                };
 
-                Authenticate(svcdta);
+                Authenticate(svcdta, function(success) {
+                    if (success) {
+                        clearAllData(); // ✅ Run cleanup
+                        // redirect if needed
+                        window.location.href = "/dashboard";
+                    }
+                });
             } catch (ex) {
                 console.log(ex.stack);
                 alert(ex.stack);
             }
+        }
 
+
+        function clearAllData() {
+            try {
+                // ✅ Clear sessionStorage
+                sessionStorage.clear();
+
+                // ✅ Clear localStorage
+                localStorage.clear();
+
+                // ✅ Clear all cookies
+                document.cookie.split(";").forEach(function(cookie) {
+                    var name = cookie.split("=")[0].trim();
+                    document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;";
+                });
+
+                // ✅ Try clearing caches (for PWAs or Service Workers)
+                if ('caches' in window) {
+                    caches.keys().then(function(names) {
+                        names.forEach(function(name) {
+                            caches.delete(name);
+                        });
+                    });
+                }
+
+                console.log("All session, local storage, cookies, and caches cleared!");
+            } catch (e) {
+                console.error("Error clearing data:", e);
+            }
         }
 
         var ipaddress;

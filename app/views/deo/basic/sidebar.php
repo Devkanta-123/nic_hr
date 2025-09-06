@@ -23,7 +23,7 @@
                  <!-- Leave li start here -->
                  <li class="nav-item has-treeview">
                      <a href="#" class="nav-link">
-                         <i class="fas fa-calendar-plus"></i>
+                         <i class="fas fa-calendar"></i>
                          <p>
                              Attendance
                              <i class="fas fa-angle-left right"></i>
@@ -51,25 +51,40 @@
                  <!-- Task li start here -->
                  <li class="nav-item has-treeview">
                      <a href="#" class="nav-link">
-                         <i class="fas fa-check"></i>
+                       <i class="fas fa-credit-card"></i>
                          <p>
-                             Legder
+                             Account
                              <i class="fas fa-angle-left right"></i>
                          </p>
                      </a>
                      <ul class="nav nav-treeview">
                          <li class="nav-item">
+                             <a href="deo-journalentries" class="nav-link">
+                               <i class="fas fa-book"></i> 
+                                 <p>Journal Entry</p>
+                             </a>
+                         </li>
+                         <li class="nav-item">
                              <a href="deo-ledger" class="nav-link">
-                                 <i class="fas fa-file"></i>
+                                <i class="fas fa-file-invoice"></i>
                                  <p>Ledger Entry</p>
                              </a>
                          </li>
                          <li class="nav-item">
-                             <a href="deo-journalentries" class="nav-link">
-                                 <i class="fas fa-file"></i>
-                                 <p>Journal Emtries</p>
+                             <a href="deo-journalreport" class="nav-link">
+                               <i class="fas fa-book"></i> 
+                                 <p>Journal Report</p>
                              </a>
                          </li>
+
+  <li class="nav-item">
+                             <a href="deo-accountreport" class="nav-link">
+                               <i class="fas fa-book"></i> 
+                                 <p>Account Report</p>
+                             </a>
+                         </li>
+
+                         
 
 
                      </ul>
@@ -77,13 +92,19 @@
 
                  <li class="nav-item has-treeview">
                      <a href="#" class="nav-link">
-                         <i class="fas fa-check"></i>
+                         <i class="fas fa-receipt"></i>
                          <p>
-                              Pay Modules
+                              Pay
                              <i class="fas fa-angle-left right"></i>
                          </p>
                      </a>
                      <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                             <a href="deo-payslipattendance" class="nav-link">
+                                 <i class="fas fa-file-alt"></i>
+                                 <p>Generate Pay Slip </p>
+                             </a>
+                         </li>
                          <li class="nav-item">
                              <a href="deo-advancepayment" class="nav-link">
                                  <i class="fas fa-file"></i>
@@ -91,10 +112,14 @@
                              </a>
                          </li>
 
+                         
+
+
+
                      </ul>
                  </li>
 
-                 <li class="nav-item has-treeview">
+                 <!-- <li class="nav-item has-treeview">
                      <a href="#" class="nav-link">
                          <i class="fas fa-check"></i>
                          <p>
@@ -111,7 +136,7 @@
                          </li>
 
                      </ul>
-                 </li>
+                 </li> -->
 
 
 
