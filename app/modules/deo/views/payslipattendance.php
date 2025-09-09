@@ -482,7 +482,7 @@
                         data-empid="${emp.emp_id}"
                         data-payslipid="${emp.PaySlipID}"
                         data-from="${emp.FromDate}"
-                        data-to="${emp.ToDate}">Generate PaySlip</button>
+                        data-to="${emp.ToDate}">Download PaySlip</button>
                 </td>`;
                 } else {
                     // ❌ Not generated for this range → allow entry
@@ -495,7 +495,7 @@
                         data-empid="${emp.emp_id}"
                         data-empname="${emp.emp_name}"
                         data-present="${emp.present_days || 0}"
-                        data-inputid="amount-${emp.emp_id}">Save</button>
+                        data-inputid="amount-${emp.emp_id}">Generate PaySlip</button>
                 </td>`;
                 }
 
