@@ -368,4 +368,58 @@ ON DUPLICATE KEY UPDATE
             return array("return_code" => true, "return_data" => $work);
         return array("return_code" => false, "return_data" => "No  data  found");
     }
+
+    function getMasterItems()
+    {
+        $query = "SELECT * FROM Master_Item;";
+        $work = DBController::getDataSet($query);
+        if ($work)
+            return array("return_code" => true, "return_data" => $work);
+        return array("return_code" => false, "return_data" => "No  data  found");
+    }
+
+
+    function saveJournalEntries($data)
+    {
+        if (!isset($data['entries']) || !is_array($data['entries'])) {
+            return [
+                "return_code" => false,
+                "return_data" => "Invalid entry format."
+            ];
+        }
+
+        $entries = $data['entries'];
+        $query = "INSERT INTO JournalEntries 
+                (EntryDate, EntryType, AccountName, Particulars, Quantity, Rate, Amount, Description)
+              VALUES 
+                (:EntryDate, :EntryType, :AccountName, :Particulars, :Quantity, :Rate, :Amount, :Description)";
+
+        $allSuccess = true;
+
+        foreach ($entries as $entry) {
+            $params = [
+                [":EntryDate", $entry['date']],
+                [":EntryType", $entry['type']], // Payment / Receipt
+                [":AccountName", $entry['account']],
+                [":Particulars", $entry['particulars']],
+                [":Quantity", isset($entry['qty']) ? $entry['qty'] : 0],
+                [":Rate", isset($entry['rate']) ? $entry['rate'] : 0],
+                [":Amount", $entry['amount']],
+                [":Description", isset($entry['description']) ? $entry['description'] : null],
+            ];
+
+            $result = DBController::ExecuteSQL($query, $params);
+
+            if (!$result) {
+                $allSuccess = false;
+            }
+        }
+
+        return [
+            "return_code" => $allSuccess,
+            "return_data" => $allSuccess
+                ? "Journal entries saved successfully."
+                : "Some journal entries failed to save."
+        ];
+    }
 }

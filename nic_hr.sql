@@ -512,3 +512,15 @@ CREATE TABLE Master_AccountName (
 
 ALTER TABLE Ledger_Entries 
 ADD COLUMN account_nameID INT AFTER ledger_head;
+
+
+
+
+CREATE TABLE Master_Item (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    Name VARCHAR(30) NOT NULL,
+    Rate INT NOT NULL
+);
+
+
+

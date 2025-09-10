@@ -43,6 +43,52 @@
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         /* Adjust shadow as needed */
     }
+
+    /* Autocomplete dropdown */
+    /* Autocomplete dropdown menu */
+    .ui-autocomplete {
+        max-height: 250px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background: #fff;
+        padding: 5px 0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        font-family: 'Segoe UI', Tahoma, sans-serif;
+        font-size: 14px;
+        z-index: 2000 !important;
+
+        /* 👇 Width control */
+        min-width: 200px;
+        /* must be at least input size */
+        max-width: 400px;
+        /* prevent it from being 1906px */
+        width: auto !important;
+        white-space: nowrap;
+        /* keep text inline */
+    }
+
+    /* Each item */
+    .ui-menu-item {
+        list-style: none;
+    }
+
+    /* Item wrapper */
+    .ui-menu-item-wrapper {
+        padding: 10px 14px;
+        cursor: pointer;
+        border-radius: 6px;
+        transition: background 0.2s, color 0.2s;
+    }
+
+    /* Hover / active */
+    .ui-menu-item-wrapper:hover,
+    .ui-state-active {
+        background: #007bff;
+        color: #fff;
+        font-weight: 500;
+    }
 </style>
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper" id="maincontent">
@@ -53,28 +99,28 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="card-title">
-                                Journal Entries
+                                Journal Entry
                             </div>
                         </div>
                         <div class="card">
                             <div class="card-body">
                                 <form id="journalForm">
-
                                     <!-- Row 1 -->
                                     <div class="form-row">
-                                        <div class="form-group col-md-6">
+                                        <div class="form-group col-md-4">
+                                            <label for="entry_date">Date</label>
+                                            <input type="date" class="form-control" id="entry_date" required>
+                                        </div>
+                                        <div class="form-group col-md-4">
                                             <label for="type">Entry Type</label>
                                             <select class="form-control" id="type">
-                                                <option value="Payment">Payment</option>
-                                                <option value="Receipt">Receipt</option>
+                                                <option value="Payment">Payment/Purchase</option>
+                                                <option value="Receipt">Receipt/Sales</option>
                                             </select>
                                         </div>
-                                        <div class="form-group col-md-6">
+                                        <div class="form-group col-md-4">
                                             <label for="account_name">Account Name</label>
-                                            <select id="account_name" class="form-control">
-                                                <!-- example static options -->
-
-                                            </select>
+                                            <select id="account_name" class="form-control"></select>
                                         </div>
                                     </div>
 
@@ -86,7 +132,7 @@
                                         </div>
                                         <div class="form-group col-md-3">
                                             <label for="qty">Qty</label>
-                                            <input type="number" class="form-control" id="qty" placeholder="Enter qty" min="0">
+                                            <input type="number" class="form-control" id="qty" placeholder="Enter qty" min="1" value="1">
                                         </div>
                                         <div class="form-group col-md-3">
                                             <label for="rate">Rate</label>
@@ -96,16 +142,20 @@
 
                                     <!-- Row 3 -->
                                     <div class="form-row">
-                                        <div class="form-group col-md-6">
+                                        <div class="form-group col-md-4">
                                             <label for="amount">Amount</label>
                                             <input type="number" class="form-control" id="amount" readonly>
                                         </div>
-                                        <div class="form-group col-md-6 d-flex align-items-end">
-                                            <button type="button" id="addEntryBtn" class="btn btn-primary">Add Entry</button>
+                                        <div class="form-group col-md-5">
+                                            <label for="description">Description</label>
+                                            <input type="text" class="form-control" id="description" placeholder="Enter description">
+                                        </div>
+                                        <div class="form-group col-md-3 d-flex align-items-end">
+                                            <button type="button" id="addEntryBtn" class="btn btn-primary w-100">Add Entry</button>
                                         </div>
                                     </div>
-
                                 </form>
+
                             </div>
                         </div>
 
@@ -114,25 +164,28 @@
                                 <table id="journalentries" class="table table-bordered table-striped">
                                     <thead>
                                         <tr>
+                                            <th>Date</th>
                                             <th>Account</th>
                                             <th>Particulars</th>
                                             <th>Qty</th>
                                             <th>Rate</th>
-                                            <th class="text-right">Payment (Dr)</th>
-                                            <th class="text-right">Receipt (Cr)</th> <!-- ✅ Renamed -->
+                                            <th>Description</th>
+                                            <th class="text-right">Payment/Purchase</th>
+                                            <th class="text-right">Receipt/Sales</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody id="ledgerBody"></tbody>
                                     <tfoot>
                                         <tr>
-                                            <th colspan="4" class="text-right">Total</th>
+                                            <th colspan="6" class="text-right">Total</th>
                                             <th class="text-right" id="totalPayment">0.00</th>
                                             <th class="text-right" id="totalReceipt">0.00</th>
                                             <th></th>
                                         </tr>
                                     </tfoot>
                                 </table>
+
 
                                 <div class="text-right mt-3">
                                     <button class="btn btn-primary mr-2" onclick="saveLedgerEntry()">Save</button>
@@ -174,6 +227,7 @@
 <script>
     $(function() {
         getAccountName();
+        getMasterItems();
     });
 
     function getAccountName() {
@@ -185,6 +239,18 @@
         TransportCall(obj);
     }
 
+    function getMasterItems() {
+        var obj = new Object();
+        obj.Module = "Deo";
+        obj.Page_key = "getMasterItems";
+        var json = new Object();
+        obj.JSON = json;
+        TransportCall(obj);
+    }
+
+
+
+
 
 
     $("#qty, #rate").on('input', function() {
@@ -193,17 +259,35 @@
         $('#amount').val(qty * rate);
     });
 
+    $("#particulars").on("blur", function() {
+        const entered = $(this).val().trim();
+        const match = masterItems.find(item =>
+            item.Name.toLowerCase() === entered.toLowerCase()
+        );
+
+        if (match) {
+            // Auto-fill Rate
+            $("#rate").val(match.Rate);
+
+            // Auto-calculate Amount
+            let qty = parseFloat($('#qty').val()) || 0;
+            $('#amount').val(qty * match.Rate);
+        }
+    });
+
     $('#addEntryBtn').click(function() {
+        const entryDate = $('#entry_date').val();
         const type = $('#type').val();
         const accountId = $('#account_name').val();
         const accountName = $('#account_name option:selected').text();
         const qty = $('#qty').val();
         const rate = $('#rate').val();
         const particulars = $('#particulars').val();
+        const description = $('#description').val();
         const amount = parseFloat($('#amount').val()) || 0;
 
-        if (accountId === '' || particulars === '' || amount === 0) {
-            alert("Please select account and enter particulars/amount");
+        if (!entryDate || accountId === '' || particulars === '' || amount === 0) {
+            alert("Please enter Date, Account, Particulars, and Amount");
             return;
         }
 
@@ -214,10 +298,12 @@
 
         let row = `
         <tr data-account-id="${accountId}">
+            <td>${entryDate}</td>
             <td>${accountName}</td>
             <td>${particulars}</td>
             <td>${qty}</td>
             <td>${rate}</td>
+            <td>${description}</td>
             <td class="text-right paymentVal">${paymentCol}</td>
             <td class="text-right receiptVal">${receiptCol}</td>
             <td><button class="btn btn-sm btn-danger deleteRowBtn">Remove</button></td>
@@ -226,9 +312,9 @@
         $('#ledgerBody').append(row);
 
         updateTotals();
-
         $('#journalForm')[0].reset();
     });
+
 
     // Delete row on click
     $(document).on('click', '.deleteRowBtn', function() {
@@ -253,44 +339,100 @@
 
 
 
+
+    function generatePDF() {
+        // Hide the Action column temporarily
+        $('#journalentries th:last-child, #journalentries td:last-child').hide();
+
+        // Clone the table with styles preserved
+        const tableClone = document.getElementById('journalentries').cloneNode(true);
+
+        // Apply inline styles for better alignment
+        tableClone.style.width = "100%";
+        tableClone.style.borderCollapse = "collapse";
+        tableClone.querySelectorAll("th, td").forEach(cell => {
+            cell.style.border = "1px solid #000";
+            cell.style.padding = "6px";
+            cell.style.textAlign = "center";
+            cell.style.fontSize = "12px";
+        });
+
+        // Wrapper for PDF
+        const printable = document.createElement('div');
+        printable.innerHTML = `
+        <h2 style="text-align:center; margin-bottom:15px;">Journal Entry</h2>
+    `;
+        printable.appendChild(tableClone);
+
+        // Options
+        const opt = {
+            margin: 0.5,
+            filename: 'Journal_Entry.pdf',
+            image: {
+                type: 'jpeg',
+                quality: 0.98
+            },
+            html2canvas: {
+                scale: 2,
+                useCORS: true
+            },
+            jsPDF: {
+                unit: 'in',
+                format: 'a4',
+                orientation: 'landscape' // ✅ landscape for better fit
+            }
+        };
+
+        // Generate PDF
+        html2pdf().from(printable).set(opt).save().then(() => {
+            // Show Action column back
+            $('#journalentries th:last-child, #journalentries td:last-child').show();
+        });
+    }
+
+
     function saveLedgerEntry() {
         const entries = [];
 
         $('#ledgerBody tr').each(function() {
-            const drDate = $(this).find('td:eq(0)').text().trim();
-            const drParticulars = $(this).find('td:eq(1)').text().trim();
-            const drJF = $(this).find('td:eq(2)').text().trim();
-            const drAmount = $(this).find('td:eq(3)').text().trim();
+            const entryDate = $(this).find('td:eq(0)').text().trim();
+            const account = $(this).find('td:eq(1)').text().trim();
+            const particulars = $(this).find('td:eq(2)').text().trim();
+            const qty = $(this).find('td:eq(3)').text().trim();
+            const rate = $(this).find('td:eq(4)').text().trim();
+            const description = $(this).find('td:eq(5)').text().trim();
+            const payment = $(this).find('td:eq(6)').text().trim();
+            const receipt = $(this).find('td:eq(7)').text().trim();
 
-            const crDate = $(this).find('td:eq(4)').text().trim();
-            const crParticulars = $(this).find('td:eq(5)').text().trim();
-            const crJF = $(this).find('td:eq(6)').text().trim();
-            const crAmount = $(this).find('td:eq(7)').text().trim();
-
-            if (drDate || drParticulars || drAmount) {
+            if (payment && parseFloat(payment) > 0) {
                 entries.push({
-                    type: 'Dr',
-                    date: drDate,
-                    particulars: drParticulars,
-                    jf: drJF,
-                    amount: parseFloat(drAmount) || 0
+                    type: 'Payment',
+                    date: entryDate,
+                    account: account,
+                    particulars: particulars,
+                    qty: qty,
+                    rate: rate,
+                    description: description,
+                    amount: parseFloat(payment) || 0
                 });
             }
-
-            if (crDate || crParticulars || crAmount) {
+            if (receipt && parseFloat(receipt) > 0) {
                 entries.push({
-                    type: 'Cr',
-                    date: crDate,
-                    particulars: crParticulars,
-                    jf: crJF,
-                    amount: parseFloat(crAmount) || 0
+                    type: 'Receipt',
+                    date: entryDate,
+                    account: account,
+                    particulars: particulars,
+                    qty: qty,
+                    rate: rate,
+                    description: description,
+                    amount: parseFloat(receipt) || 0
                 });
             }
         });
 
         const payload = {
             Module: "Deo",
-            Page_key: "saveLedgerEntry",
+            Page_key: "saveJournalEntries",
             JSON: {
                 entries: entries
             }
@@ -298,36 +440,6 @@
 
         console.log("Saved Entries:", payload);
         TransportCall(payload);
-    }
-
-    function generatePDF() {
-        // Temporarily hide the Action column
-        $('#journalentries th:last-child, #journalentries td:last-child').hide();
-
-        // Create a wrapper with title + table cloned
-        const printable = document.createElement('div');
-        printable.innerHTML = `
-        <h3 class="text-center mb-3">Journal Entry</h3>
-        ${document.getElementById('journalentries').outerHTML}
-    `;
-
-        var opt = {
-            margin: 0.5,
-            filename: 'Journal_Entry.pdf',
-            html2canvas: {
-                scale: 2
-            },
-            jsPDF: {
-                unit: 'in',
-                format: 'letter',
-                orientation: 'portrait'
-            }
-        };
-
-        html2pdf().from(printable).set(opt).save().then(() => {
-            // show the column back after generating
-            $('#journalentries th:last-child, #journalentries td:last-child').show();
-        });
     }
 
 
@@ -407,6 +519,7 @@
         obj.JSON = json;
         TransportCall(obj);
     }
+    let masterItems;
 
     function onSuccess(rc) {
         debugger;
@@ -419,6 +532,16 @@
                     console.log(rc.return_data)
                     populateAccounts(rc.return_data);
                     break;
+                case "getMasterItems":
+                    console.log("MasterItems", rc.return_data);
+                    masterItems = rc.return_data;
+                    break;
+
+                case "saveJournalEntries":
+                    notify('success', rc.return_data);
+                    break;
+
+
                 default:
                     alert(rc.Page_key);
             }
@@ -427,6 +550,32 @@
         }
         // alert(JSON.stringify(args));
     }
+
+
+    // Attach autocomplete to particulars input
+    $("#particulars").autocomplete({
+        minLength: 1, // start searching after typing 1 character
+        source: function(request, response) {
+            // Filter masterItems based on input
+            const term = request.term.toLowerCase();
+            const matches = masterItems.filter(item =>
+                item.Name.toLowerCase().includes(term)
+            ).map(item => ({
+                label: item.Name, // what to show in suggestions
+                value: item.Name, // what goes into input
+                rate: item.Rate // extra field for rate
+            }));
+
+            response(matches); // send results to autocomplete
+        },
+        select: function(event, ui) {
+            // Auto fill rate when user picks an item
+            $("#rate").val(ui.item.rate);
+        }
+    });
+
+    // Also handle if user types full name and tabs away
+
 
     function populateAccounts(data) {
         const $account_datas = $('#account_name');
@@ -572,41 +721,4 @@
             sendAttendance(empId, "Present", shift);
         });
     }
-
-
-
-
-
-    function onRestoreLeads(data) {
-        debugger;
-        data = JSON.parse(unescape(data));
-        $("#LeadsID").val(data.LeadsID);
-        var LeadsName = data.Name;
-        $("#RestoreLeadModal").modal('show');
-        var outputElement = document.getElementById("output");
-        outputElement.innerHTML = "Are You Sure to Restore  " + LeadsName + " Leads ? ";
-    }
-
-    function RestoreLeads() {
-        debugger;
-        var LeadID = $("#LeadsID").val();
-
-        var obj = new Object();
-        obj.Module = "Client";
-        obj.Page_key = "restorePrayageduLeads";
-        var json = new Object();
-        obj.JSON = json;
-        json.LeadsID = LeadID;
-        SilentTransportCall(obj);
-    }
-
-    // Modal Animation For Delete Lead Modal 
-    $('#RestoreLeadModal').on('show.bs.modal', function() {
-        $(this).find('.modal-dialog').addClass('slide-in');
-    });
-
-    $('#RestoreLeadModal').on('hidden.bs.modal', function() {
-        // Reset the modal animation class when the modal is hidden
-        $(this).find('.modal-dialog').removeClass('slide-in');
-    });
 </script>

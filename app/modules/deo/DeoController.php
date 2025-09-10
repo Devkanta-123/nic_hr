@@ -59,6 +59,14 @@ class DeoController implements Controller
                 return (new Deo())->getAccountName();
 
 
+            case 'getMasterItems':
+                return (new Deo())->getMasterItems();
+
+            case 'saveJournalEntries':
+                return (new Deo())->saveJournalEntries($jsondata);
+
+
+
 
 
 

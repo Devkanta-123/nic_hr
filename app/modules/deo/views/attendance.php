@@ -49,7 +49,7 @@
                             <div class="card-title">Attendance Date:</div>&nbsp;
                             <input type="date" id="attendance_date" autocomplete="off">
                             <button id="loadBtn" class="btn btn-success">Load Data</button>
-                         
+
                             <span class="float-right">
                                 <a href="deodash" class="btn btn-primary btn-xs custom-btn">Back to lists</a>
                             </span>
@@ -65,9 +65,8 @@
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
-                                
+
                             </table>
-                               <button type="button" id="saveAttendanceBtn" class="btn btn-primary">Save</button>
                         </div>
                         <!-- /.card-body -->
                     </div>
@@ -310,46 +309,66 @@
         });
     }
 
-    // ✅ Save all rows at once
-   $("#saveAttendanceBtn").off("click").on("click", function () {
-    debugger;
-    const attendanceDate = $("#attendance_date").val();
-    let hasData = false;
+    $(document).on("change", ".attendance-status-radio", function() {
+        const empId = $(this).data("empid");
+        const attendanceDate = $("#attendance_date").val();
+        saveAttendanceForEmployee(empId, attendanceDate);
+    });
 
-    $("#empAttendance tbody tr").each(function () {
-        const empId = $(this).find(".attendance-status-radio").data("empid");
+    $(document).on("change", ".location-select", function() {
+        const empId = $(this).data("empid");
+        const attendanceDate = $("#attendance_date").val();
+        const status = $(`input[name='status_${empId}']:checked`).val();
+
+        if (status) { // ✅ Only save if radio is already chosen
+            saveAttendanceForEmployee(empId, attendanceDate);
+        }
+    });
+
+
+    $(document).on("change", ".shift-select", function() {
+        const empId = $(this).data("empid");
+        const attendanceDate = $("#attendance_date").val();
+        const status = $(`input[name='status_${empId}']:checked`).val();
+
+        if (status) { // ✅ Only save if radio is already chosen
+            saveAttendanceForEmployee(empId, attendanceDate);
+        }
+    });
+
+
+
+    // ✅ Save all rows at once
+
+    function saveAttendanceForEmployee(empId, attendanceDate) {
+        debugger;
         const status = $(`input[name='status_${empId}']:checked`).val() || null;
         const shift = $(`#shift_${empId}`).val() || null;
         const loc_id = $(`.location-select[data-empid="${empId}"]`).val();
 
-        if (status) {
-            hasData = true;
+        if (!status) return false; // No status selected yet
 
-            // ✅ Validation for location
-            if (status !== "Absent" && !loc_id) {
-                notify("warning", 'Select location ');
-                return; // skip saving this employee
-            }
-
-            const obj = {
-                Module: "Deo",
-                Page_key: "markAttendance",
-                JSON: {
-                    emp_id: empId,
-                    status: status,
-                    shift: shift || null,
-                    location_id: status === "Absent" ? null : (loc_id || null), // null if absent
-                    attendance_date: attendanceDate
-                }
-            };
-            TransportCall(obj);
+        // ✅ Validation: Location mandatory for Present / Halfday
+        if ((status === "Present" || status === "Halfday") && !loc_id) {
+            notify("warning", `Select location for ${empId}`);
+            return false;
         }
-    });
 
-    if (!hasData) {
-        notify("warning", "No attendance data to save");
+        const obj = {
+            Module: "Deo",
+            Page_key: "markAttendance",
+            JSON: {
+                emp_id: empId,
+                status: status,
+                shift: shift || null,
+                location_id: status === "Absent" ? null : (loc_id || null),
+                attendance_date: attendanceDate
+            }
+        };
+
+        TransportCall(obj);
+        return true;
     }
-});
 
 
     function reloadEmployeeData(selectedDate) {
