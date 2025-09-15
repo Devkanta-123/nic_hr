@@ -96,6 +96,7 @@
                     <th scope="col">Emp Name</th>
                     <th scope="col">Date</th>
                     <th scope="col">Status</th>
+                    <th scope="col">Shift</th>
                   </tr>
                 </thead>
                 <tbody></tbody>
@@ -276,6 +277,7 @@
         <td>${emp.emp_name}</td>
         <td>${emp.attendance_date}</td>
         <td>${status}</td>
+        <td>${emp.shift}</td>
       </tr>`;
     });
 

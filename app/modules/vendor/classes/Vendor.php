@@ -187,18 +187,19 @@ GROUP BY em.emp_id, a.attendance_date, a.status, a.shift, l.loc_id, l.loc_name, 
     ps.AmountDue,
     ps.TotalPay,
     ps.OpeningBalance,
+    e.wages_amount,
     ps.PaySlipID,
     CASE WHEN MAX(ps.IsGenerated) = 1 THEN 1 ELSE 0 END AS IsGenerated
 FROM Employee e
 LEFT JOIN PaySlip ps 
     ON ps.EmployeeID = e.emp_id
 WHERE e.status = 'active'
-GROUP BY e.emp_id, e.emp_name, ps.FromDate, ps.ToDate;
+GROUP BY e.emp_id, e.emp_name,e.wages_amount, ps.FromDate, ps.ToDate;
     ";
         $employees = DBController::getDataSet($empQuery);
 
         // 2. Full attendance raw
-        $attQuery = "SELECT emp_id, attendance_date, status FROM Attendance";
+        $attQuery = "SELECT emp_id, attendance_date, status,shift FROM Attendance";
         $attendanceList = DBController::getDataSet($attQuery);
 
         // 3. Allowance master
