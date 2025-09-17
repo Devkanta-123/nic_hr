@@ -51,7 +51,7 @@
                  <!-- Task li start here -->
                  <li class="nav-item has-treeview">
                      <a href="#" class="nav-link">
-                       <i class="fas fa-credit-card"></i>
+                         <i class="fas fa-credit-card"></i>
                          <p>
                              Account
                              <i class="fas fa-angle-left right"></i>
@@ -60,31 +60,31 @@
                      <ul class="nav nav-treeview">
                          <li class="nav-item">
                              <a href="deo-journalentries" class="nav-link">
-                               <i class="fas fa-book"></i> 
+                                 <i class="fas fa-book"></i>
                                  <p>Journal Entry</p>
                              </a>
                          </li>
                          <li class="nav-item">
                              <a href="deo-ledger" class="nav-link">
-                                <i class="fas fa-file-invoice"></i>
+                                 <i class="fas fa-file-invoice"></i>
                                  <p>Ledger Entry</p>
                              </a>
                          </li>
                          <li class="nav-item">
                              <a href="deo-journalreport" class="nav-link">
-                               <i class="fas fa-book"></i> 
+                                 <i class="fas fa-book"></i>
                                  <p>Journal Report</p>
                              </a>
                          </li>
 
-  <li class="nav-item">
+                         <li class="nav-item">
                              <a href="deo-accountreport" class="nav-link">
-                               <i class="fas fa-book"></i> 
+                                 <i class="fas fa-book"></i>
                                  <p>Account Report</p>
                              </a>
                          </li>
 
-                         
+
 
 
                      </ul>
@@ -94,25 +94,30 @@
                      <a href="#" class="nav-link">
                          <i class="fas fa-receipt"></i>
                          <p>
-                              Pay
+                             Pay
                              <i class="fas fa-angle-left right"></i>
                          </p>
                      </a>
                      <ul class="nav nav-treeview">
-                        <li class="nav-item">
+                         <li class="nav-item">
                              <a href="deo-payslipattendance" class="nav-link">
                                  <i class="fas fa-file-alt"></i>
                                  <p>Generate Pay Slip </p>
                              </a>
                          </li>
                          <li class="nav-item">
-                             <a href="deo-advancepayment" class="nav-link">
+                             <a href="deo-payment" class="nav-link">
                                  <i class="fas fa-file"></i>
                                  <p>Payment </p>
                              </a>
                          </li>
+                         <li class="nav-item">
+                             <a href="deo-allowance" class="nav-link">
+                                 <i class="fas fa-file"></i>
+                                 <p>Allowance </p>
+                             </a>
+                         </li>
 
-                         
 
 
 

@@ -125,8 +125,8 @@ ON DUPLICATE KEY UPDATE
                       AND ToDate   = :ToDate";
         $existsParams = [
             [":EmployeeID", $data['emp_id']],
-            [":FromDate",   $data['from_date']],
-            [":ToDate",     $data['to_date']]
+            [":FromDate", $data['from_date']],
+            [":ToDate", $data['to_date']]
         ];
         $existData = DBController::sendData($existsQuery, $existsParams);
 
@@ -159,15 +159,15 @@ ON DUPLICATE KEY UPDATE
         }
 
         // 4. Values from request
-        $days    = $data['present_days'];
-        $Adv     = $data['advance'];
+        $days = $data['present_days'];
+        $Adv = $data['advance'];
         $amtPaid = $data['amount_paid'];
 
         // 5. Salary calculations
-        $totalPay    = $days * 500;
+        $totalPay = $days * 500;
         $grossAmount = $totalPay + $OB - $CA;
-        $netPay      = $grossAmount - $Adv;
-        $amountDue   = $netPay - $amtPaid;
+        $netPay = $grossAmount - $Adv;
+        $amountDue = $netPay - $amtPaid;
 
         // 6. New balances
         if ($amountDue < 0) {
@@ -291,23 +291,73 @@ ON DUPLICATE KEY UPDATE
         ];
     }
 
-
-    function saveAllowanceAmount($data)
+    function saveAllowance($data)
     {
-        // Check if any row already exists
-        $checkQuery = "SELECT COUNT(*) AS total FROM Master_AllowanceAmount";
-        $countResult = DBController::sendData($checkQuery);
+        // Check if any row exists for this employee
+        $checkQuery = "SELECT COUNT(*) AS total FROM Master_Allowance WHERE EmpID = :EmpID";
+        $checkParams = [[":EmpID", $data['emp_id']]];
+        $countResult = DBController::sendData($checkQuery, $checkParams);
 
         if ($countResult['total'] > 0) {
-            // There is already a record, so update
-            $query = "UPDATE Master_AllowanceAmount  SET Amount = :Amount";
+            // Update existing record for this employee
+            $query = "UPDATE Master_Allowance 
+                  SET AllowanceTypeID = :AllowanceTypeID, Amount = :Amount 
+                  WHERE EmpID = :EmpID";
         } else {
-            // No record, insert a new one
-            $query = "INSERT INTO Master_AllowanceAmount  (Amount) VALUES (:Amount)";
+            // Insert new record
+            $query = "INSERT INTO Master_Allowance (EmpID, AllowanceTypeID, Amount) 
+                  VALUES (:EmpID, :AllowanceTypeID, :Amount)";
         }
 
         $params = [
-            [":Amount", $data['allowance_amount']]
+            [":EmpID", $data['emp_id']],
+            [":AllowanceTypeID", $data['allowancetype']],
+            [":Amount", $data['amount']]
+        ];
+
+        $result = DBController::ExecuteSQL($query, $params);
+
+        return [
+            "return_code" => $result,
+            "return_data" => $result
+                ? "Data saved successfully."
+                : "Failed to save data."
+        ];
+    }
+
+
+    function savePayment($data)
+    {
+        // Insert new record
+        $query = "INSERT INTO Master_Payment (TypesOfPayment, Amount) 
+                  VALUES (:TypesOfPayment, :Amount)";
+
+        $params = [
+            [":TypesOfPayment", $data['typesofpayment']],
+            [":Amount", $data['amount']]
+        ];
+
+        $result = DBController::ExecuteSQL($query, $params);
+
+        return [
+            "return_code" => $result,
+            "return_data" => $result
+                ? "Data saved successfully."
+                : "Failed to save data."
+        ];
+    }
+
+
+
+
+    function saveAllowanceAmount($data)
+    {
+
+        // No record, insert a new one
+        $query = "INSERT INTO Master_AllowanceAmount  (TypesOfAllowance,Amount) VALUES (:TypesOfAllowance,:Amount)";
+        $params = [
+            [":Amount", $data['allowance_amount']],
+            [":TypesOfAllowance", $data['allowance_type']]
         ];
         $result = DBController::ExecuteSQL($query, $params);
 
@@ -358,6 +408,15 @@ ON DUPLICATE KEY UPDATE
         return array("return_code" => false, "return_data" => "No  data  found");
     }
 
+    function getPayments()
+    {
+        $query = "SELECT * FROM `Master_Payment`";
+        $work = DBController::getDataSet($query);
+        if ($work)
+            return array("return_code" => true, "return_data" => $work);
+        return array("return_code" => false, "return_data" => "No  data  found");
+    }
+
 
 
     function getAllowanceAmount()
@@ -368,6 +427,21 @@ ON DUPLICATE KEY UPDATE
             return array("return_code" => true, "return_data" => $work);
         return array("return_code" => false, "return_data" => "No  data  found");
     }
+
+    function getAllowance()
+    {
+        $query = "SELECT ma.*,e.emp_name,maa.TypesOfAllowance FROM Master_Allowance ma 
+INNER JOIN Employee e on ma.EmpID=e.emp_id
+INNER JOIN Master_AllowanceAmount maa on maa.id = ma.AllowanceTypeID;";
+        $work = DBController::getDataSet($query);
+        if ($work)
+            return array("return_code" => true, "return_data" => $work);
+        return array("return_code" => false, "return_data" => "No  data  found");
+    }
+
+
+
+
 
     function getMasterItems()
     {

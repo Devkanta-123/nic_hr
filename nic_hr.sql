@@ -496,6 +496,7 @@ CREATE TABLE Master_AdvancePayment (
 
 CREATE TABLE Master_AllowanceAmount (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    TypesOfAllowance VARCHAR(50) NOT NULL,
     amount DECIMAL(10,2) NOT NULL
 );
 
@@ -522,5 +523,27 @@ CREATE TABLE Master_Item (
     Rate INT NOT NULL
 );
 
+CREATE TABLE Master_Payment (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    TypesOfPayment VARCHAR(50) NOT NULL,
+    Amount DECIMAL(10,2) NOT NULL
+);
+
+
+
+
+
+
+
+
+
+
+
+CREATE TABLE Master_Allowance (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    EmpID INT NOT NULL,
+    AllowanceTypeID INT NOT NULL,
+    Amount DECIMAL(10,2) NOT NULL
+);
 
 

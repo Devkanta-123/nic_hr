@@ -24,7 +24,12 @@
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                <div class="form-group col-md-12">
+                                <div class="form-group col-md-6">
+                                    <label for="work_title">Allowance Type</label>
+                                    <input type="text" class="form-control" id="allowance_type"
+                                        name="allowance_amount" placeholder="Allowance Amount" required>
+                                </div>
+                                <div class="form-group col-md-6">
                                     <label for="work_title">Allowance Amount</label>
                                     <input type="text" class="form-control" id="allowance_amount"
                                         name="allowance_amount" placeholder="Allowance Amount" required>
@@ -52,8 +57,9 @@
                                 <thead>
                                     <tr>
                                         <th>SL No.</th>
+                                        <th>TypesOfAllowance</th>
                                         <th>Amount</th>
-                                        
+
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -144,18 +150,18 @@
 <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-
     let WorkID = '';
-    $(function () {
+    $(function() {
         getAllowanceAmount();
     });
 
-    $('#launchModalBtn').click(function () {
+    $('#launchModalBtn').click(function() {
         $('#addWorkModal').modal('show');
     });
-    $('#closeModal').click(function () {
+    $('#closeModal').click(function() {
         $('#addWorkModal').modal('hide');
     });
+
     function assign(workId) {
 
         // Optional: Store the workId for later use (e.g. in hidden input)
@@ -165,24 +171,34 @@
     }
 
 
-  $('#saveAllowance').click(function () {
+    $('#saveAllowance').click(function() {
         saveAllowanceAmount();
     });
 
     async function saveAllowanceAmount() {
         // Get values from form
         const allowance_amount = $("#allowance_amount").val();
+        const allowance_type = $("#allowance_type").val();
         // Validation
         if (!allowance_amount) {
             showWarningNotification("Please enter  allowance amount.");
             return;
         }
+        if (!allowance_type) {
+            showWarningNotification("Please enter  allowance type.");
+            return;
+        }
+
+
+
+
 
         let obj = {
             Module: "Deo",
             Page_key: "saveAllowanceAmount",
             JSON: {
-                allowance_amount: allowance_amount               
+                allowance_amount: allowance_amount,
+                allowance_type: allowance_type
             }
         };
         TransportCall(obj);
@@ -238,7 +254,7 @@
         const $locationselect = $('#loc_id');
         $locationselect.empty(); // Clear previous options
         $locationselect.append('<option value="">Select Location</option>');
-        locs.forEach(function (locs) {
+        locs.forEach(function(locs) {
             $locationselect.append(
                 $('<option>', {
                     value: locs.loc_id,
@@ -252,7 +268,7 @@
         const $empselect = $('#emp_id');
         $empselect.empty(); // Clear previous options
         $empselect.append('<option value="">Select Employee</option>');
-        emp.forEach(function (emp) {
+        emp.forEach(function(emp) {
             $empselect.append(
                 $('<option>', {
                     value: emp.emp_id,
@@ -262,17 +278,17 @@
         });
     }
 
-    $('#saveBtn').click(function () {
+    $('#saveBtn').click(function() {
         saveAllowanceAmount();
     });
 
-   
+
 
 
     async function assignWork() {
 
         // Get values from modal form fields (make sure these inputs exist inside your modal)
-        const work_id = WorkID;  // Stored when modal opened
+        const work_id = WorkID; // Stored when modal opened
         const emp_id = $('#emp_id').val().trim();
         // Validation
         if (!work_id) {
@@ -287,7 +303,7 @@
         // Prepare payload object matching your API structure
         let obj = {
             Module: "Work",
-            Page_key: "assignWork",   // You can set this key as needed in your API
+            Page_key: "assignWork", // You can set this key as needed in your API
             JSON: {
                 work_id: work_id,
                 emp_id: emp_id
@@ -362,9 +378,10 @@
         $('#allowanceMasterdata tbody').empty();
 
         // ✅ Populate the table with new data
-        $.each(data, function (index, item) {
+        $.each(data, function(index, item) {
             var row = $('<tr>');
             row.append($('<td>').text(index + 1));
+            row.append($('<td>').text(item.TypesOfAllowance));
             row.append($('<td>').text(item.amount));
             $('#allowanceMasterdata tbody').append(row);
         });
@@ -382,9 +399,4 @@
 
 
     }
-
-
-
-
-
 </script>
