@@ -37,9 +37,18 @@ class DeoController implements Controller
             case 'savePaymentData':
                 return (new Deo())->savePaymentData($jsondata);
 
+            case 'savePayment':
+                return (new Deo())->savePayment($jsondata);
+
+
+
 
             case 'getPaymentsData':
                 return (new Deo())->getPaymentsData();
+
+            case 'getPayments':
+                return (new Deo())->getPayments();
+
 
 
             case 'saveAllowanceAmount':
@@ -51,6 +60,11 @@ class DeoController implements Controller
 
             case 'getAllowanceAmount':
                 return (new Deo())->getAllowanceAmount();
+
+
+            case 'getAllowance':
+                return (new Deo())->getAllowance();
+
 
 
 
@@ -73,6 +87,13 @@ class DeoController implements Controller
                 return (new Deo())->getMasterWages();
 
                 
+
+
+
+
+            case 'saveAllowance':
+                return (new Deo())->saveAllowance($jsondata);
+
 
 
 
@@ -131,14 +152,19 @@ class DeoController implements Controller
                 break;
 
 
-            case 'advancepayment':
-                load($viewpath . "advancepayment.php");
+            case 'payment':
+                load($viewpath . "payment.php");
                 break;
 
 
             case 'allowancemaster':
                 load($viewpath . "allowancemaster.php");
                 break;
+
+            case 'allowance':
+                load($viewpath . "allowance.php");
+                break;
+
 
 
 

@@ -421,7 +421,7 @@ function filterAndLoad() {
         let totalWages = 0;
         empAttendance.forEach(a => {
             const status = a.status.toLowerCase();
-            const shift = a.shift.toLowerCase();
+            const shift = (a.shift || "").toLowerCase(); // ✅ safe handling
 
             if (status === "halfday") {
                 totalWages += (empWage / 2);
