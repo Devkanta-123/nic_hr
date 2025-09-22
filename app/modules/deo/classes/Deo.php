@@ -125,8 +125,8 @@ ON DUPLICATE KEY UPDATE
                       AND ToDate   = :ToDate";
         $existsParams = [
             [":EmployeeID", $data['emp_id']],
-            [":FromDate",   $data['from_date']],
-            [":ToDate",     $data['to_date']]
+            [":FromDate", $data['from_date']],
+            [":ToDate", $data['to_date']]
         ];
         $existData = DBController::sendData($existsQuery, $existsParams);
 
@@ -159,15 +159,15 @@ ON DUPLICATE KEY UPDATE
         }
 
         // 4. Values from request
-        $days    = $data['present_days'];
-        $Adv     = $data['advance'];
+        $days = $data['present_days'];
+        $Adv = $data['advance'];
         $amtPaid = $data['amount_paid'];
 
         // 5. Salary calculations
-        $totalPay    = $days * 500;
+        $totalPay = $days * 500;
         $grossAmount = $totalPay + $OB - $CA;
-        $netPay      = $grossAmount - $Adv;
-        $amountDue   = $netPay - $amtPaid;
+        $netPay = $grossAmount - $Adv;
+        $amountDue = $netPay - $amtPaid;
 
         // 6. New balances
         if ($amountDue < 0) {
@@ -421,5 +421,44 @@ ON DUPLICATE KEY UPDATE
                 ? "Journal entries saved successfully."
                 : "Some journal entries failed to save."
         ];
+    }
+
+    function saveWagesData($data)
+    {
+        // Insert new wages record
+        $query = "INSERT INTO Master_Wages 
+        (EmpID, DateOfJoining, IncrementDate, WagesPerDay, HalfDay, MorningShift, EveningShift) 
+        VALUES 
+        (:EmpID, :DateOfJoining, :IncrementDate, :WagesPerDay, :HalfDay, :MorningShift, :EveningShift)";
+
+        $params = [
+            [":EmpID", $data['emp_id']],
+            [":DateOfJoining", $data['date_of_joining']],
+            [":IncrementDate", $data['increment_date']],
+            [":WagesPerDay", $data['wages_per_day']],
+            [":HalfDay", $data['half_day']],
+            [":MorningShift", $data['morning_shift']],
+            [":EveningShift", $data['evening_shift']]
+        ];
+
+        $result = DBController::ExecuteSQL($query, $params);
+
+        return [
+            "return_code" => $result,
+            "return_data" => $result
+                ? "Wages data saved successfully."
+                : "Failed to save wages data."
+        ];
+    }
+
+    function getMasterWages()
+    {
+
+        $query = "SELECT mw.*,e.emp_name FROM `Master_Wages` mw 
+        INNER JOIN Employee e on e.emp_id = mw.EmpID ORDER BY mw.CreatedAt DESC;";
+        $work = DBController::getDataSet($query);
+        if ($work)
+            return array("return_code" => true, "return_data" => $work);
+        return array("return_code" => false, "return_data" => "No  data  found");
     }
 }

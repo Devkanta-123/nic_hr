@@ -65,6 +65,16 @@ class DeoController implements Controller
             case 'saveJournalEntries':
                 return (new Deo())->saveJournalEntries($jsondata);
 
+            case 'saveWagesData':
+                return (new Deo())->saveWagesData($jsondata);
+
+                
+            case 'getMasterWages':
+                return (new Deo())->getMasterWages();
+
+                
+
+
 
 
 
@@ -136,6 +146,9 @@ class DeoController implements Controller
                 load($viewpath . "masteraccount.php");
                 break;
 
+            case 'wagesentry':
+                load($viewpath . "wages_entry.php");
+                break;
 
 
 

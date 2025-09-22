@@ -524,3 +524,14 @@ CREATE TABLE Master_Item (
 
 
 
+CREATE TABLE Master_Wages (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    EmpID INT NOT NULL,
+    DateOfJoining DATE NOT NULL,
+    IncrementDate DATE NOT NULL,
+    WagesPerDay DECIMAL(10,2) NOT NULL,
+    HalfDay DECIMAL(10,2) NOT NULL,
+    MorningShift DECIMAL(10,2) NOT NULL,
+    EveningShift DECIMAL(10,2) NOT NULL,
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
