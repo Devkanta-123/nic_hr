@@ -116,6 +116,18 @@
                         </ul>
                     </div>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link menu-link" href="#Wages" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="Account">
+                        <i class="ri-account-circle-line"></i></i> <span data-key="Delivery">Wages</span>
+                    </a>
+                    <div class="collapse menu-dropdown" id="Wages">
+                        <ul class="nav nav-sm flex-column">
+                            <li class="nav-item">
+                                <a href="deo-wagesentry" class="nav-link" data-key="t-grid-js">Wages Entry</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
             </ul>
         </div>
         <!-- Sidebar -->

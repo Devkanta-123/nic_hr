@@ -1,159 +1,183 @@
-<!-- summernote -->
-<link rel="stylesheet" href="assets/admin/plugins/summernote/summernote-bs4.css">
-<link rel="stylesheet"
-    href="assets/admin/plugins/multi-select-dropdown-list-with-checkbox-jquery/jquery.multiselect.css">
+<!-- Begin page -->
+<!-- removeNotificationModal -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<div class="vertical-overlay"></div>
 
-<link rel="stylesheet" href="assets/admin/plugins/bootstrap-toggle-master/css/bootstrap-toggle.min.css">
-<!-- Bootstrap Switch -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.4/css/bootstrap3/bootstrap-switch.min.css"
-    rel="stylesheet" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.4/js/bootstrap-switch.min.js"></script>
+<!-- ============================================================== -->
+<!-- Start right Content here -->
+<!-- ============================================================== -->
+<div class="main-content">
 
-
-
-<style>
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(-50px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .slide-in {
-        animation: slideIn 0.5s ease-in-out;
-    }
-
-    .custom-btn {
-        border: 2px solid #fff;
-        /* White border */
-        border-radius: 30px;
-        /* Adjust the value to control the roundness of the button */
-        background: linear-gradient(to right, #3498db, #e74c3c);
-        /* Adjust the colors as desired */
-        color: #fff;
-        /* Text color */
-        padding: 5px 10px;
-        /* Adjust padding as needed */
-        display: inline-block;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        /* Adjust shadow as needed */
-    }
-</style>
-<!-- Content Wrapper. Contains page content -->
-<div class="content-wrapper" id="maincontent">
-    <section class="content">
+    <div class="page-content">
         <div class="container-fluid">
+
             <div class="row">
-                <div class="col-12 mt-3">
+                <div class="col-lg-12">
                     <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">
-                                Wages Entry
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">Wages Entry</h5>
+
+                            <!-- Button group aligned right -->
+
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label for="work_title">Employee </label>
+                                    <select class="form-control" id="emp_id">
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="work_title">Date of Joining</label>
+                                    <input type="date" class="form-control" id="date_of_joining" name="date_of_joining"
+                                        required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label for="adpayment">Increment Date</label>
+                                    <input type="date" class="form-control" id="increment_date" name="increment_date"
+                                        required>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="adpayment">WagesPerDay (W)</label>
+                                    <input type="number" class="form-control" id="wages_per_day" name="wages_per_day"
+                                        placeholder="Wages Per Day" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-4">
+                                    <label for="adpayment">HalfDay Amount in Percentage</label>
+                                    <input type="text" class="form-control" id="halfdayamount" name="halfdayamount"
+                                        required placeholder="HalfDay Amount in Percentage" maxlength="2">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="adpayment">MorningShift Amount in Percentage</label>
+                                    <input type="text" class="form-control" id="morningshift_amount" name="morningshift_amount"
+                                        placeholder="MorningShift Amount in Percentage" required  maxlength="2">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="adpayment">EveningShift Amount in Percentage</label>
+                                    <input type="text" class="form-control" id="eveningshift_amount" name="eveningshift_amount"
+                                        placeholder="EveningShift Amount in Percentage" required  maxlength="2">
+                                </div>
                             </div>
 
-                        </div>
-                        <!-- Ends here  -->
-                        <div class="card-body">
-                            <form id="#">
-                                <div class="row">
-
-                                    <div class="form-group col-md-4">
-                                        <label for="adpayment">Employee</label>
-                                        <select class="form-control" id="emp_id">
-                                        </select>
-                                    </div>
-
-                                    <div class="form-group col-md-4">
-                                        <label for="adpayment">Date of Joining</label>
-                                        <input type="date" class="form-control" id="date_of_joining" name="date_of_joining"
-                                            required>
-                                    </div>
-                                    <div class="form-group col-md-4">
-                                        <label for="adpayment">Increment Date</label>
-                                        <input type="date" class="form-control" id="increment_date" name="increment_date"
-                                            required>
-                                    </div>
-
-
-                                    <div class="form-group col-md-4">
-                                        <label for="adpayment">WagesPerDay (W)</label>
-                                        <input type="number" class="form-control" id="wages_per_day" name="wages_per_day"
-                                            placeholder="Wages Per Day" required>
-                                    </div>
-
-                                    <div class="form-group col-md-4" id="incrementDiv" style="display:none;">
-                                        <label for="increment_amount">Increment Amount</label>
-                                        <input type="number" class="form-control" id="increment_amount" placeholder="Enter increment amount">
-                                    </div>
-
-
-
+                            <div class="row">
+                                <div class="form-group col-md-6" id="incrementDiv" style="display:none;">
+                                    <label for="increment_amount">Increment Amount</label>
+                                    <input type="number" class="form-control" id="increment_amount" placeholder="Enter increment amount">
                                 </div>
-                                <button type="button" id="saveBtn" class="btn btn-primary">Save</button>
+                               
+                            </div>
+                                <br>
+     <button type="button" id="saveBtn" class="btn btn-primary">Save</button>
 
-                            </form>
-                        </div>
-
-
-
-
-                        <!-- /.card-body -->
+                        </div> 
+                   
                     </div>
+                
+                    
                 </div>
 
-                <div class="col-12 mt-3">
-                    <div class="card">
-                        <!-- Ends here  -->
-                        <div class="card-body">
-                            <table id="advanceAmounttable" class="table table-bordered table-striped">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">SL.NO</th>
-                                        <th scope="col">Emp Name</th>
-                                        <th scope="col">Date of Joining</th>
-                                        <th scope="col">Increment Date</th>
-                                        <th scope="col">Wages (W)</th>
-                                        <th scope="col">HalfDay 50% of (W)</th>
-                                        <th scope="col">Morning Shift 25% of (W)</th>
-                                        <th scope="col">Evening Shift 50 % of (W)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-
-                                </tbody>
-                            </table>
-                        </div>
+            </div>
 
 
+        </div>
+         <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+            </div>
 
 
-                        <!-- /.card-body -->
-                    </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="wagesMasterDataTable" class="table table-bordered nowrap table-striped align-middle"
+                        style="width:100%">
+                        <thead>
+                            <tr>
+                                <th scope="col">SL.NO</th>
+                                <th scope="col">Emp Name</th>
+                                <th scope="col">Date of Joining</th>
+                                <th scope="col">Increment Date</th>
+                                <th scope="col">Wages (W)</th>
+                                <th scope="col">HalfDay</th>
+                                <th scope="col">Morning Shift</th>
+                                <th scope="col">Evening Shift</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            <!-- /.row -->
+
         </div>
-        <!-- /.container-fluid -->
-    </section>
-    <!-- /.content -->
+    </div>
+    </div>
+
+   
 </div>
 
-<!-- /.content-wrapper -->
-<!-- validating input -->
 
-<!-- Summernote -->
-<script src="assets/admin/plugins/summernote/summernote-bs4.min.js"></script>
 
-<script src="assets/admin/plugins/multi-select-dropdown-list-with-checkbox-jquery/jquery.multiselect.js"></script>
-<script src="assets/admin/plugins/bootstrap-toggle-master/js/bootstrap-toggle.min.js"></script>
 
+
+<!-- container-fluid -->
+</div>
+<!-- End Page-content -->
+
+<footer class="footer">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6">
+                <script>
+                    document.write(new Date().getFullYear())
+                </script> © NIC HR.
+            </div>
+            <div class="col-sm-6">
+                <div class="text-sm-end d-none d-sm-block">
+                    <!-- Design & Develop by 2 Brothers -->
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+</div>
+<!-- end main content-->
+
+</div>
+<!-- END layout-wrapper -->
+
+
+
+<!--start back-to-top-->
+<button onclick="topFunction()" class="btn btn-danger btn-icon" id="back-to-top">
+    <i class="ri-arrow-up-line"></i>
+</button>
+
+<!-- JAVASCRIPT -->
+<script src="assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="assets/libs/simplebar/simplebar.min.js"></script>
+<script src="assets/libs/node-waves/waves.min.js"></script>
+<script src="assets/libs/feather-icons/feather.min.js"></script>
+<script src="assets/js/pages/plugins/lord-icon-2.1.0.js"></script>
+<script src="assets/js/plugins.js"></script>
+<!-- apexcharts -->
+<script src="assets/libs/apexcharts/apexcharts.min.js"></script>
+
+<!-- Dashboard init -->
+<script src="assets/js/pages/dashboard-Ongyi.init.js"></script>
+
+<!-- App js -->
+<script src="assets/js/app.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    let WorkID = '';
     $(function() {
         getMasterWages();
         getActiveEmployeeList();
@@ -175,6 +199,28 @@
     }
 
 
+    $('#saveAccountbtn').click(function() {
+        saveAccountName();
+    });
+
+    async function saveAccountName() {
+        // Get values from form
+        const account_name = $("#account_name").val();
+        // Validation
+        if (!account_name) {
+            showWarningNotification("Please enter  account name.");
+            return;
+        }
+
+        let obj = {
+            Module: "Deo",
+            Page_key: "saveAccountName",
+            JSON: {
+                account_name: account_name
+            }
+        };
+        TransportCall(obj);
+    }
 
 
 
@@ -230,41 +276,41 @@
         }
     }
 
- $('#emp_id').on('change', function() {
-    const emp_id = $(this).val();
-    if (!emp_id) return;
+    $('#emp_id').on('change', function() {
+        const emp_id = $(this).val();
+        if (!emp_id) return;
 
-    // Ensure masterWagesData is an array
-    const empData = Array.isArray(masterWagesData) ? masterWagesData : [];
+        // Ensure masterWagesData is an array
+        const empData = Array.isArray(masterWagesData) ? masterWagesData : [];
 
-    // Filter records for selected employee
-    const empRecords = empData.filter(r => r.EmpID == emp_id);
+        // Filter records for selected employee
+        const empRecords = empData.filter(r => r.EmpID == emp_id);
 
-    if (empRecords.length > 0) {
-        // Show increment amount input
-        $('#incrementDiv').show();
+        if (empRecords.length > 0) {
+            // Show increment amount input
+            $('#incrementDiv').show();
 
-        // Find latest record by CreatedAt safely
-        const latestRecord = empRecords.reduce((prev, current) => {
-            return new Date(prev.CreatedAt) > new Date(current.CreatedAt) ? prev : current;
-        });
+            // Find latest record by CreatedAt safely
+            const latestRecord = empRecords.reduce((prev, current) => {
+                return new Date(prev.CreatedAt) > new Date(current.CreatedAt) ? prev : current;
+            });
 
-        if (latestRecord) {
-            $('#wages_per_day').val(latestRecord.WagesPerDay || '');
-            $('#increment_date').val(new Date().toISOString().split('T')[0]);
-            $('#date_of_joining').val(latestRecord.DateOfJoining || '');
+            if (latestRecord) {
+                $('#wages_per_day').val(latestRecord.WagesPerDay || '');
+                $('#increment_date').val(new Date().toISOString().split('T')[0]);
+                $('#date_of_joining').val(latestRecord.DateOfJoining || '');
+            }
+        } else {
+            // Hide increment input for new employees
+            $('#incrementDiv').hide();
+
+            // Clear fields safely
+            $('#date_of_joining').val('');
+            $('#wages_per_day').val('');
+            $('#increment_date').val('');
+            $('#increment_amount').val('');
         }
-    } else {
-        // Hide increment input for new employees
-        $('#incrementDiv').hide();
-
-        // Clear fields safely
-        $('#date_of_joining').val('');
-        $('#wages_per_day').val('');
-        $('#increment_date').val('');
-        $('#increment_amount').val('');
-    }
-});
+    });
 
 
 
@@ -291,15 +337,24 @@
     });
 
 
+
+
     $('#saveBtn').click(function() {
         saveWagesData();
     });
 
     async function saveWagesData() {
+        debugger;
         const emp_id = $("#emp_id").val();
         const date_of_joining = $("#date_of_joining").val();
         const increment_date = $("#increment_date").val();
         let wages_per_day = parseFloat($("#wages_per_day").val());
+
+        // Percentages entered by user
+        const halfdayamount = parseFloat($("#halfdayamount").val()) || 0;
+        const morningshift_amount = parseFloat($("#morningshift_amount").val()) || 0;
+        const eveningshift_amount = parseFloat($("#eveningshift_amount").val()) || 0;
+
         const increment_amount = parseFloat($("#increment_amount").val()) || 0; // use 0 if empty
 
         if (!emp_id || !date_of_joining || !increment_date || !wages_per_day) {
@@ -312,10 +367,10 @@
             wages_per_day += increment_amount;
         }
 
-        // Calculate half/morning/evening shifts
-        const half_day = wages_per_day * 0.5;
-        const morning_shift = wages_per_day * 0.25;
-        const evening_shift = wages_per_day * 0.25;
+        // Calculate shift amounts using entered percentages
+        const half_day = (wages_per_day * halfdayamount) / 100;
+        const morning_shift = (wages_per_day * morningshift_amount) / 100;
+        const evening_shift = (wages_per_day * eveningshift_amount) / 100;
 
         let obj = {
             Module: "Deo",
@@ -336,7 +391,6 @@
 
         console.log(JSON.stringify(obj, null, 2));
     }
-
 
 
 
@@ -390,12 +444,12 @@
 
     function loaddata(data) {
         // ✅ Destroy existing DataTable if already initialized
-        if ($.fn.DataTable.isDataTable('#advanceAmounttable')) {
-            $('#advanceAmounttable').DataTable().clear().destroy();
+        if ($.fn.DataTable.isDataTable('#wagesMasterDataTable')) {
+            $('#wagesMasterDataTable').DataTable().clear().destroy();
         }
 
         // ✅ Clear the table body
-        $('#advanceAmounttable tbody').empty();
+        $('#wagesMasterDataTable tbody').empty();
 
         // ✅ Populate the table with new data
         $.each(data, function(index, item) {
@@ -408,11 +462,11 @@
             row.append($('<td>').text(item.HalfDay));
             row.append($('<td>').text(item.MorningShift));
             row.append($('<td>').text(item.EveningShift));
-            $('#advanceAmounttable tbody').append(row);
+            $('#wagesMasterDataTable tbody').append(row);
         });
 
         // ✅ Reinitialize DataTable
-        $('#advanceAmounttable').DataTable({
+        $('#wagesMasterDataTable').DataTable({
             responsive: true
         });
     }
