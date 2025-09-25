@@ -180,10 +180,10 @@ ON DUPLICATE KEY UPDATE
 
         // 7. Insert new payslip
         $query = "INSERT INTO PaySlip 
-    (EmployeeID, FromDate, ToDate, PresentDays, OpeningBalance, Advance, CurrentAdvance, AmountPaid, TotalPay, IsGenerated,
+    (EmployeeID, FromDate, ToDate, PresentDays, OpeningBalance, Advance, CurrentAdvance, AmountPaid, TotalPay, WoP,IsGenerated,
      GrossAmount, NetPay, AmountDue, NewOpeningBalance, NewCurrentAdvance, NewBalance)
     VALUES 
-    (:EmployeeID, :FromDate, :ToDate, :PresentDays, :OpeningBalance, :Advance, :CurrentAdvance, :AmountPaid, :TotalPay, :IsGenerated,
+    (:EmployeeID, :FromDate, :ToDate, :PresentDays, :OpeningBalance, :Advance, :CurrentAdvance, :AmountPaid, :TotalPay,:WoP, :IsGenerated,
      :GrossAmount, :NetPay, :AmountDue, :NewOpeningBalance, :NewCurrentAdvance, :NewBalance)";
 
         $params = [
@@ -195,7 +195,8 @@ ON DUPLICATE KEY UPDATE
             [":Advance", $Adv],
             [":CurrentAdvance", $CA],
             [":AmountPaid", $amtPaid],
-            [":TotalPay", $totalPay],
+            [":TotalPay", $data['total_pay']],
+            [":WoP", $data['wages_amount']],
             [":IsGenerated", 0],
             [":GrossAmount", $grossAmount],
             [":NetPay", $netPay],

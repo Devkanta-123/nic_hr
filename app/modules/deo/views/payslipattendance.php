@@ -68,25 +68,25 @@
                             </span>
                         </div>
                         <div class="card-body">
-                           <table id="payslipempAttendance" class="table table-bordered table-striped">
-    <thead>
-        <tr>
-            <th scope="col">Emp Name</th>
-            <th scope="col">Present No of Days</th>
-            <th scope="col">Wages Amount</th> <!-- ✅ New column -->
-            <th scope="col">Due Advance</th>
-            <th scope="col">Total Amount</th>
-            <th scope="col">Advance</th>
-            <th scope="col">Gross Amount</th>
-            <th scope="col">Net Amount</th>
-            <th scope="col">Amount Paid</th>
-            <th scope="col">Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        <!-- Data will be loaded dynamically by JS -->
-    </tbody>
-</table>
+                            <table id="payslipempAttendance" class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Emp Name</th>
+                                        <th scope="col">Present No of Days</th>
+                                        <th scope="col">Wages Amount</th> <!-- ✅ New column -->
+                                        <th scope="col">Due Advance</th>
+                                        <th scope="col">Total Amount</th>
+                                        <th scope="col">Advance</th>
+                                        <th scope="col">Gross Amount</th>
+                                        <th scope="col">Net Amount</th>
+                                        <th scope="col">Amount Paid</th>
+                                        <th scope="col">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Data will be loaded dynamically by JS -->
+                                </tbody>
+                            </table>
 
                         </div>
                     </div>
@@ -125,7 +125,8 @@
     <tr>
         <td><strong id="previousLabel">Previous Balance</strong></td>
         <td id="previousBalance">0</td>
-        <td colspan="2"></td>
+        <td><strong>Wages of Pay(WoP):</strong></td>
+        <td id="WoP">000</td>
     </tr>
 
     <!-- Current Week Summary Title -->
@@ -164,6 +165,15 @@
         <td><strong id="closingLabel">Closing Balance:</strong></td>
         <td id="closingAmount">0</td>
     </tr>
+
+  <!-- Signature Row -->
+<tr style="border: none;">
+    <td colspan="2" style="border: none;"></td>
+    <td colspan="2" style="border: none; text-align: right; padding-top: 40px;">
+        <strong>Signature</strong><br>
+    </td>
+</tr>
+
 </table>
 
 
@@ -181,10 +191,20 @@
 <script>
     $(function() {
         getEmployeesAttendanceForPaySlip();
+        getMasterWages();
         //getEmployeesAttendanceFilter();
 
     });
 
+
+    function getMasterWages() {
+        var obj = new Object();
+        obj.Module = "Deo";
+        obj.Page_key = "getMasterWages";
+        var json = new Object();
+        obj.JSON = json;
+        TransportCall(obj);
+    }
 
 
 
@@ -237,7 +257,7 @@
     disableSundays($('#Todate'));
 
 
-
+    let masterwagesData = [];
     let rawAttendanceData = [];
     let AllowanceMasterdata = [];
     let allEmployees = []; // from backend (with IsGenerated)
@@ -280,8 +300,13 @@
 
 
                 case "getPaySlipsDataByEmpIDandSlipID":
-                    console.log(rc.return_data);
+                    console.log("getPaySlipsDataByEmpIDandSlipID", rc.return_data);
                     loadPaySlipData(rc.return_data);
+                    break;
+
+                case "getMasterWages":
+                    console.log("masterwages", rc.return_data);
+                    masterwagesData = rc.return_data;
                     break;
 
 
@@ -302,7 +327,6 @@
         $('#slipName').text(data.emp_name);
         $('#fromDateTable').text($("#fromDate").val());
         $('#todateTable').text($("#Todate").val());
-
         // Previous balance or advance
         let previousLabel = "Previous Balance";
         if (parseFloat(data.OpeningBalance) == 0 && parseFloat(data.CurrentAdvance) > 0) {
@@ -318,6 +342,7 @@
         $('#grossAmount').text(data.GrossAmount);
         $('#netAmount').text(data.NetPay);
         $('#amountPaid').text(data.AmountPaid);
+        $('#WoP').text(data.WoP);
 
         // Amount Due / Current Advance (dynamic)
         let amtDue = parseFloat(data.AmountDue || 0);
@@ -393,155 +418,213 @@
 
 
     // Filter employees and calculate present_days
-function filterAndLoad() {
-    debugger;
-    const from = $("#fromDate").val();
-    const to = $("#Todate").val();
-    if (!from || !to) return;
+    // function filterAndLoad() {
+    //     debugger;
+    //     const from = $("#fromDate").val();
+    //     const to = $("#Todate").val();
+    //     if (!from || !to) return;
 
-    let filteredRows = [];
+    //     let filteredRows = [];
 
-    allEmployees.forEach(emp => {
-        // ✅ Ensure wages_amount is a number
-        const empWage = parseFloat(emp.wages_amount) || 0;
+    //     allEmployees.forEach(emp => {
+    //         // ✅ Ensure wages_amount is a number
+    //         const empWage = parseFloat(emp.wages_amount) || 0;
 
-        // ✅ Filter attendance for this employee in date range
-        const empAttendance = allAttendance.filter(a =>
-            a.emp_id == emp.emp_id &&
-            a.attendance_date >= from &&
-            a.attendance_date <= to
-        );
+    //         // ✅ Filter attendance for this employee in date range
+    //         const empAttendance = allAttendance.filter(a =>
+    //             a.emp_id == emp.emp_id &&
+    //             a.attendance_date >= from &&
+    //             a.attendance_date <= to
+    //         );
 
-        // ✅ Only "Present" and "HalfDay" count for wages
-        const present_days = empAttendance.filter(a =>
-            a.status.toLowerCase() === "present" || a.status.toLowerCase() === "halfday"
-        ).length;
+    //         // ✅ Only "Present" and "HalfDay" count for wages
+    //         const present_days = empAttendance.filter(a =>
+    //             a.status.toLowerCase() === "present" || a.status.toLowerCase() === "halfday"
+    //         ).length;
 
-        // ✅ Calculate wages
-        let totalWages = 0;
-        empAttendance.forEach(a => {
-            const status = a.status.toLowerCase();
-            const shift = (a.shift || "").toLowerCase(); // ✅ safe handling
+    //         // ✅ Calculate wages
+    //         let totalWages = 0;
+    //         empAttendance.forEach(a => {
+    //             const status = a.status.toLowerCase();
+    //             const shift = (a.shift || "").toLowerCase(); // ✅ safe handling
 
-            if (status === "halfday") {
-                totalWages += (empWage / 2);
-            } else if (status === "present") {
-                switch (shift) {
-                    case "morning":
-                        totalWages += (empWage / 4);
-                        break;
-                    case "night":
-                        totalWages += (empWage / 2);
-                        break;
-                    case "day":
-                        totalWages += empWage;
-                        break;
-                }
+    //             if (status === "halfday") {
+    //                 totalWages += (empWage / 2);
+    //             } else if (status === "present") {
+    //                 switch (shift) {
+    //                     case "morning":
+    //                         totalWages += (empWage / 4);
+    //                         break;
+    //                     case "night":
+    //                         totalWages += (empWage / 2);
+    //                         break;
+    //                     case "day":
+    //                         totalWages += empWage;
+    //                         break;
+    //                 }
+    //             }
+    //         });
+
+    //         filteredRows.push({
+    //             emp_id: emp.emp_id,
+    //             emp_name: emp.emp_name,
+    //             present_days: present_days,
+    //             wages_amount: totalWages.toFixed(2), // ✅ final total for period
+    //             AmountDue: emp.AmountDue || 0,
+    //             TotalPay: emp.TotalPay || 0,
+    //             Advance: emp.Advance || 0,
+    //             GrossAmount: emp.GrossAmount || 0,
+    //             NetPay: emp.NetPay || 0,
+    //             AmountPaid: emp.AmountPaid || 0,
+    //             FromDate: emp.FromDate,
+    //             ToDate: emp.ToDate,
+    //             IsGenerated: emp.IsGenerated || 0,
+    //             PaySlipID: emp.PaySlipID || 0,
+    //         });
+    //     });
+
+    //     loaddata(filteredRows, AdvanceMasterdata, from, to);
+    // }
+
+    let totalWages;
+
+    function filterAndLoad() {
+        debugger;
+        const from = $("#fromDate").val();
+        const to = $("#Todate").val();
+        if (!from || !to) return;
+
+        let filteredRows = [];
+
+        allEmployees.forEach(emp => {
+            // ✅ Get latest wages from masterwagesData
+            let empWage = 0;
+            const empWagesRecords = masterwagesData.filter(w => w.EmpID == emp.emp_id);
+
+            if (empWagesRecords.length > 0) {
+                // Sort by CreatedAt descending and take the latest
+                empWagesRecords.sort((a, b) => new Date(b.CreatedAt) - new Date(a.CreatedAt));
+                empWage = parseFloat(empWagesRecords[0].WagesPerDay) || 0;
             }
+
+            // ✅ Filter attendance for this employee in date range
+            const empAttendance = allAttendance.filter(a =>
+                a.emp_id == emp.emp_id &&
+                a.attendance_date >= from &&
+                a.attendance_date <= to
+            );
+
+            // ✅ Only "Present" and "HalfDay" count for wages
+            const present_days = empAttendance.filter(a =>
+                a.status.toLowerCase() === "present" || a.status.toLowerCase() === "halfday"
+            ).length;
+
+            // ✅ Direct calculation (present days × latest wage per day)
+            // let totalWages = present_days * empWage;
+            totalWages = empWage;
+            filteredRows.push({
+                emp_id: emp.emp_id,
+                emp_name: emp.emp_name,
+                present_days: present_days,
+                wages_amount: totalWages.toFixed(2), // ✅ direct wages
+                AmountDue: emp.AmountDue || 0,
+                TotalPay: emp.TotalPay || 0,
+                Advance: emp.Advance || 0,
+                GrossAmount: emp.GrossAmount || 0,
+                NetPay: emp.NetPay || 0,
+                AmountPaid: emp.AmountPaid || 0,
+                FromDate: emp.FromDate,
+                ToDate: emp.ToDate,
+                IsGenerated: emp.IsGenerated || 0,
+                PaySlipID: emp.PaySlipID || 0,
+            });
         });
 
-        filteredRows.push({
-            emp_id: emp.emp_id,
-            emp_name: emp.emp_name,
-            present_days: present_days,
-            wages_amount: totalWages.toFixed(2), // ✅ final total for period
-            AmountDue: emp.AmountDue || 0,
-            TotalPay: emp.TotalPay || 0,
-            Advance: emp.Advance || 0,
-            GrossAmount: emp.GrossAmount || 0,
-            NetPay: emp.NetPay || 0,
-            AmountPaid: emp.AmountPaid || 0,
-            FromDate: emp.FromDate,
-            ToDate: emp.ToDate,
-            IsGenerated: emp.IsGenerated || 0,
-            PaySlipID: emp.PaySlipID || 0,
-        });
-    });
-
-    loaddata(filteredRows, AdvanceMasterdata, from, to);
-}
-
-function loaddata(data, AdvanceMasterdata, selectedFrom, selectedTo) {
-    debugger;
-    const table = $("#payslipempAttendance");
-
-    if ($.fn.DataTable.isDataTable(table)) {
-        table.DataTable().clear().destroy();
+        loaddata(filteredRows, AdvanceMasterdata, from, to);
     }
-    table.find('tbody').empty();
 
-    let text = "";
+    function loaddata(data, AdvanceMasterdata, selectedFrom, selectedTo) {
+        debugger;
+        const table = $("#payslipempAttendance");
 
-    if (!data || data.length === 0) {
-        text = "<tr><td colspan='10' class='text-center'>No Data Found</td></tr>";
-    } else {
-        // 🔹 Group data by emp_id
-        const grouped = {};
-        data.forEach(emp => {
-            if (!grouped[emp.emp_id]) grouped[emp.emp_id] = [];
-            grouped[emp.emp_id].push(emp);
-        });
+        if ($.fn.DataTable.isDataTable(table)) {
+            table.DataTable().clear().destroy();
+        }
+        table.find('tbody').empty();
 
-        // 🔹 Build rows
-        Object.values(grouped).forEach(empRecords => {
-            let emp = empRecords.find(e => e.FromDate === selectedFrom && e.ToDate === selectedTo);
-            if (!emp) {
-                emp = empRecords[empRecords.length - 1];
-            }
+        let text = "";
 
-            const isSameRange = (emp.FromDate === selectedFrom && emp.ToDate === selectedTo);
+        if (!data || data.length === 0) {
+            text = "<tr><td colspan='10' class='text-center'>No Data Found</td></tr>";
+        } else {
+            // 🔹 Group data by emp_id
+            const grouped = {};
+            data.forEach(emp => {
+                if (!grouped[emp.emp_id]) grouped[emp.emp_id] = [];
+                grouped[emp.emp_id].push(emp);
+            });
 
-            text += `<tr>`;
-            text += `<td>${emp.emp_name}</td>`;
-            text += `<td>${emp.present_days || 0}</td>`;
-            text += `<td>${emp.wages_amount || 0}</td>`; // ✅ New Column (Wages Amount)
-            text += `<td>${emp.AmountDue || 0}</td>`;
-            text += `<td>${emp.TotalPay || 0}</td>`;
-            // ✅ Get advance amount(s) from AdvanceMasterdata
-            const advanceEntries = AdvanceMasterdata.filter(a => a.EmpID == emp.emp_id);
-            const advanceAmount = advanceEntries.length > 0 ?
-                advanceEntries.reduce((sum, a) => sum + parseFloat(a.Amount || 0), 0) :
-                0;
-            text += `<td>${emp.Advance || advanceAmount.toFixed(2) || 0}</td>`;
-            text += `<td>${emp.GrossAmount || 0}</td>`;
-            text += `<td>${emp.NetPay || 0}</td>`;
+            // 🔹 Build rows
+            Object.values(grouped).forEach(empRecords => {
+                let emp = empRecords.find(e => e.FromDate === selectedFrom && e.ToDate === selectedTo);
+                if (!emp) {
+                    emp = empRecords[empRecords.length - 1];
+                }
 
-            if (emp.IsGenerated == 1 && isSameRange) {
-                text += `<td>${emp.AmountPaid}</td>`;
-                text += `<td>
+                const isSameRange = (emp.FromDate === selectedFrom && emp.ToDate === selectedTo);
+
+                text += `<tr>`;
+                text += `<td>${emp.emp_name}</td>`;
+                text += `<td>${emp.present_days || 0}</td>`;
+                text += `<td>${emp.wages_amount || 0}</td>`; // ✅ New Column (Wages Amount)
+                text += `<td>${emp.AmountDue || 0}</td>`;
+                text += `<td>${emp.TotalPay || 0}</td>`;
+                // ✅ Get advance amount(s) from AdvanceMasterdata
+                const advanceEntries = AdvanceMasterdata.filter(a => a.EmpID == emp.emp_id);
+                const advanceAmount = advanceEntries.length > 0 ?
+                    advanceEntries.reduce((sum, a) => sum + parseFloat(a.Amount || 0), 0) :
+                    0;
+                text += `<td>${emp.Advance || advanceAmount.toFixed(2) || 0}</td>`;
+                text += `<td>${emp.GrossAmount || 0}</td>`;
+                text += `<td>${emp.NetPay || 0}</td>`;
+
+                if (emp.IsGenerated == 1 && isSameRange) {
+                    text += `<td>${emp.AmountPaid}</td>`;
+                    text += `<td>
                     <button class="btn btn-sm btn-success generate-btn"
                         data-empid="${emp.emp_id}"
                         data-payslipid="${emp.PaySlipID}"
                         data-from="${emp.FromDate}"
                         data-to="${emp.ToDate}">Download PaySlip</button>
                 </td>`;
-            } else {
-                text += `<td>
+                } else {
+                    text += `<td>
                     <input type="number" class="form-control amount-input"
                         id="amount-${emp.emp_id}" placeholder="Enter Amount">
                 </td>`;
-                text += `<td>
+                    text += `<td>
                     <button class="btn btn-sm btn-primary entry-btn"
                         data-empid="${emp.emp_id}"
                         data-empname="${emp.emp_name}"
                         data-present="${emp.present_days || 0}"
+                        data-wages_amount="${emp.wages_amount || 0}"
                         data-inputid="amount-${emp.emp_id}">Generate PaySlip</button>
                 </td>`;
-            }
+                }
 
-            text += `</tr>`;
+                text += `</tr>`;
+            });
+        }
+
+        $("#payslipempAttendance tbody").html(text);
+
+        table.DataTable({
+            responsive: true,
+            pageLength: 10,
+            order: [],
+            destroy: true
         });
     }
-
-    $("#payslipempAttendance tbody").html(text);
-
-    table.DataTable({
-        responsive: true,
-        pageLength: 10,
-        order: [],
-        destroy: true
-    });
-}
 
 
 
@@ -645,6 +728,7 @@ function loaddata(data, AdvanceMasterdata, selectedFrom, selectedTo) {
         emp_id = $(this).data('empid');
         emp_name = $(this).data('empname');
         present_days = $(this).data('present');
+        wages_amount = $(this).data('wages_amount');
 
         // use unique input id
         const inputId = $(this).data('inputid');
@@ -662,6 +746,7 @@ function loaddata(data, AdvanceMasterdata, selectedFrom, selectedTo) {
     });
 
     function submitPaySlipEntry() {
+        debugger;
         // ✅ Get only the clicked employee’s advance amount
         const advanceEntries = AdvanceMasterdata.filter(a => a.EmpID == emp_id);
         const advance = advanceEntries.length > 0 ?
@@ -696,9 +781,10 @@ function loaddata(data, AdvanceMasterdata, selectedFrom, selectedTo) {
                 present_days: present_days,
                 from_date: fromDate,
                 to_date: toDate,
-                total_pay: total_pay,
+                total_pay: (parseFloat(total_pay) || 0) + (parseFloat(wages_amount) || 0),
                 advance: advance, // ✅ only this employee’s advance
-                amount_paid: amountPaid
+                amount_paid: amountPaid,
+                wages_amount: wages_amount
             }
         };
 
